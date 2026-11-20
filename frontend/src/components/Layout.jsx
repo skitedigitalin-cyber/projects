@@ -1,5 +1,4 @@
 import { useContext, useState, useEffect } from 'react';
-import './workspace.css';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { 
@@ -101,34 +100,6 @@ export default function Layout({ children, noPadding = false }) {
             path: '/employee-dashboard',
             icon: <LayoutDashboard size={20} className="text-indigo-600" />
         });
-    }
-
-    if (location.pathname === '/dashboard') {
-        const initials = user?.name?.trim().split(/\s+/).slice(0, 2).map(name => name[0]).join('').toUpperCase();
-        return (
-            <div className="workspace">
-                <header className="workspace-header">
-                    <Link to="/dashboard" className="workspace-brand" aria-label="Skite dashboard">
-                        <span aria-hidden="true" /> skite
-                    </Link>
-                    <nav id="workspace-navigation" className="workspace-nav" aria-label="Main" hidden={isCollapsed}>
-                        {navItems.map(item => (
-                            <Link key={item.id} to={item.path} aria-current={location.pathname === item.path ? 'page' : undefined}>
-                                {item.name}
-                            </Link>
-                        ))}
-                    </nav>
-                    <div className="workspace-tools">
-                        <button type="button" onClick={toggleSidebar} aria-controls="workspace-navigation" aria-expanded={!isCollapsed} title="Toggle navigation (Ctrl+B)" aria-label="Toggle navigation">
-                            {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-                        </button>
-                        <button type="button" onClick={handleLogout} aria-label="Log out" title="Log out"><LogOut size={18} /></button>
-                        <span className="workspace-avatar" title={user?.name}>{initials || <UserRound size={18} />}</span>
-                    </div>
-                </header>
-                <main className="workspace-content">{children}</main>
-            </div>
-        );
     }
 
     return (
