@@ -3,7 +3,7 @@ import axios from 'axios';
 // =========================================================================
 // 🌐 SMART API URL CONFIGURATION (Live Hostinger & Local Development)
 // =========================================================================
-export const LIVE_API_URL = 'https://whitesmoke-goshawk-594665.hostingersite.com';
+export const LIVE_API_URL = 'https://back.skitedigital.in';
 export const LOCAL_API_URL = 'http://localhost:5000';
 
 // When built for production (dist), ALWAYS use LIVE_API_URL.
@@ -30,8 +30,8 @@ axios.interceptors.request.use((config) => {
             } else if (config.url.includes('localhost:5000')) {
                 config.url = config.url.replace(/localhost:5000/g, API_BASE_URL.replace(/^https?:\/\//, ''));
             }
-        } else if (isLocal && config.url.includes('whitesmoke-goshawk-594665.hostingersite.com')) {
-            config.url = config.url.replace(/https:\/\/whitesmoke-goshawk-594665\.hostingersite\.com/g, LOCAL_API_URL);
+        } else if (isLocal && (config.url.includes('whitesmoke-goshawk-594665.hostingersite.com') || config.url.includes('back.skitedigital.in'))) {
+            config.url = config.url.replace(/https:\/\/(whitesmoke-goshawk-594665\.hostingersite\.com|back\.skitedigital\.in)/g, LOCAL_API_URL);
         }
     }
 
