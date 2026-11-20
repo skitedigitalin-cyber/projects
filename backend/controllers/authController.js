@@ -208,6 +208,11 @@ exports.getMe = async (req, res) => {
             invoiceLogo: tenant?.invoiceLogo || '',
             invoiceSign: tenant?.invoiceSign || '',
             invoiceSeal: tenant?.invoiceSeal || '',
+            quotationHeaderImage: tenant?.quotationHeaderImage || '',
+            quotationFooterImage: tenant?.quotationFooterImage || '',
+            quotationSeal: tenant?.quotationSeal || tenant?.invoiceSeal || '',
+            quotationSign: tenant?.quotationSign || tenant?.invoiceSign || '',
+            quotationBankDetails: tenant?.quotationBankDetails || {},
             companyDetails: tenant?.companyDetails || {}
         });
     } catch (error) {
@@ -294,6 +299,80 @@ exports.updateInvoiceBranding = async (req, res) => {
             }
         }
 
+        // Quotation Header Image
+        if (req.body.quotationHeaderImage !== undefined) {
+            const qHeader = req.body.quotationHeaderImage;
+            if (qHeader && qHeader.startsWith('data:image')) {
+                try {
+                    const uploaded = await cloudinary.uploader.upload(qHeader, {
+                        folder: `skite_prime/tenants/${tenantId}/quotations`
+                    });
+                    updateFields.quotationHeaderImage = uploaded.secure_url;
+                } catch (e) {
+                    console.error('Cloudinary upload error for quotation header:', e.message);
+                    updateFields.quotationHeaderImage = qHeader;
+                }
+            } else {
+                updateFields.quotationHeaderImage = qHeader;
+            }
+        }
+
+        // Quotation Footer Image
+        if (req.body.quotationFooterImage !== undefined) {
+            const qFooter = req.body.quotationFooterImage;
+            if (qFooter && qFooter.startsWith('data:image')) {
+                try {
+                    const uploaded = await cloudinary.uploader.upload(qFooter, {
+                        folder: `skite_prime/tenants/${tenantId}/quotations`
+                    });
+                    updateFields.quotationFooterImage = uploaded.secure_url;
+                } catch (e) {
+                    console.error('Cloudinary upload error for quotation footer:', e.message);
+                    updateFields.quotationFooterImage = qFooter;
+                }
+            } else {
+                updateFields.quotationFooterImage = qFooter;
+            }
+        }
+
+        // Quotation Seal
+        if (req.body.quotationSeal !== undefined) {
+            const qSeal = req.body.quotationSeal;
+            if (qSeal && qSeal.startsWith('data:image')) {
+                try {
+                    const uploaded = await cloudinary.uploader.upload(qSeal, {
+                        folder: `skite_prime/tenants/${tenantId}/quotations`
+                    });
+                    updateFields.quotationSeal = uploaded.secure_url;
+                } catch (e) {
+                    updateFields.quotationSeal = qSeal;
+                }
+            } else {
+                updateFields.quotationSeal = qSeal;
+            }
+        }
+
+        // Quotation Sign
+        if (req.body.quotationSign !== undefined) {
+            const qSign = req.body.quotationSign;
+            if (qSign && qSign.startsWith('data:image')) {
+                try {
+                    const uploaded = await cloudinary.uploader.upload(qSign, {
+                        folder: `skite_prime/tenants/${tenantId}/quotations`
+                    });
+                    updateFields.quotationSign = uploaded.secure_url;
+                } catch (e) {
+                    updateFields.quotationSign = qSign;
+                }
+            } else {
+                updateFields.quotationSign = qSign;
+            }
+        }
+
+        if (req.body.quotationBankDetails !== undefined) {
+            updateFields.quotationBankDetails = req.body.quotationBankDetails;
+        }
+
         if (companyDetails !== undefined) updateFields.companyDetails = companyDetails;
         if (req.body.invoiceColor !== undefined) updateFields.invoiceColor = req.body.invoiceColor;
         if (req.body.templateColors !== undefined) updateFields.templateColors = req.body.templateColors;
@@ -312,6 +391,11 @@ exports.updateInvoiceBranding = async (req, res) => {
             invoiceLogo: tenant?.invoiceLogo || '',
             invoiceSign: tenant?.invoiceSign || '',
             invoiceSeal: tenant?.invoiceSeal || '',
+            quotationHeaderImage: tenant?.quotationHeaderImage || '',
+            quotationFooterImage: tenant?.quotationFooterImage || '',
+            quotationSeal: tenant?.quotationSeal || tenant?.invoiceSeal || '',
+            quotationSign: tenant?.quotationSign || tenant?.invoiceSign || '',
+            quotationBankDetails: tenant?.quotationBankDetails || {},
             companyDetails: tenant?.companyDetails || {}
         });
     } catch (error) {
@@ -332,6 +416,11 @@ exports.getInvoiceBranding = async (req, res) => {
             invoiceLogo: tenant?.invoiceLogo || '',
             invoiceSign: tenant?.invoiceSign || '',
             invoiceSeal: tenant?.invoiceSeal || '',
+            quotationHeaderImage: tenant?.quotationHeaderImage || '',
+            quotationFooterImage: tenant?.quotationFooterImage || '',
+            quotationSeal: tenant?.quotationSeal || tenant?.invoiceSeal || '',
+            quotationSign: tenant?.quotationSign || tenant?.invoiceSign || '',
+            quotationBankDetails: tenant?.quotationBankDetails || {},
             companyDetails: tenant?.companyDetails || {}
         });
     } catch (error) {

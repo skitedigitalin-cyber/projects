@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import { LayoutDashboard, Users, UserCog, FileText, ShoppingCart, CreditCard, History, FileCheck, Banknote, Repeat, Receipt } from 'lucide-react';
@@ -15,9 +15,27 @@ import FinanceDashboard from '../components/FinanceDashboard';
 
 export default function Finance() {
     const { user } = useContext(AuthContext);
-    const [activeTab, setActiveTab] = useState('dashboard');
+
+    // Detect Robotriq tenant
+    const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
+    const isRobotriq = Boolean(
+        user?.email?.toLowerCase().includes('robotriq') ||
+        user?.companyName?.toLowerCase().includes('robotriq') ||
+        user?.name?.toLowerCase().includes('robotriq') ||
+        user?.subDomain === 'robotriq' ||
+        String(user?.tenantId?._id || user?.tenantId || '').includes('6afd35731172da4b0de9a48e') ||
+        rawStored.toLowerCase().includes('robotriq')
+    );
+
+    const [activeTab, setActiveTab] = useState(() => isRobotriq ? 'quotations' : 'dashboard');
     const [prefilledTemplateForQuote, setPrefilledTemplateForQuote] = useState(null);
     const [prefilledTemplateForInvoice, setPrefilledTemplateForInvoice] = useState(null);
+
+    useEffect(() => {
+        if (isRobotriq && (activeTab === 'dashboard' || activeTab === 'invoices' || activeTab === 'invoice-history' || activeTab === 'fixed-templates')) {
+            setActiveTab('quotations');
+        }
+    }, [isRobotriq, activeTab]);
 
     // Fixed Templates feature is exclusive to Skite Digital Agency
     const isSkite = 
@@ -27,6 +45,28 @@ export default function Finance() {
         (user?.email && user.email.toLowerCase().includes('skite'));
 
     const renderContent = () => {
+        // Strict Robotriq mode: Only Quotations, Payment Receipts, Customers, Vendors, Purchases
+        if (isRobotriq) {
+            switch (activeTab) {
+                case 'receipts':
+                    return <PaymentManagement />;
+                case 'customers':
+                    return <CustomerManagement />;
+                case 'vendors':
+                    return <VendorManagement />;
+                case 'purchases':
+                    return <PurchaseManagement />;
+                case 'quotations':
+                default:
+                    return (
+                        <QuotationManagement 
+                            initialTemplate={prefilledTemplateForQuote}
+                            onClearInitialTemplate={() => setPrefilledTemplateForQuote(null)}
+                        />
+                    );
+            }
+        }
+
         switch (activeTab) {
             case 'dashboard':
                 return <FinanceDashboard />;
@@ -111,15 +151,27 @@ export default function Finance() {
                     <div className="bg-slate-900 text-white rounded-[1.5rem] p-7 shadow-sm group-hover:shadow-lg transition-all flex justify-between items-center relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl transform group-hover:scale-110 transition-transform duration-700"></div>
                         <div className="relative z-10">
-                            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Finance & Accounting</h1>
-                            <p className="text-slate-400 mt-1.5 font-medium text-sm">Manage customers, vendors, invoices, and payments.</p>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                                {isRobotriq ? 'Quotations & Finance' : 'Finance & Accounting'}
+                            </h1>
+                            <p className="text-slate-400 mt-1.5 font-medium text-sm">
+                                {isRobotriq 
+                                    ? 'Manage company quotations, customers, and payment receipts.' 
+                                    : 'Manage customers, vendors, invoices, and payments.'}
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 {/* Sub Navigation (Floating Pill Strips - Single Line Compact) */}
                 <div className="shrink-0 animate-fade-up delay-100 flex items-center gap-2 overflow-x-auto custom-scrollbar py-1">
-                    {[
+                    {(isRobotriq ? [
+                        { id: 'quotations', label: 'Quotations', icon: FileCheck },
+                        { id: 'receipts', label: 'Payment Receipts', icon: Receipt },
+                        { id: 'customers', label: 'Customers', icon: Users },
+                        { id: 'vendors', label: 'Vendors', icon: UserCog },
+                        { id: 'purchases', label: 'Purchases', icon: ShoppingCart }
+                    ] : [
                         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
                         { id: 'receipts', label: 'Payment Receipts', icon: Receipt },
                         { id: 'invoices', label: 'Invoices', icon: FileText },
@@ -129,7 +181,7 @@ export default function Finance() {
                         { id: 'vendors', label: 'Vendors', icon: UserCog },
                         ...(isSkite ? [{ id: 'fixed-templates', label: 'Fixed Templates', icon: Repeat }] : []),
                         { id: 'purchases', label: 'Purchases', icon: ShoppingCart }
-                    ].map(tab => (
+                    ]).map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}

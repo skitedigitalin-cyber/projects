@@ -1,5 +1,6 @@
 const Student = require('../models/Student');
 const StudentAttendance = require('../models/StudentAttendance');
+const StudentTask = require('../models/StudentTask');
 
 // @desc    Get all students for tenant with summary
 // @route   GET /api/students
@@ -336,5 +337,163 @@ exports.deleteStudentAttendance = async (req, res) => {
     } catch (error) {
         console.error('Error deleting student attendance:', error);
         res.status(500).json({ message: 'Error deleting student attendance', error: error.message });
+    }
+};
+
+// ==========================================
+// STUDENT TASKS CONTROLLER METHODS
+// ==========================================
+
+// @desc    Get all student tasks for tenant
+// @route   GET /api/students/tasks
+exports.getStudentTasks = async (req, res) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        const { search, status, priority, studentId } = req.query;
+
+        let query = { tenantId };
+
+        if (status && status !== 'All') {
+            query.status = status;
+        }
+
+        if (priority && priority !== 'All') {
+            query.priority = priority;
+        }
+
+        if (studentId && studentId !== 'All') {
+            query.studentId = studentId;
+        }
+
+        let tasks = await StudentTask.find(query)
+            .populate('studentId', 'fullName studentId course email phone photo level')
+            .populate('assignedBy', 'name email')
+            .sort({ createdAt: -1 });
+
+        if (search) {
+            const regex = new RegExp(search, 'i');
+            tasks = tasks.filter(t => {
+                const titleMatch = t.title && regex.test(t.title);
+                const descMatch = t.description && regex.test(t.description);
+                const studNameMatch = t.studentId?.fullName && regex.test(t.studentId.fullName);
+                const studIdMatch = t.studentId?.studentId && regex.test(t.studentId.studentId);
+                const courseMatch = t.studentId?.course && regex.test(t.studentId.course);
+                return titleMatch || descMatch || studNameMatch || studIdMatch || courseMatch;
+            });
+        }
+
+        // Summary metrics across all tasks of this tenant
+        const allTasks = await StudentTask.find({ tenantId });
+        const todayStr = new Date().toISOString().split('T')[0];
+        const summary = allTasks.reduce((acc, t) => {
+            acc.totalTasks += 1;
+            if (t.status === 'Pending') acc.pendingTasks += 1;
+            else if (t.status === 'In Progress') acc.inProgressTasks += 1;
+            else if (t.status === 'Completed') acc.completedTasks += 1;
+
+            if (t.dueDate && t.dueDate < todayStr && t.status !== 'Completed') {
+                acc.overdueTasks += 1;
+            }
+            return acc;
+        }, { totalTasks: 0, pendingTasks: 0, inProgressTasks: 0, completedTasks: 0, overdueTasks: 0 });
+
+        res.json({
+            success: true,
+            count: tasks.length,
+            summary,
+            tasks
+        });
+    } catch (error) {
+        console.error('Error fetching student tasks:', error);
+        res.status(500).json({ message: 'Error fetching student tasks', error: error.message });
+    }
+};
+
+// @desc    Create / Assign a new student task
+// @route   POST /api/students/tasks
+exports.createStudentTask = async (req, res) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        const { studentId, title, description, dueDate, priority, status } = req.body;
+
+        if (!studentId || !title) {
+            return res.status(400).json({ message: 'Student and Task Title are required' });
+        }
+
+        const student = await Student.findOne({ _id: studentId, tenantId });
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        const task = new StudentTask({
+            tenantId,
+            studentId,
+            assignedBy: req.user?.userId,
+            title,
+            description: description || '',
+            dueDate: dueDate || '',
+            priority: priority || 'Medium',
+            status: status || 'Pending'
+        });
+
+        await task.save();
+        await task.populate('studentId', 'fullName studentId course email phone photo level');
+
+        res.status(201).json({
+            success: true,
+            message: 'Task assigned to student successfully',
+            task
+        });
+    } catch (error) {
+        console.error('Error assigning student task:', error);
+        res.status(500).json({ message: 'Error assigning student task', error: error.message });
+    }
+};
+
+// @desc    Update a student task
+// @route   PUT /api/students/tasks/:id
+exports.updateStudentTask = async (req, res) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        const updateData = { ...req.body };
+
+        if (updateData.status === 'Completed') {
+            updateData.completedAt = new Date();
+        }
+
+        const task = await StudentTask.findOneAndUpdate(
+            { _id: req.params.id, tenantId },
+            updateData,
+            { new: true }
+        ).populate('studentId', 'fullName studentId course email phone photo level');
+
+        if (!task) {
+            return res.status(404).json({ message: 'Student task not found' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Task updated successfully',
+            task
+        });
+    } catch (error) {
+        console.error('Error updating student task:', error);
+        res.status(500).json({ message: 'Error updating student task', error: error.message });
+    }
+};
+
+// @desc    Delete a student task
+// @route   DELETE /api/students/tasks/:id
+exports.deleteStudentTask = async (req, res) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        const deleted = await StudentTask.findOneAndDelete({ _id: req.params.id, tenantId });
+        if (!deleted) {
+            return res.status(404).json({ message: 'Student task not found' });
+        }
+        res.json({ success: true, message: 'Student task deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting student task:', error);
+        res.status(500).json({ message: 'Error deleting student task', error: error.message });
     }
 };

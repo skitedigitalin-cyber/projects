@@ -47,17 +47,6 @@ export default function Layout({ children, noPadding = false }) {
         navigate('/');
     };
 
-    const allNavItems = [
-        { id: 'dashboard', name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'calendar', name: 'Calendar', path: '/calendar', icon: <CalendarDays size={20} /> },
-        { id: 'sales', name: 'Sales & Leads', path: '/sales', icon: <Briefcase size={20} /> },
-        { id: 'students', name: 'Students', path: '/students', icon: <GraduationCap size={20} /> },
-        { id: 'finance', name: 'Finance', path: '/finance', icon: <FileText size={20} /> },
-        { id: 'accounts', name: 'Accounts', path: '/accounts', icon: <Landmark size={20} /> },
-        { id: 'hr', name: 'Attendance & HR', path: '/hr', icon: <CalendarClock size={20} /> },
-        { id: 'projects', name: 'Team Management', path: '/team-management', icon: <FolderKanban size={20} /> },
-    ];
-
     const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
     const isSkite = 
         user?.isSkiteTenant === true ||
@@ -73,6 +62,17 @@ export default function Layout({ children, noPadding = false }) {
         (user?.name && user.name.toLowerCase().includes('robotriq')) ||
         (user?.email && user.email.toLowerCase().includes('robotriq')) ||
         rawStored.toLowerCase().includes('robotriq');
+
+    const allNavItems = [
+        { id: 'dashboard', name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+        { id: 'calendar', name: 'Calendar', path: '/calendar', icon: <CalendarDays size={20} /> },
+        { id: 'sales', name: 'Sales & Leads', path: '/sales', icon: <Briefcase size={20} /> },
+        { id: 'students', name: 'Students', path: '/students', icon: <GraduationCap size={20} /> },
+        { id: 'finance', name: isRobotriq ? 'Quotations' : 'Finance', path: '/finance', icon: <FileText size={20} /> },
+        { id: 'accounts', name: 'Accounts', path: '/accounts', icon: <Landmark size={20} /> },
+        { id: 'hr', name: 'Attendance & HR', path: '/hr', icon: <CalendarClock size={20} /> },
+        { id: 'projects', name: 'Team Management', path: '/team-management', icon: <FolderKanban size={20} /> },
+    ];
 
     // Filter nav items strictly based on user permissions
     let navItems = [];

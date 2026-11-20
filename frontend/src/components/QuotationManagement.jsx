@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import QuoteRenderer from './quoteTemplates/QuoteRenderer';
 import { generateNativeQuotePdf } from '../utils/quotePdfGenerator';
+import LetterheadQuotationPreview, { DEFAULT_ROBOTRIQ_TERMS } from './quoteTemplates/LetterheadQuotationPreview';
+import { generateLetterheadQuotePdf } from '../utils/letterheadQuotePdfGenerator';
+import { topImage as defaultTopImage, bottomImage as defaultBottomImage, sealImage as defaultSealImage, signImage as defaultSignImage } from '../assets/robotriqImages';
 
 // Quick Preset Services & Packages for Digital Agencies
 const PRESET_SERVICES = [
@@ -32,6 +35,153 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     
     // Editor Workspace Tab: 'split' (side-by-side) | 'input' (form only) | 'preview' (preview only)
     const [editorTab, setEditorTab] = useState('split');
+
+    // Detect Robotriq tenant
+    const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
+    const isRobotriq = 
+        user?.subDomain === 'robotriq' ||
+        String(user?.tenantId?._id || user?.tenantId || '').includes('6afd35731172da4b0de9a48e') ||
+        (user?.companyName && user.companyName.toLowerCase().includes('robotriq')) ||
+        (user?.name && user.name.toLowerCase().includes('robotriq')) ||
+        (user?.email && user.email.toLowerCase().includes('robotriq')) ||
+        rawStored.toLowerCase().includes('robotriq');
+
+    const [internalQuoteFormat, setQuoteFormat] = useState('letterhead');
+    const quoteFormat = isRobotriq ? 'letterhead' : internalQuoteFormat;
+
+    const [branding, setBranding] = useState({
+        quotationHeaderImage: '',
+        quotationFooterImage: '',
+        quotationSeal: '',
+        quotationSign: '',
+        quotationBankDetails: {}
+    });
+
+    // Letterhead quotation state
+    const [letterheadData, setLetterheadData] = useState({
+        date: new Date().toLocaleDateString('en-GB'),
+        quotationNo: '',
+        customerName: '',
+        reference: '',
+        application: '',
+        phone: '',
+        specNote: 'All Items Included as per your Spec.',
+        totalAmount: 0,
+        totalAmountStr: '0.00',
+        transportLabel: 'Transport',
+        transportPercent: 1,
+        transportAmount: 0,
+        transportAmountStr: '0.00',
+        gstLabel: 'GST 18%',
+        gstPercent: 18,
+        gstAmount: 0,
+        gstAmountStr: '0.00',
+        validityLabel: 'Quote Validity(days)',
+        validityDays: '15',
+        netAmountLabel: 'NET AMOUNT',
+        netAmount: 0,
+        netAmountStr: '0.00',
+        bankName: 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+        branch: 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.',
+        bobAc: 'ACC NO : 252511010000242',
+        ifsc: 'IFSC CODE : UBIN0825255',
+        sigThanks: 'Thanking you,',
+        sigFor: 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+        sigName: 'Authorised Signatory',
+        terms: DEFAULT_ROBOTRIQ_TERMS,
+        items: [
+            {
+                sno: 1,
+                componentText: 'DELTA PLC DVP12SE11T 8DI/4DO - 1NOS.\nDELTA DVP16SP11R - 8DI/8DO - 1NOS.\nMULTISPAN SMPS PS24 - 5A - 1NOS.\nDELTA HMI DOP107EV - 1NOS.\nPROGRAMMING, WIRING AND INSTALLATION',
+                make: 'DELTA',
+                specifics: '440VAC',
+                qty: 1,
+                price: '65012.00',
+                amountStr: '65012.00'
+            }
+        ]
+    });
+
+    const recalculateLetterheadTotals = (updatedData) => {
+        const cData = { ...updatedData };
+        const itemsList = cData.items || [];
+        let totalAmt = 0;
+        itemsList.forEach((row, i) => {
+            row.sno = i + 1;
+            const parsedPrice = parseFloat(row.price);
+            const effectivePrice = isNaN(parsedPrice) ? (row.salePrice || 0) : parsedPrice;
+            const qty = parseFloat(row.qty) || 1;
+            const calcAmount = effectivePrice * qty;
+            totalAmt += calcAmount;
+            row.amount = calcAmount;
+            row.amountStr = calcAmount.toFixed(2);
+        });
+
+        const parsedTransport = cData.transportAmountStr !== undefined && !isNaN(parseFloat(cData.transportAmountStr))
+            ? parseFloat(cData.transportAmountStr)
+            : (parseFloat(cData.transportAmount) || ((totalAmt * (cData.transportPercent || 0)) / 100));
+
+        const gstP = cData.gstPercent !== undefined ? cData.gstPercent : 18;
+        const taxableAmt = totalAmt + parsedTransport;
+        const gstAmt = (taxableAmt * gstP) / 100;
+        const netAmt = totalAmt + parsedTransport + gstAmt;
+
+        cData.totalAmount = totalAmt;
+        cData.totalAmountStr = totalAmt.toFixed(2);
+        cData.transportAmount = parsedTransport;
+        cData.transportAmountStr = parsedTransport.toFixed(2);
+        cData.gstPercent = gstP;
+        cData.gstAmount = gstAmt;
+        cData.gstLabel = `GST ${gstP}%`;
+        cData.gstAmountStr = gstAmt.toFixed(2);
+        cData.netAmount = netAmt;
+        cData.netAmountStr = netAmt.toFixed(2);
+        return cData;
+    };
+
+    const handleLetterheadChange = (field, val) => {
+        setLetterheadData(prev => {
+            const next = { ...prev, [field]: val };
+            if (field === 'transportAmountStr' || field === 'gstPercent') {
+                return recalculateLetterheadTotals(next);
+            }
+            return next;
+        });
+    };
+
+    const handleLetterheadItemChange = (idx, field, val) => {
+        setLetterheadData(prev => {
+            const newItems = [...(prev.items || [])];
+            newItems[idx] = { ...newItems[idx], [field]: val };
+            return recalculateLetterheadTotals({ ...prev, items: newItems });
+        });
+    };
+
+    const handleAddLetterheadItem = () => {
+        setLetterheadData(prev => {
+            const newItems = [
+                ...(prev.items || []),
+                {
+                    sno: (prev.items?.length || 0) + 1,
+                    componentText: '',
+                    make: '',
+                    specifics: '',
+                    qty: 1,
+                    price: '',
+                    amountStr: '0.00'
+                }
+            ];
+            return recalculateLetterheadTotals({ ...prev, items: newItems });
+        });
+    };
+
+    const handleRemoveLetterheadItem = (idx) => {
+        if ((letterheadData.items || []).length <= 1) return;
+        setLetterheadData(prev => {
+            const newItems = prev.items.filter((_, i) => i !== idx);
+            return recalculateLetterheadTotals({ ...prev, items: newItems });
+        });
+    };
 
     // Data States
     const [quotes, setQuotes] = useState([]);
@@ -160,6 +310,34 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 sign: res.data?.invoiceSign || '',
                 seal: res.data?.invoiceSeal || ''
             });
+
+            // Set Quotation Letterhead Branding
+            const qHeader = res.data?.quotationHeaderImage || localStorage.getItem('quotation-header-image') || defaultTopImage;
+            const qFooter = res.data?.quotationFooterImage || localStorage.getItem('quotation-footer-image') || defaultBottomImage;
+            const qSeal = res.data?.quotationSeal || res.data?.invoiceSeal || localStorage.getItem('quotation-seal-image') || defaultSealImage;
+            const qSign = res.data?.quotationSign || res.data?.invoiceSign || localStorage.getItem('quotation-sign-image') || defaultSignImage;
+            const qBank = res.data?.quotationBankDetails || {};
+
+            setBranding({
+                quotationHeaderImage: qHeader,
+                quotationFooterImage: qFooter,
+                quotationSeal: qSeal,
+                quotationSign: qSign,
+                quotationBankDetails: qBank
+            });
+
+            if (qBank && Object.keys(qBank).length > 0) {
+                setLetterheadData(prev => ({
+                    ...prev,
+                    bankName: qBank.bankName || prev.bankName,
+                    branch: qBank.branch || prev.branch,
+                    bobAc: qBank.bobAc || prev.bobAc,
+                    ifsc: qBank.ifsc || prev.ifsc,
+                    sigThanks: qBank.sigThanks || prev.sigThanks,
+                    sigFor: qBank.sigFor || prev.sigFor,
+                    sigName: qBank.sigName || prev.sigName
+                }));
+            }
         } catch (e) {
             console.error('Tenant fetch error:', e);
         }
@@ -180,6 +358,12 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         fetchTenantProfile();
         fetchFixedTemplates();
     }, []);
+
+    useEffect(() => {
+        if (isRobotriq) {
+            setQuoteFormat('letterhead');
+        }
+    }, [isRobotriq]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -205,6 +389,21 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     // Generate Next Quote Number Helper
     const generateNextQuoteNo = (quotesList) => {
         let maxNum = 0;
+        const currentYear = new Date().getFullYear();
+
+        if (isRobotriq || quoteFormat === 'letterhead') {
+            (quotesList || []).forEach(q => {
+                if (!q.quoteNo) return;
+                const match = q.quoteNo.match(/RQ\/(\d{4})\/(\d+)/i) || q.quoteNo.match(/(\d+)/g);
+                if (match) {
+                    const num = parseInt(match[match.length - 1], 10);
+                    if (!isNaN(num) && num > maxNum) maxNum = num;
+                }
+            });
+            const nextNum = maxNum > 0 ? maxNum + 1 : 101;
+            return `RQ/${currentYear}/${nextNum}`;
+        }
+
         const isSkite = user?.isSkiteTenant || user?.companyName?.toLowerCase().includes('skite') || user?.email?.includes('skite') || company?.name?.toLowerCase().includes('skite');
         const compName = user?.companyName || company?.name || '';
         const rawPrefix = compName.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase();
@@ -273,7 +472,64 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     }, [initialTemplate]);
 
     // Open Editor for Creating New Quote
-    const handleOpenCreateEditor = () => {
+    const handleOpenCreateEditor = (formatOverride) => {
+        const chosenFormat = (typeof formatOverride === 'string' && (formatOverride === 'letterhead' || formatOverride === 'standard'))
+            ? formatOverride
+            : (isRobotriq ? 'letterhead' : 'standard');
+
+        setQuoteFormat(chosenFormat);
+
+        if (chosenFormat === 'letterhead') {
+            const nextNo = generateNextQuoteNo(quotes);
+            setEditId(null);
+            setLetterheadData(recalculateLetterheadTotals({
+                date: new Date().toLocaleDateString('en-GB'),
+                quotationNo: nextNo,
+                customerName: '',
+                reference: '',
+                application: '',
+                phone: '',
+                specNote: 'All Items Included as per your Spec.',
+                totalAmount: 0,
+                totalAmountStr: '0.00',
+                transportLabel: 'Transport',
+                transportPercent: 1,
+                transportAmount: 0,
+                transportAmountStr: '0.00',
+                gstLabel: 'GST 18%',
+                gstPercent: 18,
+                gstAmount: 0,
+                gstAmountStr: '0.00',
+                validityLabel: 'Quote Validity(days)',
+                validityDays: '15',
+                netAmountLabel: 'NET AMOUNT',
+                netAmount: 0,
+                netAmountStr: '0.00',
+                bankName: branding.quotationBankDetails?.bankName || 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+                branch: branding.quotationBankDetails?.branch || 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.',
+                bobAc: branding.quotationBankDetails?.bobAc || 'ACC NO : 252511010000242',
+                ifsc: branding.quotationBankDetails?.ifsc || 'IFSC CODE : UBIN0825255',
+                sigThanks: branding.quotationBankDetails?.sigThanks || 'Thanking you,',
+                sigFor: branding.quotationBankDetails?.sigFor || 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+                sigName: branding.quotationBankDetails?.sigName || 'Authorised Signatory',
+                terms: DEFAULT_ROBOTRIQ_TERMS,
+                items: [
+                    {
+                        sno: 1,
+                        componentText: '',
+                        make: '',
+                        specifics: '',
+                        qty: 1,
+                        price: '',
+                        amountStr: '0.00'
+                    }
+                ]
+            }));
+            setSaveSuccessNotice('');
+            setViewMode('editor');
+            return;
+        }
+
         const nextNo = generateNextQuoteNo(quotes);
         setEditId(null);
         setQuoteNo(nextNo);
@@ -310,9 +566,68 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         setViewMode('editor');
     };
 
+    // Switch between Letterhead and Standard formats inside editor
+    const handleSwitchFormat = (newFormat) => {
+        setQuoteFormat(newFormat);
+        if (newFormat === 'letterhead') {
+            const nextNo = generateNextQuoteNo(quotes);
+            setLetterheadData(prev => recalculateLetterheadTotals({
+                ...prev,
+                quotationNo: prev.quotationNo || quoteNo || nextNo,
+                customerName: prev.customerName || customerName || '',
+                reference: prev.reference || refNo || customerName || '',
+                phone: prev.phone || customerPhone || '',
+                terms: prev.terms && prev.terms.length > 0 ? prev.terms : DEFAULT_ROBOTRIQ_TERMS
+            }));
+        }
+    };
+
     // Open Editor for Editing an Existing Quote
     const handleOpenEditEditor = (quote) => {
         setEditId(quote._id);
+
+        if (quote.templateType === 'letterhead' || (quote.customData && Object.keys(quote.customData).length > 0) || isRobotriq) {
+            setQuoteFormat('letterhead');
+            const cData = quote.customData || {};
+            setLetterheadData(recalculateLetterheadTotals({
+                ...cData,
+                quotationNo: quote.quoteNo || cData.quotationNo || '',
+                date: cData.date || (quote.date ? new Date(quote.date).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')),
+                customerName: cData.customerName || quote.clientDetails?.name || '',
+                reference: cData.reference || quote.refNo || '',
+                phone: cData.phone || quote.clientDetails?.phone || '',
+                application: cData.application || '',
+                specNote: cData.specNote || quote.notes || 'All Items Included as per your Spec.',
+                totalAmountStr: cData.totalAmountStr || String(quote.subtotal || ''),
+                transportAmountStr: cData.transportAmountStr || '0.00',
+                gstPercent: cData.gstPercent || quote.taxRate || 18,
+                gstAmountStr: cData.gstAmountStr || String(quote.taxAmount || '0.00'),
+                validityDays: cData.validityDays || 15,
+                netAmountStr: cData.netAmountStr || String(quote.grandTotal || ''),
+                bankName: cData.bankName || branding.quotationBankDetails?.bankName || 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+                branch: cData.branch || branding.quotationBankDetails?.branch || 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.',
+                bobAc: cData.bobAc || branding.quotationBankDetails?.bobAc || 'ACC NO : 252511010000242',
+                ifsc: cData.ifsc || branding.quotationBankDetails?.ifsc || 'IFSC CODE : UBIN0825255',
+                sigThanks: cData.sigThanks || branding.quotationBankDetails?.sigThanks || 'Thanking you,',
+                sigFor: cData.sigFor || branding.quotationBankDetails?.sigFor || 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+                sigName: cData.sigName || branding.quotationBankDetails?.sigName || 'Authorised Signatory',
+                terms: cData.terms && cData.terms.length > 0 ? cData.terms : DEFAULT_ROBOTRIQ_TERMS,
+                items: cData.items && cData.items.length > 0 ? cData.items : (quote.items || []).map((it, idx) => ({
+                    sno: idx + 1,
+                    componentText: it.description || '',
+                    make: it.hsn || '',
+                    specifics: it.subDescription || '',
+                    qty: it.qty || 1,
+                    price: String(it.price || 0),
+                    amountStr: String(it.total || 0)
+                }))
+            }));
+            setSaveSuccessNotice('');
+            setViewMode('editor');
+            return;
+        }
+
+        setQuoteFormat('standard');
         setQuoteNo(quote.quoteNo || '');
         setRefNo(quote.refNo || '');
         setQuoteDate(quote.date ? new Date(quote.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
@@ -449,6 +764,62 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
 
     // Save Quotation Handler
     const handleSaveQuote = async () => {
+        if (quoteFormat === 'letterhead') {
+            if (!letterheadData.customerName && !letterheadData.reference) {
+                alert('Please enter a Customer Name or Company Name.');
+                return;
+            }
+            try {
+                setSavingQuote(true);
+                const payload = {
+                    quoteNo: letterheadData.quotationNo || generateNextQuoteNo(quotes),
+                    refNo: letterheadData.reference || '',
+                    date: new Date(),
+                    clientDetails: {
+                        name: letterheadData.customerName || letterheadData.reference || 'Customer',
+                        phone: letterheadData.phone || '',
+                        address: '',
+                        gst: '',
+                        email: ''
+                    },
+                    items: (letterheadData.items || []).map((it, idx) => ({
+                        description: (it.componentText || '').split('\n')[0] || `Component ${idx + 1}`,
+                        subDescription: (it.componentText || '').split('\n').slice(1).join('\n').trim(),
+                        hsn: it.make || '',
+                        price: Number(it.price) || 0,
+                        qty: Number(it.qty) || 1,
+                        total: Number(it.amountStr) || ((Number(it.price) || 0) * (Number(it.qty) || 1))
+                    })),
+                    subtotal: Number(letterheadData.totalAmount) || 0,
+                    taxRate: Number(letterheadData.gstPercent) || 18,
+                    cgst: Math.round((Number(letterheadData.gstAmount) || 0) / 2),
+                    sgst: Math.round((Number(letterheadData.gstAmount) || 0) / 2),
+                    taxAmount: Number(letterheadData.gstAmount) || 0,
+                    grandTotal: Number(letterheadData.netAmount) || 0,
+                    templateType: 'letterhead',
+                    customData: letterheadData,
+                    notes: letterheadData.specNote || '',
+                    status: quoteStatus || 'Sent'
+                };
+
+                if (editId) {
+                    await axios.put(`http://localhost:5000/api/quotes/${editId}`, payload, { headers: getHeaders() });
+                } else {
+                    await axios.post('http://localhost:5000/api/quotes', payload, { headers: getHeaders() });
+                }
+
+                setSaveSuccessNotice(editId ? 'Quotation updated successfully!' : 'Quotation created successfully!');
+                await fetchQuotes();
+                setTimeout(() => setViewMode('list'), 700);
+            } catch (err) {
+                console.error('Error saving quotation:', err);
+                alert(err.response?.data?.message || 'Failed to save quotation');
+            } finally {
+                setSavingQuote(false);
+            }
+            return;
+        }
+
         if (!customerName || customerName.trim() === '') {
             alert('Please enter or select a Client / Company Name.');
             return;
@@ -541,6 +912,10 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     const handleDownloadEditorPdf = async () => {
         try {
             setSavingQuote(true);
+            if (quoteFormat === 'letterhead') {
+                await generateLetterheadQuotePdf(letterheadData, branding);
+                return;
+            }
             const safeName = (customerName || 'Client').replace(/[^a-zA-Z0-9]/g, '_');
             const safeQuoteNo = (quoteNo || 'Quotation').replace(/[^a-zA-Z0-9_-]/g, '_');
             const fileName = `${safeQuoteNo}_${safeName}`;
@@ -557,6 +932,10 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     const handleDownloadRowPdf = async (quote) => {
         try {
             setRowDownloadingId(quote._id);
+            if (isRobotriq || quote.templateType === 'letterhead' || (quote.customData && Object.keys(quote.customData).length > 0)) {
+                await generateLetterheadQuotePdf(quote.customData || quote, branding);
+                return;
+            }
             const safeName = (quote.clientDetails?.name || 'Client').replace(/[^a-zA-Z0-9]/g, '_');
             const safeQuoteNo = (quote.quoteNo || 'Quotation').replace(/[^a-zA-Z0-9_-]/g, '_');
             const fileName = `${safeQuoteNo}_${safeName}`;
@@ -687,6 +1066,32 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2.5">
+                        {/* Format Switcher (Only for non-Robotriq tenants) */}
+                        {!isRobotriq && (
+                            <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold mr-1">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSwitchFormat('letterhead')}
+                                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                                        quoteFormat === 'letterhead' ? 'bg-teal-700 text-white shadow-xs font-black' : 'text-slate-600 hover:text-slate-900'
+                                    }`}
+                                    title="2-Page Robotriq Letterhead Format"
+                                >
+                                    <span>Letterhead</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleSwitchFormat('standard')}
+                                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                                        quoteFormat === 'standard' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-600 hover:text-slate-900'
+                                    }`}
+                                    title="Standard Agency / GST Quotation Template"
+                                >
+                                    <span>Standard</span>
+                                </button>
+                            </div>
+                        )}
+
                         {/* View Switcher: Split View / Input Tab / Preview Tab */}
                         <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold mr-1">
                             <button
@@ -724,8 +1129,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             </button>
                         </div>
 
-                        {/* Quick Load Fixed Template Dropdown */}
-                        {fixedTemplates.length > 0 && (
+                        {/* Quick Load Fixed Template Dropdown (Non-Robotriq only) */}
+                        {fixedTemplates.length > 0 && !isRobotriq && (
                             <div className="relative inline-block" ref={templateDropdownRef}>
                                 <button
                                     type="button"
@@ -819,8 +1224,285 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 )}
 
                 {/* ========================================================
-                    WORKSPACE CONTENT BASED ON SELECTED TAB
+                    WORKSPACE CONTENT BASED ON SELECTED TAB & FORMAT
                     ======================================================== */}
+                {quoteFormat === 'letterhead' ? (
+                    <div className={`grid gap-8 items-start ${
+                        editorTab === 'split' ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1'
+                    }`}>
+                        {/* LEFT COLUMN: Letterhead Form Controls (Visible when editorTab is 'split' or 'input') */}
+                        {(editorTab === 'split' || editorTab === 'input') && (
+                            <div className={`space-y-6 ${editorTab === 'split' ? 'lg:col-span-5' : 'max-w-4xl mx-auto w-full'}`}>
+                                {/* Card 1: Quotation & Client Details */}
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                        <h3 className="text-sm font-black text-teal-700 uppercase tracking-wider flex items-center gap-2">
+                                            <Building2 size={16} />
+                                            <span>Quotation & Client Details</span>
+                                        </h3>
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 uppercase">
+                                            2-Page Letterhead
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Quotation No</label>
+                                            <input 
+                                                type="text" 
+                                                value={letterheadData.quotationNo || ''} 
+                                                onChange={(e) => handleLetterheadChange('quotationNo', e.target.value)} 
+                                                placeholder="e.g. RQ/2026/101" 
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold focus:outline-none focus:border-teal-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Date</label>
+                                            <input 
+                                                type="text" 
+                                                value={letterheadData.date || ''} 
+                                                onChange={(e) => handleLetterheadChange('date', e.target.value)} 
+                                                placeholder="DD/MM/YYYY" 
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-teal-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Company Name (Ref)</label>
+                                            <input 
+                                                type="text" 
+                                                value={letterheadData.reference || ''} 
+                                                onChange={(e) => handleLetterheadChange('reference', e.target.value)} 
+                                                placeholder="e.g. ATLAS MACHINE TOOLS" 
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-teal-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Customer / Attn</label>
+                                            <input 
+                                                type="text" 
+                                                value={letterheadData.customerName || ''} 
+                                                onChange={(e) => handleLetterheadChange('customerName', e.target.value)} 
+                                                placeholder="e.g. Mr. Abilash" 
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-teal-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Application</label>
+                                            <input 
+                                                type="text" 
+                                                value={letterheadData.application || ''} 
+                                                onChange={(e) => handleLetterheadChange('application', e.target.value)} 
+                                                placeholder="e.g. DRILLING SPM" 
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-teal-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Phone Number</label>
+                                            <input 
+                                                type="text" 
+                                                value={letterheadData.phone || ''} 
+                                                onChange={(e) => handleLetterheadChange('phone', e.target.value)} 
+                                                placeholder="e.g. 9876543210" 
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-teal-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Card 2: Components & Items */}
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                        <h3 className="text-sm font-black text-teal-700 uppercase tracking-wider flex items-center gap-2">
+                                            <Columns size={16} />
+                                            <span>Components Table ({letterheadData.items?.length || 0})</span>
+                                        </h3>
+                                        <button
+                                            type="button"
+                                            onClick={handleAddLetterheadItem}
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                        >
+                                            <Plus size={13} />
+                                            <span>Add Component</span>
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {(letterheadData.items || []).map((item, idx) => (
+                                            <div key={idx} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5 relative group">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold text-xs text-slate-700">Component #{idx + 1}</span>
+                                                    {letterheadData.items.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveLetterheadItem(idx)}
+                                                            className="text-slate-400 hover:text-red-600 p-1 rounded-lg transition-colors cursor-pointer"
+                                                            title="Delete component"
+                                                        >
+                                                            <Trash2 size={13} />
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Component / Specification (Multiline)</label>
+                                                    <textarea
+                                                        rows={3}
+                                                        value={item.componentText || ''}
+                                                        onChange={(e) => handleLetterheadItemChange(idx, 'componentText', e.target.value)}
+                                                        placeholder="DELTA PLC DVP12SE11T - 1NOS..."
+                                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-900 bg-white focus:outline-none focus:border-teal-500"
+                                                    />
+                                                </div>
+
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                                    <div>
+                                                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Make</label>
+                                                        <input
+                                                            type="text"
+                                                            value={item.make || ''}
+                                                            onChange={(e) => handleLetterheadItemChange(idx, 'make', e.target.value)}
+                                                            placeholder="DELTA"
+                                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white focus:outline-none focus:border-teal-500"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Specifics</label>
+                                                        <input
+                                                            type="text"
+                                                            value={item.specifics || ''}
+                                                            onChange={(e) => handleLetterheadItemChange(idx, 'specifics', e.target.value)}
+                                                            placeholder="440VAC"
+                                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white focus:outline-none focus:border-teal-500"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Unit / Qty</label>
+                                                        <input
+                                                            type="number"
+                                                            value={item.qty != null ? item.qty : 1}
+                                                            onChange={(e) => handleLetterheadItemChange(idx, 'qty', e.target.value)}
+                                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white text-center font-bold focus:outline-none focus:border-teal-500"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Rate / Price (₹)</label>
+                                                        <input
+                                                            type="text"
+                                                            value={item.price || ''}
+                                                            onChange={(e) => handleLetterheadItemChange(idx, 'price', e.target.value)}
+                                                            placeholder="0.00"
+                                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white text-right font-bold focus:outline-none focus:border-teal-500"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Card 3: Commercials & Taxes */}
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                                    <h3 className="text-sm font-black text-teal-700 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                                        <DollarSign size={16} />
+                                        <span>Commercials & Taxes</span>
+                                    </h3>
+
+                                    <div className="space-y-3 text-xs">
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Special Specification Note</label>
+                                            <input
+                                                type="text"
+                                                value={letterheadData.specNote || ''}
+                                                onChange={(e) => handleLetterheadChange('specNote', e.target.value)}
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold text-red-600 focus:outline-none focus:border-teal-500"
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Transport Amount (₹)</label>
+                                                <input
+                                                    type="text"
+                                                    value={letterheadData.transportAmountStr || '0.00'}
+                                                    onChange={(e) => handleLetterheadChange('transportAmountStr', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold focus:outline-none focus:border-teal-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">GST Tax Rate (%)</label>
+                                                <input
+                                                    type="number"
+                                                    value={letterheadData.gstPercent != null ? letterheadData.gstPercent : 18}
+                                                    onChange={(e) => handleLetterheadChange('gstPercent', Number(e.target.value))}
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold focus:outline-none focus:border-teal-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Quote Validity (Days)</label>
+                                                <input
+                                                    type="text"
+                                                    value={letterheadData.validityDays || '15'}
+                                                    onChange={(e) => handleLetterheadChange('validityDays', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold text-center focus:outline-none focus:border-teal-500"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Summary Net Total */}
+                                        <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-xl space-y-2">
+                                            <div className="flex justify-between items-center text-slate-700 font-semibold">
+                                                <span>Components Total:</span>
+                                                <span className="font-mono font-bold text-slate-900">₹{letterheadData.totalAmountStr || '0.00'}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-slate-700 font-semibold">
+                                                <span>Transport:</span>
+                                                <span className="font-mono font-bold text-slate-900">₹{letterheadData.transportAmountStr || '0.00'}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-slate-700 font-semibold">
+                                                <span>GST ({letterheadData.gstPercent || 18}%):</span>
+                                                <span className="font-mono font-bold text-slate-900">₹{letterheadData.gstAmountStr || '0.00'}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-base font-black text-teal-900 pt-2 border-t border-teal-200">
+                                                <span>NET QUOTE AMOUNT:</span>
+                                                <span className="font-mono text-lg text-teal-800">₹{letterheadData.netAmountStr || '0.00'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* RIGHT COLUMN: Live Interactive Letterhead Canvas (Visible when editorTab is 'split' or 'preview') */}
+                        {(editorTab === 'split' || editorTab === 'preview') && (
+                            <div className={`${editorTab === 'split' ? 'lg:col-span-7' : 'max-w-5xl mx-auto w-full'} flex flex-col items-center`}>
+                                <div className="w-full flex items-center justify-between p-3.5 bg-slate-900 text-white rounded-2xl shadow-xs mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></div>
+                                        <span className="text-xs font-black tracking-wide uppercase">2-Page Interactive Letterhead Canvas</span>
+                                    </div>
+                                    <div className="text-[11px] text-slate-300 font-medium hidden sm:block">
+                                        Click directly on the letterhead fields to edit in-place
+                                    </div>
+                                </div>
+
+                                <div className="w-full overflow-x-auto flex justify-center bg-slate-200/60 p-4 rounded-3xl border border-slate-300 shadow-inner">
+                                    <LetterheadQuotationPreview 
+                                        data={letterheadData}
+                                        onChange={handleLetterheadChange}
+                                        onItemChange={handleLetterheadItemChange}
+                                        onAddItem={handleAddLetterheadItem}
+                                        onRemoveItem={handleRemoveLetterheadItem}
+                                        headerImage={branding.quotationHeaderImage}
+                                        footerImage={branding.quotationFooterImage}
+                                        sealImage={branding.quotationSeal}
+                                        signImage={branding.quotationSign}
+                                        readOnly={false}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
                 <div className={`grid gap-8 items-start ${
                     editorTab === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
                 }`}>
@@ -1224,6 +1906,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                     )}
 
                 </div>
+                )}
             </div>
         );
     }
@@ -1331,8 +2014,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 </div>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                    {/* Quick Load Fixed Template in List view */}
-                    {fixedTemplates.length > 0 && (
+                    {/* Quick Load Fixed Template in List view (Non-Robotriq only) */}
+                    {fixedTemplates.length > 0 && !isRobotriq && (
                         <div className="relative inline-block" ref={templateDropdownRef}>
                             <button
                                 type="button"
@@ -1378,8 +2061,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
 
                     {/* Create Quotation Button: Opens Workspace! */}
                     <button 
-                        onClick={handleOpenCreateEditor}
-                        className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black flex items-center justify-center transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+                        onClick={() => handleOpenCreateEditor(isRobotriq ? 'letterhead' : 'standard')}
+                        className="w-full sm:w-auto px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black flex items-center justify-center transition-all shadow-md shadow-teal-500/20 cursor-pointer"
                     >
                         <Plus size={16} className="mr-1.5" /> Create Quotation
                     </button>
@@ -1421,9 +2104,19 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                         <td className="py-3.5 px-4 font-mono font-bold text-blue-600">
                                             {quote.quoteNo}
                                             {quote.refNo && <span className="ml-1 text-[10px] text-slate-400">({quote.refNo})</span>}
+                                            {quote.templateType === 'letterhead' && (
+                                                <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-teal-100 text-teal-800">
+                                                    Letterhead
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="py-3.5 px-4">
-                                            <div className="font-bold text-slate-900">{quote.clientDetails?.name || 'N/A'}</div>
+                                            <div className="font-bold text-slate-900">
+                                                {quote.clientDetails?.name || quote.customData?.reference || quote.customData?.customerName || 'N/A'}
+                                            </div>
+                                            {quote.customData?.reference && quote.customData?.customerName && (
+                                                <div className="text-[11px] text-slate-500 font-medium">Attn: {quote.customData.customerName}</div>
+                                            )}
                                             {quote.clientDetails?.gst && (
                                                 <div className="text-[10px] text-slate-400 font-mono">GST: {quote.clientDetails.gst}</div>
                                             )}
@@ -1573,13 +2266,26 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             </div>
                         </div>
 
-                        {/* Modal Body: QuoteRenderer */}
+                        {/* Modal Body: QuoteRenderer / LetterheadQuotationPreview */}
                         <div className="p-6 overflow-y-auto flex-1 bg-slate-100/60">
                             <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-xs bg-white">
-                                <QuoteRenderer 
-                                    quote={viewingQuote} 
-                                    company={company} 
-                                />
+                                {isRobotriq || viewingQuote.templateType === 'letterhead' || (viewingQuote.customData && Object.keys(viewingQuote.customData).length > 0) ? (
+                                    <div className="p-4 flex justify-center bg-slate-200/50 overflow-x-auto">
+                                        <LetterheadQuotationPreview 
+                                            data={viewingQuote.customData || viewingQuote}
+                                            headerImage={branding.quotationHeaderImage}
+                                            footerImage={branding.quotationFooterImage}
+                                            sealImage={branding.quotationSeal}
+                                            signImage={branding.quotationSign}
+                                            readOnly={true}
+                                        />
+                                    </div>
+                                ) : (
+                                    <QuoteRenderer 
+                                        quote={viewingQuote} 
+                                        company={company} 
+                                    />
+                                )}
                             </div>
                         </div>
 

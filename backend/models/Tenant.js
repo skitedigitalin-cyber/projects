@@ -65,6 +65,26 @@ const tenantSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    quotationHeaderImage: {
+        type: String,
+        default: ''
+    },
+    quotationFooterImage: {
+        type: String,
+        default: ''
+    },
+    quotationSeal: {
+        type: String,
+        default: ''
+    },
+    quotationSign: {
+        type: String,
+        default: ''
+    },
+    quotationBankDetails: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
+    },
     companyDetails: {
         type: mongoose.Schema.Types.Mixed,
         default: {}

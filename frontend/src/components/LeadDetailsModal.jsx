@@ -37,8 +37,8 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
         try {
             const payload = {
                 callStatus,
-                callbackAlertDate: (callStatus.includes('Callback') || callStatus === 'Not Attend') ? alertDate : '',
-                callbackAlertTime: (callStatus.includes('Callback') || callStatus === 'Not Attend') ? alertTime : '',
+                callbackAlertDate: (callStatus.includes('Callback') || callStatus.toLowerCase().includes('not attend')) ? alertDate : '',
+                callbackAlertTime: (callStatus.includes('Callback') || callStatus.toLowerCase().includes('not attend')) ? alertTime : '',
                 callback1Description: descriptions['Callback (1)'],
                 callback2Description: descriptions['Callback (2)'],
                 callback3Description: descriptions['Callback (3)'],
@@ -52,10 +52,12 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                 if (!lead.rejectedFromStage) {
                     payload.rejectedFromStage = lead.leadStatus || 'Leads';
                 }
-            } else if (callStatus === 'Not Attend' || callStatus.includes('Callback')) {
+            } else if (callStatus.toLowerCase().includes('not attend') || callStatus.includes('Callback')) {
                 payload.leadStatus = 'Contacted';
-            } else if (callStatus === 'Lead') {
+            } else if (callStatus === 'Lead' || callStatus === 'Pending') {
                 payload.leadStatus = 'New';
+            } else if (callStatus.includes('Attend')) {
+                payload.leadStatus = 'Contacted';
             }
 
             const res = await axios.put(`http://localhost:5000/api/leads/${lead._id}`, payload, {
@@ -144,7 +146,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
     };
 
     const renderCallStatus = () => {
-        const needsDateTime = callStatus.includes('Callback') || callStatus === 'Not Attend';
+        const needsDateTime = callStatus.includes('Callback') || callStatus.toLowerCase().includes('not attend');
         
         return (
             <div className="space-y-5">
@@ -155,7 +157,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                         onChange={(e) => setCallStatus(e.target.value)}
                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                     >
-                        {['Lead', 'Not Attend', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Rejected'].map(s => (
+                        {['Lead', 'Attend 1', 'Attend 2', 'Not Attend', 'Not Attend 1', 'Not Attend 2', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Rejected'].map(s => (
                             <option key={s} value={s}>{s}</option>
                         ))}
                     </select>
@@ -503,7 +505,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                                 <div className="flex justify-between"><span className="text-gray-500">Source:</span> <span className="font-medium text-gray-800">{lead.leadSource}</span></div>
                                 <div className="flex justify-between"><span className="text-gray-500">Status:</span> <span className="font-medium text-blue-600 bg-blue-50 px-2 rounded">{lead.leadStatus}</span></div>
                                 <div className="flex justify-between"><span className="text-gray-500">Call Status:</span> <span className="font-medium text-gray-800">{lead.callStatus || 'Lead'}</span></div>
-                                <div className="flex justify-between"><span className="text-gray-500">Value:</span> <span className="font-bold text-gray-800">${(lead.leadValue || 0).toLocaleString()}</span></div>
+                                <div className="flex justify-between"><span className="text-gray-500">Value:</span> <span className="font-bold text-gray-800">₹{(lead.leadValue || 0).toLocaleString()}</span></div>
                             </div>
                         </div>
                         

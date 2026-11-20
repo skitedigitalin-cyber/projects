@@ -34,30 +34,30 @@ exports.createQuote = async (req, res) => {
         // Auto-generate quote number if not provided
         if (!quoteNo || quoteNo.trim() === '') {
             const count = await Quote.countDocuments({ tenantId: req.user.tenantId });
-            quoteNo = `SKT-Q${(count + 1).toString().padStart(3, '0')}`;
+            quoteNo = `RQ/2026/${(count + 1).toString().padStart(3, '0')}`;
         }
 
         // Calculate totals if not provided or to ensure accuracy
         let calcSubtotal = 0;
         const processedItems = (items || [])
-            .filter(item => item && item.description && item.description.trim() !== '')
-            .map(item => {
-                const price = Number(item.price) || 0;
+            .map((item, idx) => {
+                const desc = item.description || item.componentText || `Item ${idx + 1}`;
+                const price = Number(item.price) || Number(item.rate) || 0;
                 const qty = Number(item.qty) || 1;
-                const itemTotal = Number(item.total) || (price * qty);
+                const itemTotal = Number(item.total) || Number(item.amount) || (price * qty);
                 calcSubtotal += itemTotal;
                 return {
-                    description: item.description.trim(),
-                    subDescription: item.subDescription || '',
-                    hsn: item.hsn || '',
+                    description: desc.trim(),
+                    subDescription: item.subDescription || item.specifics || '',
+                    hsn: item.hsn || item.make || '',
                     price,
                     qty,
                     total: itemTotal
                 };
             });
 
-        if (processedItems.length === 0) {
-            return res.status(400).json({ message: 'At least one quotation item with a description is required' });
+        if (processedItems.length === 0 && (!req.body.customData || !req.body.customData.items?.length)) {
+            return res.status(400).json({ message: 'At least one quotation item is required' });
         }
 
         const effectiveSubtotal = subtotal != null ? Number(subtotal) : calcSubtotal;
@@ -82,8 +82,10 @@ exports.createQuote = async (req, res) => {
             sgst: effectiveSgst,
             taxAmount: effectiveTaxAmount,
             grandTotal: effectiveGrandTotal,
-            terms: terms || '50% advance payment required to start the project.\nFinal 50% on project completion before deployment.',
+            terms: terms || '',
             status: status || 'Sent',
+            templateType: req.body.templateType || 'standard',
+            customData: req.body.customData || {},
             notes: notes || ''
         });
 
@@ -99,15 +101,15 @@ exports.updateQuote = async (req, res) => {
     try {
         if (req.body.items && Array.isArray(req.body.items)) {
             req.body.items = req.body.items
-                .filter(item => item && item.description && item.description.trim() !== '')
-                .map(item => {
-                    const price = Number(item.price) || 0;
+                .map((item, idx) => {
+                    const desc = item.description || item.componentText || `Item ${idx + 1}`;
+                    const price = Number(item.price) || Number(item.rate) || 0;
                     const qty = Number(item.qty) || 1;
-                    const itemTotal = Number(item.total) || (price * qty);
+                    const itemTotal = Number(item.total) || Number(item.amount) || (price * qty);
                     return {
-                        description: item.description.trim(),
-                        subDescription: item.subDescription || '',
-                        hsn: item.hsn || '',
+                        description: desc.trim(),
+                        subDescription: item.subDescription || item.specifics || '',
+                        hsn: item.hsn || item.make || '',
                         price,
                         qty,
                         total: itemTotal

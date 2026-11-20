@@ -35,6 +35,8 @@ const quoteSchema = new mongoose.Schema({
         enum: ['Draft', 'Sent', 'Accepted', 'Declined', 'Converted'], 
         default: 'Sent' 
     },
+    templateType: { type: String, default: 'standard' },
+    customData: { type: mongoose.Schema.Types.Mixed, default: {} },
     notes: { type: String, default: '' }
 }, { timestamps: true });
 

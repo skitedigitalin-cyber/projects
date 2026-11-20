@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
-import { Plus, Search, X, Eye, Pencil, Trash2, Phone, Mail, MapPin, Building, Target, ArrowLeft, Megaphone, Globe, Monitor, MessageCircle, Users, PhoneOutgoing, Camera, Link, MoreHorizontal, Bell, Clock, ChevronLeft, ChevronRight, Briefcase } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Plus, Search, X, Eye, Pencil, Trash2, Phone, Mail, MapPin, Building, Target, ArrowLeft, Megaphone, Globe, Monitor, MessageCircle, Users, PhoneOutgoing, Camera, Link, MoreHorizontal, Bell, Clock, ChevronLeft, ChevronRight, Briefcase, Award, Zap, Cpu } from 'lucide-react';
 import LeadDetailsModal from '../components/LeadDetailsModal';
 import ProposalConfigTab from '../components/ProposalConfigTab';
 import SalesActivityLog from '../components/SalesActivityLog';
@@ -19,6 +20,16 @@ const MASTER_SERVICES = [
     'Full Digital Marketing'
 ];
 
+const ROBOTRIQ_COURSES = [
+    'DELTA INDUSTRIAL AUTOMATION',
+    'SIEMENS INDUSTRIAL AUTOMATION',
+    'ABB PROCESS AUTOMATION',
+    'SCHNEIDER ELECTRIC INDUSTRIAL AUTOMATION',
+    'INDUSTRIAL AUTOMATION 4.0',
+    'MITSUBISHI ELECTRIC FACTORY AUTOMATION',
+    'ALLEN BRADLEY - ROCKWELL AUTOMATION'
+];
+
 const SOURCE_CONFIG = {
     'Cold Leads': { icon: <PhoneOutgoing size={24} />, color: 'bg-amber-500', lightBg: 'bg-amber-50', textColor: 'text-amber-600', borderColor: 'border-amber-200' },
     'Meta Leads': { icon: <Megaphone size={24} />,     color: 'bg-blue-500',  lightBg: 'bg-blue-50',  textColor: 'text-blue-600',  borderColor: 'border-blue-200' },
@@ -30,6 +41,7 @@ const SOURCE_CONFIG = {
 };
 
 const SERVICE_CONFIG = {
+    // Digital Marketing (Skite)
     'Paid Campaigns': {
         icon: <Megaphone size={24} />,
         gradient: 'from-blue-600 to-indigo-600',
@@ -69,11 +81,133 @@ const SERVICE_CONFIG = {
         textColor: 'text-rose-600',
         borderColor: 'border-rose-200',
         description: 'Full-suite 360° integrated marketing packages'
+    },
+
+    // Industrial Automation (Robotriq)
+    'DELTA INDUSTRIAL AUTOMATION': {
+        icon: <Zap size={24} />,
+        gradient: 'from-blue-600 to-indigo-700',
+        lightBg: 'bg-blue-50',
+        textColor: 'text-blue-600',
+        borderColor: 'border-blue-200',
+        description: 'Delta PLC, DVP/AS Series, HMI, SCADA & VFD drive systems'
+    },
+    'SIEMENS INDUSTRIAL AUTOMATION': {
+        icon: <Cpu size={24} />,
+        gradient: 'from-teal-600 to-emerald-700',
+        lightBg: 'bg-teal-50',
+        textColor: 'text-teal-600',
+        borderColor: 'border-teal-200',
+        description: 'Siemens S7-1200/1500, TIA Portal v18 & WinCC automation'
+    },
+    'ABB PROCESS AUTOMATION': {
+        icon: <Target size={24} />,
+        gradient: 'from-red-600 to-rose-700',
+        lightBg: 'bg-red-50',
+        textColor: 'text-red-600',
+        borderColor: 'border-red-200',
+        description: 'ABB Freelance DCS, 800xA distributed control & robotics'
+    },
+    'SCHNEIDER ELECTRIC INDUSTRIAL AUTOMATION': {
+        icon: <Globe size={24} />,
+        gradient: 'from-emerald-600 to-green-700',
+        lightBg: 'bg-emerald-50',
+        textColor: 'text-emerald-600',
+        borderColor: 'border-emerald-200',
+        description: 'Schneider Modicon M340/M580, EcoStruxure & Citect SCADA'
+    },
+    'INDUSTRIAL AUTOMATION 4.0': {
+        icon: <Award size={24} />,
+        gradient: 'from-purple-600 to-pink-700',
+        lightBg: 'bg-purple-50',
+        textColor: 'text-purple-600',
+        borderColor: 'border-purple-200',
+        description: 'Industry 4.0, smart factory, IIoT architecture & telemetry'
+    },
+    'MITSUBISHI ELECTRIC FACTORY AUTOMATION': {
+        icon: <Monitor size={24} />,
+        gradient: 'from-amber-500 to-orange-700',
+        lightBg: 'bg-amber-50',
+        textColor: 'text-amber-600',
+        borderColor: 'border-amber-200',
+        description: 'Mitsubishi FX5U/Q-series, GX Works3 & GOT2000 HMI'
+    },
+    'ALLEN BRADLEY - ROCKWELL AUTOMATION': {
+        icon: <Briefcase size={24} />,
+        gradient: 'from-cyan-600 to-blue-700',
+        lightBg: 'bg-cyan-50',
+        textColor: 'text-cyan-600',
+        borderColor: 'border-cyan-200',
+        description: 'Rockwell Studio 5000, ControlLogix & FactoryTalk View'
+    }
+};
+
+const ROBOTRIQ_LEVELS = [
+    'Beginner',
+    'Intermediate',
+    'Advance',
+    'Master',
+    'Certified Process Automation'
+];
+
+const getLeadLevel = (lead) => {
+    if (lead?.level && lead.level !== '-') return lead.level;
+    const raw = (lead?.serviceType || lead?.productServiceInterested || lead?.course || '').trim();
+    if (!raw) return 'Beginner';
+    const count = raw.split(',').map(c => c.trim()).filter(Boolean).length;
+    if (count === 1) return 'Beginner';
+    if (count === 2) return 'Intermediate';
+    if (count === 3) return 'Advance';
+    if (count === 4) return 'Master';
+    if (count >= 5) return 'Certified Process Automation';
+    return 'Beginner';
+};
+
+const LEVEL_CONFIG = {
+    'Beginner': {
+        icon: <Award size={24} />,
+        gradient: 'from-blue-600 to-indigo-600',
+        lightBg: 'bg-blue-50',
+        textColor: 'text-blue-600',
+        borderColor: 'border-blue-200',
+        description: 'Single automation course specialization (1 Course)'
+    },
+    'Intermediate': {
+        icon: <Cpu size={24} />,
+        gradient: 'from-teal-600 to-emerald-600',
+        lightBg: 'bg-teal-50',
+        textColor: 'text-teal-600',
+        borderColor: 'border-teal-200',
+        description: 'Dual automation multi-platform package (2 Courses)'
+    },
+    'Advance': {
+        icon: <Zap size={24} />,
+        gradient: 'from-amber-500 to-orange-600',
+        lightBg: 'bg-amber-50',
+        textColor: 'text-amber-600',
+        borderColor: 'border-amber-200',
+        description: 'Triple automation comprehensive track (3 Courses)'
+    },
+    'Master': {
+        icon: <Briefcase size={24} />,
+        gradient: 'from-purple-600 to-pink-600',
+        lightBg: 'bg-purple-50',
+        textColor: 'text-purple-600',
+        borderColor: 'border-purple-200',
+        description: 'Quad-system automation engineering track (4 Courses)'
+    },
+    'Certified Process Automation': {
+        icon: <Target size={24} />,
+        gradient: 'from-rose-500 to-red-600',
+        lightBg: 'bg-rose-50',
+        textColor: 'text-rose-600',
+        borderColor: 'border-rose-200',
+        description: 'Complete process automation master certification (5+ Courses)'
     }
 };
 
 const getServiceConfig = (name) => {
-    return SERVICE_CONFIG[name] || {
+    return LEVEL_CONFIG[name] || SERVICE_CONFIG[name] || {
         icon: <Briefcase size={24} />,
         gradient: 'from-slate-700 to-slate-900',
         lightBg: 'bg-slate-50',
@@ -85,6 +219,18 @@ const getServiceConfig = (name) => {
 
 export default function Sales() {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
+    const isRobotriq = Boolean(
+        user?.email?.toLowerCase().includes('robotriq') ||
+        user?.companyName?.toLowerCase().includes('robotriq') ||
+        user?.name?.toLowerCase().includes('robotriq') ||
+        user?.subDomain === 'robotriq' ||
+        String(user?.tenantId?._id || user?.tenantId || '').includes('6afd35731172da4b0de9a48e') ||
+        rawStored.toLowerCase().includes('robotriq')
+    );
+    const activeMasterList = useMemo(() => isRobotriq ? ROBOTRIQ_LEVELS : MASTER_SERVICES, [isRobotriq]);
+
     const [activeTab, setActiveTab] = useState('dashboard');
     const [leads, setLeads] = useState([]);
     const [selectedSource, setSelectedSource] = useState(null);
@@ -259,7 +405,48 @@ export default function Sales() {
         const sourceLeads = selectedSource === 'All' ? leads : getLeadsBySource(selectedSource);
         
         const map = {};
-        // Pre-initialize all 5 master services with zero count so they ALWAYS appear for both Cold & Meta Leads
+
+        if (isRobotriq) {
+            // Pre-initialize the 5 Levels for Robotriq
+            ROBOTRIQ_LEVELS.forEach(lvl => {
+                map[lvl] = {
+                    name: lvl,
+                    count: 0,
+                    totalValue: 0,
+                    alerts: 0,
+                    statuses: { New: 0, Contacted: 0, Qualified: 0, Appointment: 0, Converted: 0, Lost: 0 }
+                };
+            });
+
+            sourceLeads.forEach(l => {
+                const lvl = getLeadLevel(l);
+                if (!map[lvl]) {
+                    map[lvl] = {
+                        name: lvl,
+                        count: 0,
+                        totalValue: 0,
+                        alerts: 0,
+                        statuses: { New: 0, Contacted: 0, Qualified: 0, Appointment: 0, Converted: 0, Lost: 0 }
+                    };
+                }
+                map[lvl].count++;
+                map[lvl].totalValue += (Number(l.leadValue) || 0);
+                if (l.leadStatus && map[lvl].statuses[l.leadStatus] !== undefined) {
+                    map[lvl].statuses[l.leadStatus]++;
+                }
+                const aDate = l.appointmentAlertDate || l.qualifiedAlertDate || l.callbackAlertDate;
+                const aTime = l.appointmentAlertTime || l.qualifiedAlertTime || l.callbackAlertTime || '00:00';
+                if (aDate && l.leadStatus !== 'Converted' && l.leadStatus !== 'Lost') {
+                    const dt = new Date(`${aDate}T${aTime}`);
+                    if (dt <= new Date()) map[lvl].alerts++;
+                }
+            });
+
+            // Return strictly in standard level order: Beginner, Intermediate, Advance, Master, Certified Process Automation
+            return ROBOTRIQ_LEVELS.map(lvl => map[lvl]);
+        }
+
+        // For other tenants (Skite Digital)
         MASTER_SERVICES.forEach(s => {
             map[s] = {
                 name: s,
@@ -308,7 +495,7 @@ export default function Sales() {
             if (bIdx !== -1) return 1;
             return a.name.localeCompare(b.name);
         });
-    }, [leads, selectedSource]);
+    }, [leads, selectedSource, isRobotriq]);
 
     const totalSourceLeadsCount = useMemo(() => {
         if (!selectedSource) return 0;
@@ -325,10 +512,16 @@ export default function Sales() {
                         ? (l.leadSource === 'Meta Leads' || l.leadSource === 'Meta' || l.leadSource === 'Meta Ads')
                         : l.leadSource === selectedSource;
 
-            const leadService = (l.serviceType || l.productServiceInterested || 'General').trim().toLowerCase();
-            const matchesService = !selectedService || selectedService === 'All'
-                ? true
-                : leadService === selectedService.trim().toLowerCase();
+            let matchesService = true;
+            if (selectedService && selectedService !== 'All') {
+                if (isRobotriq) {
+                    const leadLevel = getLeadLevel(l);
+                    matchesService = leadLevel.toLowerCase() === selectedService.trim().toLowerCase();
+                } else {
+                    const leadService = (l.serviceType || l.productServiceInterested || 'General').trim().toLowerCase();
+                    matchesService = (leadService === selectedService.trim().toLowerCase() || leadService.includes(selectedService.trim().toLowerCase()));
+                }
+            }
 
             const term = searchTerm.toLowerCase();
             const matchesSearch = !searchTerm || (
@@ -336,6 +529,7 @@ export default function Sales() {
                 (l.companyName || '').toLowerCase().includes(term) ||
                 (l.mobileNumber || '').includes(term) ||
                 (l.leadId || '').toLowerCase().includes(term) ||
+                (l.location || '').toLowerCase().includes(term) ||
                 (l.serviceType || '').toLowerCase().includes(term) ||
                 (l.productServiceInterested || '').toLowerCase().includes(term)
             );
@@ -654,16 +848,27 @@ export default function Sales() {
                                             {(() => {
                                                 const sMap = {};
                                                 sourceLeads.forEach(l => {
-                                                    const raw = (l.serviceType || l.productServiceInterested || '').trim();
-                                                    const matched = MASTER_SERVICES.find(m => m.toLowerCase() === raw.toLowerCase());
-                                                    const s = matched || raw || 'Web Development';
-                                                    sMap[s] = (sMap[s] || 0) + 1;
+                                                    if (isRobotriq) {
+                                                        const lvl = getLeadLevel(l);
+                                                        sMap[lvl] = (sMap[lvl] || 0) + 1;
+                                                    } else {
+                                                        const raw = (l.serviceType || l.productServiceInterested || '').trim();
+                                                        const matched = activeMasterList.find(m => m.toLowerCase() === raw.toLowerCase());
+                                                        const s = matched || raw || activeMasterList[0];
+                                                        sMap[s] = (sMap[s] || 0) + 1;
+                                                    }
                                                 });
-                                                return MASTER_SERVICES.map(sName => {
+                                                // Show services with counts first, max 4 items
+                                                const displayList = [
+                                                    ...activeMasterList.filter(s => (sMap[s] || 0) > 0),
+                                                    ...activeMasterList.filter(s => (sMap[s] || 0) === 0)
+                                                ].slice(0, 4);
+
+                                                return displayList.map(sName => {
                                                     const cnt = sMap[sName] || 0;
                                                     return (
                                                         <span key={sName} className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${
-                                                            cnt > 0 ? 'bg-slate-100 text-slate-800' : 'bg-slate-50 text-slate-400 border border-slate-200/50'
+                                                            cnt > 0 ? (isRobotriq ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-slate-100 text-slate-800') : 'bg-slate-50 text-slate-400 border border-slate-200/50'
                                                         }`}>
                                                             {sName}: {cnt}
                                                         </span>
@@ -694,13 +899,13 @@ export default function Sales() {
                             </button>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">{selectedSource} Services</h2>
+                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">{selectedSource} {isRobotriq ? 'Levels Overview' : 'Services'}</h2>
                                     <span className="px-2.5 py-0.5 text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
                                         {totalSourceLeadsCount} Total Leads
                                     </span>
                                 </div>
                                 <p className="text-slate-500 text-xs mt-0.5 font-medium">
-                                    Select a service below to open its dedicated pipeline and manage leads.
+                                    {isRobotriq ? 'Select a level below to open its dedicated pipeline and manage leads.' : 'Select a service below to open its dedicated pipeline and manage leads.'}
                                 </p>
                             </div>
                         </div>
@@ -828,7 +1033,7 @@ export default function Sales() {
                         <button 
                             onClick={() => { setSelectedService(null); setSearchTerm(''); }} 
                             className="p-2 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 cursor-pointer transition-colors shadow-sm"
-                            title={`Back to ${selectedSource} Services`}
+                            title={`Back to ${selectedSource} ${isRobotriq ? 'Levels' : 'Services'}`}
                         >
                             <ArrowLeft size={18} className="text-slate-600" />
                         </button>
@@ -886,7 +1091,7 @@ export default function Sales() {
                                 };
 
                                 if (tabName === 'Leads') {
-                                    const leadsInTab = displayLeads.filter(l => ['New', 'Contacted', 'Lost'].includes(l.leadStatus) || l.leadStatus === undefined);
+                                    const leadsInTab = displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus));
                                     tabCount = leadsInTab.length;
                                     tabAlerts = getAlertCount(leadsInTab);
                                 } else if (tabName === 'Qualified') {
@@ -989,17 +1194,26 @@ export default function Sales() {
                                                 <h4 className="font-bold text-slate-900 text-[15px] leading-tight group-hover:text-blue-600 transition-colors">{lead.customerName}</h4>
                                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getTempBadge(lead.leadTemperature)}`}>{getTempIcon(lead.leadTemperature)} {lead.leadTemperature}</span>
                                             </div>
-                                            {(lead.companyName || lead.industry) && <p className="text-xs text-slate-500 mb-2 flex items-center font-medium"><Building size={12} className="mr-1.5 text-slate-400"/>{lead.companyName || lead.industry}</p>}
+                                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                                                {(lead.companyName || lead.industry) && <p className="text-xs text-slate-500 flex items-center font-medium"><Building size={12} className="mr-1 text-slate-400"/>{lead.companyName || lead.industry}</p>}
+                                                {lead.location && <span className="text-[11px] text-slate-500 font-semibold flex items-center bg-slate-100 px-2 py-0.5 rounded-md"><MapPin size={11} className="mr-1 text-slate-400" />{lead.location}</span>}
+                                            </div>
                                             
-                                            {/* Service Tag */}
-                                            {(lead.serviceType || lead.productServiceInterested) && (
-                                                <div className="mb-2.5">
+                                            {/* Level & Service Tags */}
+                                            <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                                                {isRobotriq && (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-teal-50 text-teal-700 border border-teal-200">
+                                                        <Award size={10} className="mr-1 text-teal-600" />
+                                                        {getLeadLevel(lead)}
+                                                    </span>
+                                                )}
+                                                {(lead.serviceType || lead.productServiceInterested) && (
                                                     <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
                                                         <Briefcase size={10} className="mr-1 text-blue-500" />
                                                         {lead.serviceType || lead.productServiceInterested}
                                                     </span>
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                             
                                             {alert && (
                                                 <div className={`mt-2 mb-3 flex items-center text-[10px] font-bold px-2 py-1 rounded-md w-max ${
@@ -1012,7 +1226,7 @@ export default function Sales() {
 
                                             <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
                                                 <p className="text-xs text-slate-600 flex items-center font-medium"><Phone size={12} className="mr-1.5 text-slate-400"/>{lead.mobileNumber || '-'}</p>
-                                                <p className="text-xs font-black text-slate-900 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">${(lead.leadValue || 0).toLocaleString()}</p>
+                                                <p className="text-xs font-black text-slate-900 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">₹{(lead.leadValue || 0).toLocaleString()}</p>
                                             </div>
 
                                             {lead.callStatus === 'Rejected' && (
@@ -1098,16 +1312,16 @@ export default function Sales() {
                                     <div className="flex space-x-5 w-full h-full animate-fade-up">
                                     {kanbanStages.map((stage, idx) => {
                                     // Custom filtering to match the 4 requested columns based on callStatus!
-                                    // ONLY include leads that are actually in the "Leads" tab (not Qualified/Appointment)
-                                    const kanbanDisplayLeads = displayLeads.filter(l => ['New', 'Contacted', 'Lost'].includes(l.leadStatus) || l.leadStatus === undefined);
+                                    // ONLY include leads that are actually in the "Leads" tab (not Qualified/Appointment/Converted)
+                                    const kanbanDisplayLeads = displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus));
                                     
                                     let stageLeads = [];
                                     if (stage.status === 'New') {
-                                        stageLeads = kanbanDisplayLeads.filter(l => !l.callStatus || l.callStatus === 'Lead');
+                                        stageLeads = kanbanDisplayLeads.filter(l => !l.callStatus || l.callStatus === 'Lead' || l.callStatus === 'Pending' || (l.callStatus.includes('Attend') && !l.callStatus.toLowerCase().includes('not attend')));
                                     } else if (stage.status === 'Contacted') {
-                                        stageLeads = kanbanDisplayLeads.filter(l => l.callStatus && l.callStatus.startsWith('Callback'));
+                                        stageLeads = kanbanDisplayLeads.filter(l => l.callStatus && l.callStatus.toLowerCase().includes('callback'));
                                     } else if (stage.status === 'Not Attend') {
-                                        stageLeads = kanbanDisplayLeads.filter(l => l.callStatus === 'Not Attend');
+                                        stageLeads = kanbanDisplayLeads.filter(l => l.callStatus && l.callStatus.toLowerCase().includes('not attend'));
                                     } else if (stage.status === 'Rejected') {
                                         stageLeads = kanbanDisplayLeads.filter(l => l.callStatus === 'Rejected');
                                     }

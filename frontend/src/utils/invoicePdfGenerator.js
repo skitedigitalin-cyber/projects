@@ -5,6 +5,7 @@ import html2canvas from 'html2canvas-pro';
 import defaultLogo from '../assets/skite-logo.jpg';
 import defaultSign from '../assets/Sign.jpg';
 import defaultSeal from '../assets/seal.png';
+import { sealImage as defaultRobotriqSeal, signImage as defaultRobotriqSign } from '../assets/robotriqImages';
 
 /**
  * Optimizes, downscales and compresses an image (DataURL, URL, or asset import).
@@ -125,27 +126,33 @@ export function hexToRgb(hex, fallback = [249, 87, 56]) {
 export function renderInvoicePage(doc, invoice, company = {}, assets = {}, customColor = null) {
     if (!invoice) return;
 
-    // Primary accent color (default Skite signature orange #FF4500)
-    const activeHexColor = customColor || company?.invoiceColor || (typeof window !== 'undefined' ? localStorage.getItem('selected-invoice-color') : '') || '#FF4500';
-    const primaryColor = hexToRgb(activeHexColor, [255, 69, 0]);
+    const rawUser = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
+    const isRobotriq = Boolean(
+        company?.name?.toLowerCase().includes('robotriq') ||
+        company?.email?.toLowerCase().includes('robotriq') ||
+        rawUser.toLowerCase().includes('robotriq') ||
+        (invoices[0]?.invoiceNumber && invoices[0].invoiceNumber.startsWith('ROB'))
+    );
+    const isSkite = !isRobotriq && (company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite'));
+
+    // Primary accent color (Teal for Robotriq #0d9488, default Skite signature orange #FF4500)
+    const activeHexColor = customColor || company?.invoiceColor || (isRobotriq ? '#0d9488' : '#FF4500');
+    const primaryColor = hexToRgb(activeHexColor, isRobotriq ? [13, 148, 136] : [255, 69, 0]);
     const invNo = invoice.invoiceNumber || invoice.invoiceNo || 'INV-001';
     const rawDate = invoice.invoiceDate || invoice.date;
     const dateStr = rawDate ? new Date(rawDate).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB');
 
-    // Tenant detection and fallback defaults (Skite standard as seen in Invoice_SKT-26-27-046)
-    const isSkite = !company?.name || company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite');
-
-    const companyName = company?.name || (isSkite ? 'SKITE' : '');
-    const companyAddress = company?.address || (isSkite ? '257- Housing Unit/ Kurichi 003\nL.I.C colony,\nCoimbatore - 641021' : '');
-    const companyGst = company?.gstNumber || (isSkite ? '33REAPS5023G1ZE' : '');
-    const companyBank = company?.bankName || (isSkite ? 'Union Bank of India' : '');
-    const companyAccName = company?.accountName || companyName || (isSkite ? 'SKITE' : '');
-    const companyAccNo = company?.accountNumber || (isSkite ? '252511010000196' : '');
-    const companyIfsc = company?.ifscCode || (isSkite ? 'UBIN0825255' : '');
-    const companyBranch = company?.branch || (isSkite ? 'Sundarapuram' : '');
-    const companyEmail = company?.email || (isSkite ? 'skitedigital.in@gmail.com' : '');
-    const companyWebsite = company?.website || (isSkite ? 'www.skitedigital.in' : '');
-    const companyPhone = company?.phone || (isSkite ? '8754281434' : '');
+    const companyName = company?.name || (isRobotriq ? 'ROBOTRIQ AUTOMATION PRIVATE LIMITED' : (isSkite ? 'SKITE' : ''));
+    const companyAddress = company?.address || (isRobotriq ? 'Door No. 201/7B1, Kamatchi Layout, Pathalapalli,\nHosur - 635109, Tamil Nadu' : (isSkite ? '257- Housing Unit/ Kurichi 003\nL.I.C colony,\nCoimbatore - 641021' : ''));
+    const companyGst = company?.gstNumber || (isRobotriq ? '' : (isSkite ? '33REAPS5023G1ZE' : ''));
+    const companyBank = company?.bankName || (isRobotriq ? 'UNION BANK' : (isSkite ? 'Union Bank of India' : ''));
+    const companyAccName = company?.accountName || companyName || (isRobotriq ? 'ROBOTRIQ AUTOMATION PRIVATE LIMITED' : (isSkite ? 'SKITE' : ''));
+    const companyAccNo = company?.accountNumber || (isRobotriq ? '252511010000242' : (isSkite ? '252511010000196' : ''));
+    const companyIfsc = company?.ifscCode || (isRobotriq ? 'UBIN0825255' : (isSkite ? 'UBIN0825255' : ''));
+    const companyBranch = company?.branch || (isRobotriq ? 'SUNDHARAPURAM, COIMBATORE' : (isSkite ? 'Sundarapuram' : ''));
+    const companyEmail = company?.email || (isRobotriq ? 'robotriqindia@gmail.com' : (isSkite ? 'skitedigital.in@gmail.com' : ''));
+    const companyWebsite = company?.website || (isRobotriq ? 'www.robotriq.com' : (isSkite ? 'www.skitedigital.in' : ''));
+    const companyPhone = company?.phone || (isRobotriq ? '+91 94443 47184 / +91 93624 47184' : (isSkite ? '8754281434' : ''));
 
     const { logoObj, signObj, sealObj } = assets || {};
 
@@ -398,10 +405,26 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
         compress: true
     });
 
-    const isSkite = !company?.name || company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite');
-    const activeLogo = (isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo);
-    const activeSign = (isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign);
-    const activeSeal = (isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal);
+    const rawUser = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
+    const isRobotriq = Boolean(
+        company?.name?.toLowerCase().includes('robotriq') ||
+        company?.email?.toLowerCase().includes('robotriq') ||
+        rawUser.toLowerCase().includes('robotriq') ||
+        (invoices[0]?.invoiceNumber && invoices[0].invoiceNumber.startsWith('ROB'))
+    );
+    const isSkite = !isRobotriq && (company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite'));
+
+    const activeLogo = isRobotriq 
+        ? (company?.logo || null) 
+        : ((isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo));
+
+    const activeSign = isRobotriq 
+        ? (company?.sign || defaultRobotriqSign) 
+        : ((isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign));
+
+    const activeSeal = isRobotriq 
+        ? (company?.seal || defaultRobotriqSeal) 
+        : ((isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal));
 
     const [logoObj, signObj, sealObj] = await Promise.all([
         getOptimizedImage(activeLogo, 450, 240, 0.8),
@@ -475,10 +498,26 @@ export async function generateBatchInvoicesPdf(invoices, bundleName = 'Invoices_
         compress: true
     });
 
-    const isSkite = !company?.name || company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite');
-    const activeLogo = (isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo);
-    const activeSign = (isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign);
-    const activeSeal = (isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal);
+    const rawUser = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
+    const isRobotriq = Boolean(
+        company?.name?.toLowerCase().includes('robotriq') ||
+        company?.email?.toLowerCase().includes('robotriq') ||
+        rawUser.toLowerCase().includes('robotriq') ||
+        (invoices[0]?.invoiceNumber && invoices[0].invoiceNumber.startsWith('ROB'))
+    );
+    const isSkite = !isRobotriq && (company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite'));
+
+    const activeLogo = isRobotriq 
+        ? (company?.logo || null) 
+        : ((isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo));
+
+    const activeSign = isRobotriq 
+        ? (company?.sign || defaultRobotriqSign) 
+        : ((isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign));
+
+    const activeSeal = isRobotriq 
+        ? (company?.seal || defaultRobotriqSeal) 
+        : ((isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal));
 
     // Pre-optimize brand assets once for blazing speed and minimal memory
     const [logoObj, signObj, sealObj] = await Promise.all([

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
+import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Users, Building, Phone, Mail, MapPin, Target, CheckCircle, Save, Briefcase } from 'lucide-react';
 
 const MASTER_SERVICES = [
@@ -10,6 +11,16 @@ const MASTER_SERVICES = [
     'Web Development',
     'SEO',
     'Full Digital Marketing'
+];
+
+const ROBOTRIQ_COURSES = [
+    'DELTA INDUSTRIAL AUTOMATION',
+    'SIEMENS INDUSTRIAL AUTOMATION',
+    'ABB PROCESS AUTOMATION',
+    'SCHNEIDER ELECTRIC INDUSTRIAL AUTOMATION',
+    'INDUSTRIAL AUTOMATION 4.0',
+    'MITSUBISHI ELECTRIC FACTORY AUTOMATION',
+    'ALLEN BRADLEY - ROCKWELL AUTOMATION'
 ];
 
 const LEAD_SOURCES = ['Cold Leads', 'Meta Leads'];
@@ -22,14 +33,19 @@ export default function LeadForm() {
     const { id } = useParams();
     const isEditMode = Boolean(id);
 
+    const { user } = useAuth();
+    const isRobotriq = Boolean(user?.email?.toLowerCase().includes('robotriq') || user?.companyName?.toLowerCase().includes('robotriq'));
+    const activeMasterServices = useMemo(() => isRobotriq ? ROBOTRIQ_COURSES : MASTER_SERVICES, [isRobotriq]);
+    const defaultService = activeMasterServices[0];
+
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
 
     const emptyForm = {
         customerName: '', companyName: '', mobileNumber: '', email: '',
         location: '', industry: '', leadSource: 'Meta Leads',
-        serviceType: 'Web Development',
-        productServiceInterested: 'Web Development',
+        serviceType: defaultService,
+        productServiceInterested: defaultService,
         customService: '',
         leadValue: '', leadStatus: 'New',
         leadTemperature: 'Cold', nextFollowUpDate: '', notes: ''
@@ -42,19 +58,19 @@ export default function LeadForm() {
             fetchLeadData();
         } else if (location.state) {
             const preSource = location.state.leadSource || 'Meta Leads';
-            const rawService = location.state.serviceType || 'Web Development';
-            const matchedMaster = MASTER_SERVICES.find(m => m.toLowerCase() === rawService.toLowerCase());
+            const rawService = location.state.serviceType || defaultService;
+            const matchedMaster = activeMasterServices.find(m => m.toLowerCase() === rawService.toLowerCase());
             const isCustom = rawService && !matchedMaster;
 
             setFormData(prev => ({
                 ...prev,
                 leadSource: preSource,
-                serviceType: isCustom ? 'Other' : (matchedMaster || 'Web Development'),
-                productServiceInterested: matchedMaster || rawService || 'Web Development',
+                serviceType: isCustom ? 'Other' : (matchedMaster || defaultService),
+                productServiceInterested: matchedMaster || rawService || defaultService,
                 customService: isCustom ? rawService : ''
             }));
         }
-    }, [id, isEditMode, location.state]);
+    }, [id, isEditMode, location.state, activeMasterServices, defaultService]);
 
     const fetchLeadData = async () => {
         setLoading(true);
@@ -73,7 +89,7 @@ export default function LeadForm() {
                         : rawSource;
 
                 const serv = (lead.serviceType || lead.productServiceInterested || '').trim();
-                const matchedMaster = MASTER_SERVICES.find(m => m.toLowerCase() === serv.toLowerCase());
+                const matchedMaster = activeMasterServices.find(m => m.toLowerCase() === serv.toLowerCase());
                 const isCustom = serv && !matchedMaster;
 
                 setFormData({
@@ -84,8 +100,8 @@ export default function LeadForm() {
                     location: lead.location || '',
                     industry: lead.industry || '',
                     leadSource: normSource,
-                    serviceType: isCustom ? 'Other' : (matchedMaster || 'Web Development'),
-                    productServiceInterested: matchedMaster || serv || 'Web Development',
+                    serviceType: isCustom ? 'Other' : (matchedMaster || defaultService),
+                    productServiceInterested: matchedMaster || serv || defaultService,
                     customService: isCustom ? serv : '',
                     leadValue: lead.leadValue || '',
                     leadStatus: lead.leadStatus || 'New',
@@ -275,7 +291,7 @@ export default function LeadForm() {
                                             }} 
                                             className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-semibold text-slate-800 cursor-pointer"
                                         >
-                                            {MASTER_SERVICES.map(s => (
+                                            {activeMasterServices.map(s => (
                                                 <option key={s} value={s}>{s}</option>
                                             ))}
                                             <option value="Other">Other / Custom Service...</option>
@@ -302,7 +318,7 @@ export default function LeadForm() {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Estimated Value ($)</label>
+                                    <label className="text-sm font-bold text-slate-700">Estimated Value (₹)</label>
                                     <input type="number" name="leadValue" value={formData.leadValue} onChange={handleInputChange} 
                                         className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-emerald-600" placeholder="0.00" />
                                 </div>
