@@ -34,6 +34,8 @@ logs/
 .agents/
 .gemini/
 brain/
+/graphify-out/
+/design-references/
 skills-lock.json
 
 # OS / Editor Files

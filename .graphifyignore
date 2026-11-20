@@ -1,0 +1,7 @@
+.env*
+node_modules/
+dist/
+dist-ssr/
+graphify-out/
+design-references/
+backend/uploads/
