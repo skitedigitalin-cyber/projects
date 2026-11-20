@@ -119,15 +119,11 @@ export function hexToRgb(hex, fallback = [249, 87, 56]) {
  *  - Bottom: Left-aligned bold black Bank Details & contact details, perfectly centered round Official Seal,
  *    and right-aligned Authorised Signatory block.
  */
-export async function generateNativeInvoicePdf(invoice, company = {}, fileName = 'Invoice', customColor = null) {
-    if (!invoice) throw new Error('Invoice data required');
-
-    const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-        compress: true
-    });
+/**
+ * Renders a single invoice onto the current page of the provided jsPDF instance.
+ */
+export function renderInvoicePage(doc, invoice, company = {}, assets = {}, customColor = null) {
+    if (!invoice) return;
 
     // Primary accent color (default Skite signature orange #FF4500)
     const activeHexColor = customColor || company?.invoiceColor || (typeof window !== 'undefined' ? localStorage.getItem('selected-invoice-color') : '') || '#FF4500';
@@ -151,16 +147,7 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
     const companyWebsite = company?.website || (isSkite ? 'www.skitedigital.in' : '');
     const companyPhone = company?.phone || (isSkite ? '8754281434' : '');
 
-    // High quality brand assets
-    const activeLogo = (isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo);
-    const activeSign = (isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign);
-    const activeSeal = (isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal);
-
-    const [logoObj, signObj, sealObj] = await Promise.all([
-        getOptimizedImage(activeLogo, 450, 240, 0.8),
-        getOptimizedImage(activeSign, 400, 180, 0.8),
-        getOptimizedImage(activeSeal, 400, 400, 0.8)
-    ]);
+    const { logoObj, signObj, sealObj } = assets || {};
 
     // 1. Top Left: Company Logo
     if (logoObj?.data) {
@@ -196,7 +183,6 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
     doc.text("INVOICE", 196, 20, { align: 'right' });
 
     // 5. Client Section ("ISSUED TO:") & Invoice Details ("INVOICE NO:" & "DATE:")
-    // Perfectly aligned horizontally at sectionY
     const sectionY = Math.max(afterAddressY + 7, 56);
 
     // Left Column: ISSUED TO
@@ -223,7 +209,7 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
         clientY += 5;
     }
 
-    // Right Column: INVOICE NO: & DATE: (aligned with sectionY!)
+    // Right Column: INVOICE NO: & DATE:
     doc.setFontSize(9.5).setFont("helvetica", "bold").setTextColor(0, 0, 0);
     doc.text("INVOICE NO:", 120, sectionY);
     doc.setFont("helvetica", "bold");
@@ -242,9 +228,8 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
         doc.text(dueStr, 155, sectionY + 10.4);
     }
 
-    // 6. Items Table (with orange borders and minimum 5 rows)
+    // 6. Items Table
     const tableStartY = Math.max(clientY + 6, sectionY + 18, 76);
-
     const items = invoice.items || [];
     const activeTaxRate = invoice.taxRate !== undefined ? Number(invoice.taxRate) : 9;
     const isZeroTax = activeTaxRate === 0;
@@ -269,13 +254,12 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
         ];
     });
 
-    // Pad with empty rows to maintain minimum 5 rows (matches Invoice_SKT-26-27-046)
+    // Pad with empty rows to maintain minimum 5 rows
     const minItemRows = 5;
     while (tableBody.length < minItemRows) {
         tableBody.push(['', '', '', '', '']);
     }
 
-    // Summary Rows: White background, black text, orange grid borders
     if (isZeroTax) {
         tableBody.push(
             [
@@ -356,7 +340,6 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
     // 8. Bottom Section: Bank Details (Left), Official Seal (Center), Signatory (Right)
     const bankY = Math.max(finalY + 18, 220);
 
-    // Left Column: Bank Details & Contact Info
     doc.setFontSize(9).setFont("helvetica", "bold").setTextColor(0, 0, 0);
     doc.text("PAY TO:", 14, bankY);
     doc.text(companyBank, 14, bankY + 4.5);
@@ -367,7 +350,6 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
     doc.text(`IFSC: ${companyIfsc}`, 14, bankY + 18);
     doc.text(`Branch: ${companyBranch}`, 14, bankY + 22.5);
 
-    // Contact Lines under Bank Details
     const contactY = bankY + 31;
     doc.setFontSize(8.5).setFont("helvetica", "normal").setTextColor(0, 0, 0);
     if (companyEmail) doc.text(companyEmail, 14, contactY);
@@ -404,6 +386,30 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
 
     doc.setFont("helvetica", "bold").setFontSize(9.5).setTextColor(0, 0, 0);
     doc.text("Authorised Signatory", 148, bankY + 40);
+}
+
+export async function generateNativeInvoicePdf(invoice, company = {}, fileName = 'Invoice', customColor = null) {
+    if (!invoice) throw new Error('Invoice data required');
+
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+    });
+
+    const isSkite = !company?.name || company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite');
+    const activeLogo = (isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo);
+    const activeSign = (isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign);
+    const activeSeal = (isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal);
+
+    const [logoObj, signObj, sealObj] = await Promise.all([
+        getOptimizedImage(activeLogo, 450, 240, 0.8),
+        getOptimizedImage(activeSign, 400, 180, 0.8),
+        getOptimizedImage(activeSeal, 400, 400, 0.8)
+    ]);
+
+    renderInvoicePage(doc, invoice, company, { logoObj, signObj, sealObj }, customColor);
 
     const safeName = (fileName || 'Invoice').replace(/[\/\\]/g, '-');
     doc.save(`${safeName}.pdf`);
@@ -455,19 +461,57 @@ export async function generateSingleInvoicePdf(elementOrInvoice, fileName = 'Inv
 }
 
 /**
- * Batch multi-page PDF generation: generates a multi-page vector PDF for all invoices.
+ * Batch multi-page PDF generation: compiles all invoices into ONE single combined PDF.
  */
-export async function generateBatchInvoicesPdf(invoices, bundleName = 'Invoices_Batch_Export', onProgress = null, company = {}) {
+export async function generateBatchInvoicesPdf(invoices, bundleName = 'Invoices_Batch_Export', onProgress = null, company = {}, customColor = null) {
     if (!invoices || invoices.length === 0) {
         throw new Error('No invoices provided');
     }
 
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+    });
+
+    const isSkite = !company?.name || company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite');
+    const activeLogo = (isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo);
+    const activeSign = (isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign);
+    const activeSeal = (isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal);
+
+    // Pre-optimize brand assets once for blazing speed and minimal memory
+    const [logoObj, signObj, sealObj] = await Promise.all([
+        getOptimizedImage(activeLogo, 450, 240, 0.8),
+        getOptimizedImage(activeSign, 400, 180, 0.8),
+        getOptimizedImage(activeSeal, 400, 400, 0.8)
+    ]);
+    const assets = { logoObj, signObj, sealObj };
+
+    let renderedCount = 0;
     for (let i = 0; i < invoices.length; i++) {
-        if (onProgress) onProgress(i + 1, invoices.length);
         const inv = invoices[i];
         if (inv && (inv.items || inv.invoiceNumber || inv.invoiceNo)) {
-            await generateNativeInvoicePdf(inv, company, inv.invoiceNumber || `Invoice_${i + 1}`);
+            if (renderedCount > 0) {
+                doc.addPage('a4', 'portrait');
+            }
+            renderInvoicePage(doc, inv, company, assets, customColor);
+            renderedCount++;
+        }
+        if (onProgress) {
+            onProgress(i + 1, invoices.length);
+        }
+        // Yield to browser UI event loop periodically so progress updates smoothly
+        if (i % 4 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 0));
         }
     }
+
+    if (renderedCount === 0) {
+        throw new Error('No valid invoice records found to export');
+    }
+
+    const safeName = (bundleName || 'Invoices_Combined').replace(/[\/\\]/g, '-');
+    doc.save(`${safeName}.pdf`);
     return true;
 }

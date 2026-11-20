@@ -42,6 +42,7 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
     // Filters
     const [activeGstTab, setActiveGstTab] = useState('all'); // 'all' | 'gst' | 'nongst'
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedClient, setSelectedClient] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'Paid' | 'Unpaid' | 'Partial'
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
@@ -69,6 +70,18 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
 
     const gstCount = useMemo(() => invoices.filter(isGSTInvoice).length, [invoices]);
     const nonGstCount = useMemo(() => invoices.length - gstCount, [invoices, gstCount]);
+
+    // Extract unique client names for dedicated Client Filter dropdown
+    const clientList = useMemo(() => {
+        const set = new Set();
+        invoices.forEach(inv => {
+            const name = inv.customerId?.companyName || inv.customerId?.customerName || inv.clientDetails?.name || (typeof inv.customerId === 'string' ? inv.customerId : null);
+            if (name && typeof name === 'string' && name.trim()) {
+                set.add(name.trim());
+            }
+        });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }, [invoices]);
 
     useEffect(() => {
         fetchInvoices();
@@ -184,6 +197,17 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
                 }
             }
 
+            // Dedicated Client Filter
+            if (selectedClient) {
+                const target = selectedClient.toLowerCase().trim();
+                const custName = (inv.customerId?.customerName || inv.clientDetails?.name || '').toLowerCase().trim();
+                const compName = (inv.customerId?.companyName || '').toLowerCase().trim();
+                const rawId = typeof inv.customerId === 'string' ? inv.customerId.toLowerCase().trim() : '';
+                if (custName !== target && compName !== target && rawId !== target && !custName.includes(target) && !compName.includes(target)) {
+                    return false;
+                }
+            }
+
             // Status Filter
             if (statusFilter !== 'ALL' && inv.paymentStatus !== statusFilter) {
                 return false;
@@ -211,7 +235,7 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
             }
             return new Date(b.invoiceDate || b.date || 0) - new Date(a.invoiceDate || a.date || 0);
         });
-    }, [invoices, activeGstTab, searchTerm, statusFilter, fromDate, toDate, sortBy]);
+    }, [invoices, activeGstTab, searchTerm, selectedClient, statusFilter, fromDate, toDate, sortBy]);
 
     // Pagination (15 records per page matching legacy CRM)
     const PAGE_SIZE = 15;
@@ -219,7 +243,7 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [activeGstTab, searchTerm, statusFilter, fromDate, toDate, sortBy]);
+    }, [activeGstTab, searchTerm, selectedClient, statusFilter, fromDate, toDate, sortBy]);
 
     const totalPages = Math.ceil(filteredInvoices.length / PAGE_SIZE) || 1;
     const validPage = Math.min(currentPage, totalPages);
@@ -259,7 +283,7 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
         }
     };
 
-    // Batch Download All
+    // Batch Download All (Combined Single PDF)
     const handleBatchDownloadAll = async () => {
         if (filteredInvoices.length === 0) {
             alert('No invoices match the current filters to download.');
@@ -270,7 +294,31 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
         setBatchProgress({ current: 0, total: filteredInvoices.length });
 
         try {
-            const bundleFilename = `SkitePrime_Invoices_${statusFilter}_${new Date().toISOString().slice(0, 10)}`;
+            // Build descriptive filename based on active filters
+            const parts = ['Invoices'];
+            if (selectedClient) {
+                parts.push(selectedClient.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 25));
+            } else if (searchTerm.trim()) {
+                parts.push(searchTerm.trim().replace(/[^a-zA-Z0-9]/g, '_').substring(0, 15));
+            }
+            if (fromDate && toDate) {
+                parts.push(`${fromDate}_to_${toDate}`);
+            } else if (fromDate) {
+                parts.push(`from_${fromDate}`);
+            } else if (toDate) {
+                parts.push(`to_${toDate}`);
+            }
+            if (statusFilter !== 'ALL') {
+                parts.push(statusFilter);
+            }
+            if (activeGstTab !== 'all') {
+                parts.push(activeGstTab.toUpperCase());
+            }
+            if (parts.length === 1) {
+                parts.push(`Export_${new Date().toISOString().slice(0, 10)}`);
+            }
+            const bundleFilename = parts.join('_');
+
             await generateBatchInvoicesPdf(
                 filteredInvoices, 
                 bundleFilename, 
@@ -288,6 +336,7 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
 
     const handleResetFilters = () => {
         setSearchTerm('');
+        setSelectedClient('');
         setStatusFilter('ALL');
         setActiveGstTab('all');
         setFromDate('');
@@ -295,7 +344,7 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
         setSortBy('date-desc');
     };
 
-    const hasActiveFilters = searchTerm !== '' || statusFilter !== 'ALL' || activeGstTab !== 'all' || fromDate !== '' || toDate !== '' || sortBy !== 'date-desc';
+    const hasActiveFilters = searchTerm !== '' || selectedClient !== '' || statusFilter !== 'ALL' || activeGstTab !== 'all' || fromDate !== '' || toDate !== '' || sortBy !== 'date-desc';
     const activeTemplateObj = INVOICE_TEMPLATES.find(t => t.id === activeTemplate) || INVOICE_TEMPLATES[0];
 
     return (
@@ -342,7 +391,7 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                                 : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/20'
                         }`}
-                        title="Download all filtered invoices as a combined multi-page PDF"
+                        title="Download filtered invoices as a single combined PDF"
                     >
                         {isBatchDownloading ? (
                             <>
@@ -352,7 +401,11 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
                         ) : (
                             <>
                                 <Download size={14} />
-                                <span>Download All ({filteredInvoices.length})</span>
+                                <span>
+                                    {hasActiveFilters 
+                                        ? `Download Filtered (${filteredInvoices.length})` 
+                                        : `Download All (${filteredInvoices.length})`}
+                                </span>
                             </>
                         )}
                     </button>
@@ -499,6 +552,21 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
                                     {status === 'ALL' ? 'All' : status}
                                 </button>
                             ))}
+                        </div>
+
+                        {/* Client Dropdown Filter */}
+                        <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
+                            <Building2 size={13} className="text-slate-400 shrink-0" />
+                            <select
+                                value={selectedClient}
+                                onChange={(e) => setSelectedClient(e.target.value)}
+                                className="bg-transparent border-none outline-none font-semibold text-xs text-slate-800 cursor-pointer max-w-[150px] truncate"
+                            >
+                                <option value="">All Clients ({clientList.length})</option>
+                                {clientList.map(c => (
+                                    <option key={c} value={c}>{c}</option>
+                                ))}
+                            </select>
                         </div>
 
                         {/* From & To Date Pickers */}
