@@ -2,12 +2,56 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Tenant = require('../models/Tenant');
 const SystemSettings = require('../models/SystemSettings');
+const Employee = require('../models/Employee');
+const Lead = require('../models/Lead');
+const Invoice = require('../models/Invoice');
+
+const billingKeyId = process.env.RAZORPAY_KEY_ID;
+const billingSecret = process.env.RAZORPAY_KEY_SECRET;
+const checkoutAvailable = Boolean(billingKeyId && billingSecret && !/dummy|demo/i.test(billingKeyId));
 
 // Initialize Razorpay (Test credentials for now)
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy_key_id',
     key_secret: process.env.RAZORPAY_KEY_SECRET || 'rzp_test_dummy_secret'
 });
+
+async function monthlyPrice() {
+    const priceSetting = await SystemSettings.findOne({ key: 'monthly_subscription_price' });
+    const value = parseInt(priceSetting?.value, 10);
+    return Number.isSafeInteger(value) && value > 0 ? value : 1000;
+}
+
+exports.getBillingOverview = async (req, res) => {
+    try {
+        if (!['Admin', 'CEO'].includes(req.user.role)) return res.status(403).json({ message: 'Billing access requires an admin account' });
+        const { tenantId } = req.user;
+        const tenant = await Tenant.findById(tenantId).select('subscriptionPlan status validUntil maxEmployees maxLeads maxInvoices').lean();
+        if (!tenant) return res.status(404).json({ message: 'Workspace not found' });
+        const [price, employees, leads, invoices] = await Promise.all([
+            monthlyPrice(),
+            Employee.countDocuments({ tenantId, status: { $ne: 'Inactive' } }),
+            Lead.countDocuments({ tenantId }),
+            Invoice.countDocuments({ tenantId })
+        ]);
+        const hasAccess = ['trial', 'active'].includes(tenant.status) && tenant.validUntil > new Date();
+        return res.json({
+            plan: tenant.subscriptionPlan,
+            status: hasAccess ? tenant.status : 'expired',
+            validUntil: tenant.validUntil,
+            monthlyPrice: price,
+            checkoutAvailable,
+            usage: [
+                { label: 'Employees', used: employees, limit: tenant.maxEmployees },
+                { label: 'Leads', used: leads, limit: tenant.maxLeads },
+                { label: 'Invoices', used: invoices, limit: tenant.maxInvoices }
+            ]
+        });
+    } catch (error) {
+        console.error('Billing overview unavailable:', error.message);
+        return res.status(500).json({ message: 'Could not load billing details' });
+    }
+};
 
 exports.createRegistrationOrder = async (req, res) => {
     try {
@@ -53,9 +97,8 @@ exports.createRegistrationOrder = async (req, res) => {
 
 exports.createOrder = async (req, res) => {
     try {
-        // Fetch global price from SystemSettings
-        const priceSetting = await SystemSettings.findOne({ key: 'monthly_subscription_price' });
-        const amountInRupees = priceSetting ? parseInt(priceSetting.value) : 1000; // default 1000 INR
+        if (!checkoutAvailable) return res.status(503).json({ message: 'Checkout is currently unavailable' });
+        const amountInRupees = await monthlyPrice();
 
         const options = {
             amount: amountInRupees * 100, // Amount in paise
@@ -68,7 +111,8 @@ exports.createOrder = async (req, res) => {
         res.status(200).json({
             orderId: order.id,
             amount: options.amount,
-            currency: options.currency
+            currency: options.currency,
+            keyId: billingKeyId
         });
     } catch (error) {
         console.error('Razorpay Error:', error);
@@ -78,17 +122,16 @@ exports.createOrder = async (req, res) => {
 
 exports.verifyPayment = async (req, res) => {
     try {
+        if (!checkoutAvailable) return res.status(503).json({ message: 'Payment verification is currently unavailable' });
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
         const body = razorpay_order_id + "|" + razorpay_payment_id;
         const expectedSignature = crypto
-            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'rzp_test_dummy_secret')
+            .createHmac('sha256', billingSecret)
             .update(body.toString())
             .digest('hex');
 
-        // Note: For local dev with dummy keys, we'll bypass actual signature check if using completely fake keys
-        // But if real test keys are provided in .env, it verifies perfectly.
-        const isAuthentic = expectedSignature === razorpay_signature || process.env.RAZORPAY_KEY_ID === undefined;
+        const isAuthentic = expectedSignature === razorpay_signature;
 
         if (isAuthentic) {
             // Update Tenant Subscription

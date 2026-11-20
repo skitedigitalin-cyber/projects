@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
+import TeamOverview from '../components/TeamOverview';
 import { AuthContext } from '../context/AuthContext';
 import { 
     Briefcase, Share2, Globe, Search, Plus, Trash2, CheckCircle2, Clock, 
@@ -626,11 +627,37 @@ export default function TeamManagement() {
         }
     };
 
+    const openDepartment = (department, project) => {
+        setMainTab(department);
+        if (department === 'social') {
+            setSelectedSmProject(null);
+            if (project) loadSingleSmProject(project._id);
+        }
+        if (department === 'webdev') {
+            setSelectedWebProject(null);
+            if (project) loadSingleWebProject(project._id);
+        }
+        if (department === 'seo') {
+            setSelectedSeoProject(null);
+            if (project) loadSingleSeoProject(project._id);
+        }
+    };
+
+    const openCreateProject = department => {
+        const actions = { social: setIsAddSmModalOpen, webdev: setIsAddWebModalOpen, seo: setIsAddSeoModalOpen };
+        actions[department]?.(true);
+    };
+
     return (
-        <Layout>
+        <Layout workspace compactTools>
             <div className="space-y-8 pb-12">
+                {mainTab === 'overview' && (
+                    <TeamOverview groups={{ social: smProjects, webdev: webProjects, seo: seoProjects }} tasks={allTasks} loading={loading}
+                        onOpenProject={openDepartment} onOpenTasks={() => setMainTab('all-tasks')} onCreate={openCreateProject} />
+                )}
                 
                 {/* 1. Header & Navigation Hub */}
+                {mainTab !== 'overview' && (
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center space-x-2 text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">
@@ -665,8 +692,11 @@ export default function TeamManagement() {
                         </button>
                     </div>
                 </div>
+                )}
 
                 {/* 2. Executive Metrics Strip */}
+                <details className="team-legacy-metrics">
+                    <summary>Department metrics</summary>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="p-1.5 bg-slate-50/80 rounded-[1.75rem] border border-slate-100">
                         <div className="bg-white rounded-[1.25rem] p-5 shadow-xs flex items-center justify-between">
@@ -720,6 +750,7 @@ export default function TeamManagement() {
                         </div>
                     </div>
                 </div>
+                </details>
 
                 {/* 3. Main Navigation Pills */}
                 <div className="flex items-center space-x-2 border-b border-slate-200/80 pb-4 overflow-x-auto">
@@ -735,12 +766,7 @@ export default function TeamManagement() {
                         return (
                             <button
                                 key={tab.id}
-                                onClick={() => {
-                                    setMainTab(tab.id);
-                                    if (tab.id === 'social') setSelectedSmProject(null);
-                                    if (tab.id === 'webdev') setSelectedWebProject(null);
-                                    if (tab.id === 'seo') setSelectedSeoProject(null);
-                                }}
+                                onClick={() => openDepartment(tab.id)}
                                 className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap ${
                                     isActive
                                     ? 'bg-blue-600 text-white shadow-xs'

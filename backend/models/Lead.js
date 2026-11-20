@@ -87,6 +87,7 @@ const leadSchema = new mongoose.Schema({
         ref: 'User'
     },
     lastContactDate: Date,
+    convertedAt: Date,
     nextFollowUpDate: Date,
     notes: String,
     createdAt: {

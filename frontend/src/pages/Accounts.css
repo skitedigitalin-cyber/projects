@@ -1,0 +1,45 @@
+.accounts-page-heading { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; margin-bottom: 24px; }
+.accounts-page-heading p, .accounts-chart :is(header span, small) { color: #6b6b6b; font: 12px 'Skite Dashboard Mono', monospace; letter-spacing: .04em; text-transform: uppercase; }
+.accounts-page-heading h1 { margin-top: 8px; font-size: clamp(34px, 4.1vw, 48px); line-height: 1.1; font-weight: 500; letter-spacing: -.045em; }
+.accounts-page-heading h1 span { color: #8a8a8a; }
+.accounts-page-heading nav { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; background: #fff; }
+.accounts-page-heading nav button { min-height: 36px; padding-inline: 16px; border-radius: 999px; cursor: pointer; }
+.accounts-page-heading nav button:hover, .accounts-page-heading nav button[aria-current='page'] { background: #f0f0ee; }
+.accounts-overview { display: grid; gap: 24px; }
+.accounts-kpis, .accounts-breakdown { display: grid; gap: 20px; }
+.accounts-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.accounts-breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.accounts-card { min-width: 0; padding: 28px; border-radius: 28px; background: #fff; }
+.accounts-card header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.accounts-card h2 { font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.accounts-card :is(header span, p) { color: #6b6b6b; font-size: 13px; }
+.accounts-kpis > article { display: grid; gap: 14px; min-height: 168px; align-content: space-between; }
+.accounts-kpis h2 { color: #6b6b6b; font-size: 14px; font-weight: 400; letter-spacing: 0; }
+.accounts-kpis strong { font-size: clamp(28px, 3.8vw, 40px); line-height: 1; font-weight: 500; letter-spacing: -.045em; overflow-wrap: anywhere; }
+.accounts-kpis .accounts-net { background: #111; color: #fff; }
+.accounts-card.accounts-net :is(h2, p) { color: #d4d4d4; }
+.accounts-net p span { display: inline-block; margin-right: 8px; padding: 3px 10px; border-radius: 999px; background: #ff6a3d; color: #111; }
+.accounts-chart ul { display: grid; grid-template-columns: repeat(var(--account-months), minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.accounts-chart li { min-width: 0; display: grid; justify-items: center; gap: 10px; }
+.accounts-chart li > div { width: min(64px, 88%); height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; }
+.accounts-chart li > div span { font-size: 12px; color: #6b6b6b; white-space: nowrap; }
+.accounts-chart li i { display: block; width: 100%; height: max(2px, calc(var(--account-bar) * .8)); border-radius: 16px; background: #111; transform-origin: bottom; animation: accounts-rise 230ms ease-out both; animation-delay: var(--account-delay); }
+.accounts-chart li[data-current='true'] i { background: #ff6a3d; }
+.accounts-chart li[data-loss='true'] i { background: #b42318; }
+.accounts-expenses { display: grid; gap: 14px; padding-top: 8px; }
+.accounts-expenses li > div:first-child { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+.accounts-expenses li > div:last-child { height: 8px; background: #ededea; border-radius: 999px; }
+.accounts-expenses li > div:last-child span { display: block; height: 100%; border-radius: inherit; background: #111; }
+.accounts-expenses strong, .accounts-clients strong { font-weight: 500; }
+.accounts-clients li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto minmax(60px, auto); align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #ededea; }
+.accounts-clients small { color: #6b6b6b; font: 12px 'Skite Dashboard Mono', monospace; }
+.accounts-clients strong { text-align: right; }
+.accounts-existing { margin-top: 24px; }
+@keyframes accounts-rise { from { transform: scaleY(.15); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
+@media (max-width: 760px) {
+    .accounts-kpis, .accounts-breakdown { grid-template-columns: minmax(0, 1fr); }
+    .accounts-card { padding: 20px; }
+    .accounts-kpis > article { min-height: 130px; }
+    .accounts-chart ul { overflow-x: auto; grid-template-columns: repeat(var(--account-months), minmax(56px, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .accounts-chart li i { animation: none; } }

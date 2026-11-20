@@ -1,0 +1,93 @@
+.dashboard-activity {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.dashboard-panel { padding: 28px; border-radius: 28px; background: #fff; min-width: 0; }
+.dashboard-panel header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.dashboard-panel h2 { font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.dashboard-panel header > :not(h2), .dashboard-panel-muted { font-size: 13px; color: #6b6b6b; }
+.dashboard-panel header a:hover { text-decoration: underline; }
+.dashboard-panel-amount { font-size: 44px; font-weight: 500; line-height: 1.1; letter-spacing: -.04em; }
+.dashboard-followups li, .dashboard-stages li { border-top: 1px solid #ededea; }
+.dashboard-followups a {
+    display: grid;
+    grid-template-columns: 68px minmax(0, 1fr) 44px;
+    gap: 12px;
+    align-items: center;
+    padding-block: 14px;
+    min-height: 72px;
+}
+.dashboard-followups a:hover .dashboard-followup-open { background: #e9e9e6; }
+.dashboard-followups time, .dashboard-stages li > :nth-child(3), .dashboard-revenue-bars small {
+    font: 12px 'Skite Dashboard Mono', monospace;
+    color: #6b6b6b;
+}
+.dashboard-followups time.dashboard-followup-overdue { color: #b42318; text-transform: uppercase; }
+.dashboard-followups small { display: block; color: #6b6b6b; font-size: 13px; }
+.dashboard-followup-open {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f5f5f3;
+    transition: background-color 160ms ease;
+}
+.dashboard-stage-track { display: flex; gap: 4px; height: 14px; margin-block: 24px; }
+.dashboard-stage-track span { border-radius: 999px; min-width: 4px; }
+.dashboard-stage-dot { width: 10px; height: 10px; border-radius: 50%; }
+.dashboard-stages li { display: grid; grid-template-columns: auto 1fr auto minmax(64px, auto); gap: 12px; align-items: center; padding-block: 9px; }
+.dashboard-stages li strong { text-align: right; font-weight: 500; }
+.dashboard-revenue-legend { display: inline-flex; align-items: center; gap: 6px; }
+.dashboard-revenue-legend i { width: 8px; height: 8px; border-radius: 50%; background: #dededb; }
+.dashboard-revenue-legend i:last-of-type { background: #111; margin-left: 5px; }
+.dashboard-revenue-bars { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-top: 26px; }
+.dashboard-revenue-bars li { display: grid; justify-items: center; gap: 10px; }
+.dashboard-revenue-bars li > div { position: relative; width: min(28px, 100%); height: 162px; }
+.dashboard-revenue-bars li > div span { position: absolute; inset: auto 0 0; border-radius: 999px; background: #ededea; }
+.dashboard-revenue-bars li > div span:last-child {
+    background: #111;
+    transform-origin: bottom;
+    animation: dashboard-bar-rise 230ms cubic-bezier(.2,.75,.25,1) both;
+    animation-delay: var(--revenue-delay);
+}
+.dashboard-revenue-bars li:last-child > div span:last-child { background: #ff6a3d; }
+.dashboard-revenue-bars small { text-transform: uppercase; }
+.dashboard-ratios { padding-top: 12px; margin-bottom: 20px; }
+.dashboard-ratios > header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0 4px 14px; }
+.dashboard-ratios > header h2 { font-size: 18px; font-weight: 500; }
+.dashboard-ratios > header span, .dashboard-team small { color: #6b6b6b; font: 12px 'Skite Dashboard Mono', monospace; }
+.dashboard-ratios > header span { text-transform: uppercase; }
+.dashboard-ratio-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.dashboard-ratio { display: grid; align-content: space-between; gap: 20px; min-height: 212px; }
+.dashboard-ratio h3, .dashboard-ratio p { color: #6b6b6b; font-size: 13px; }
+.dashboard-panel.dashboard-ratio header { margin-bottom: 0; }
+.dashboard-ratio header span { font: 11px 'Skite Dashboard Mono', monospace; }
+.dashboard-ratio > div { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dashboard-ratio strong { font-size: clamp(26px, 3.3vw, 44px); font-weight: 500; letter-spacing: -.045em; }
+.dashboard-ratio p { border-top: 1px solid #ededea; padding-top: 12px; }
+.dashboard-ratio > :is(.dashboard-ratio-segments, .dashboard-project-segments) { min-height: 10px; gap: 4px; margin-top: -13px; }
+.dashboard-ratio-segments i, .dashboard-project-segments i { display: block; height: 10px; border-radius: 999px; background: #111; }
+.dashboard-ratio-segments i:last-child, .dashboard-project-segments i[data-project-status='late'] { background: #ff6a3d; }
+.dashboard-project-segments i { flex: 1; }
+.dashboard-project-segments i[data-project-status='open'] { background: #bcbcb8; }
+.dashboard-team li { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 12px; padding-block: 12px; border-top: 1px solid #ededea; }
+.dashboard-team li > div > div { display: flex; justify-content: space-between; gap: 12px; }
+.dashboard-team-avatar { position: relative; display: grid; place-items: center; width: 40px; height: 40px; background: #f0f0ee; border-radius: 50%; text-transform: uppercase; font-size: 13px; }
+.dashboard-team-avatar[data-present='true']::after { content: ''; position: absolute; bottom: 1px; right: 0; width: 12px; height: 12px; background: #16a34a; border: 2px solid #fff; border-radius: 50%; }
+.dashboard-team progress { display: block; margin-top: 5px; width: 100%; height: 4px; border: 0; border-radius: 2px; overflow: hidden; accent-color: #111; }
+.dashboard-team progress::-webkit-progress-bar { background: #ededea; }
+.dashboard-team progress::-webkit-progress-value { background: #111; border-radius: 2px; }
+@media (max-width: 1000px) {
+    .dashboard-ratio-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+    .dashboard-activity { grid-template-columns: minmax(0, 1fr); }
+    .dashboard-panel { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-revenue-bars li > div span:last-child { animation: none; }
+    .dashboard-followup-open { transition: none; }
+}

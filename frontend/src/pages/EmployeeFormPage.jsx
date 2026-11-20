@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import Layout from '../components/Layout';
+import WorkspaceEditor from '../components/WorkspaceEditor';
+import './HREditors.css';
 import { 
-    ArrowLeft, UserCheck, Users, Briefcase, Mail, Phone, ShieldCheck, Key, Save, 
-    Sparkles, LayoutDashboard, CalendarDays, FileText, CalendarClock, FolderKanban, 
+    UserCheck, Users, Briefcase, Mail, Phone, ShieldCheck, Key,
+    LayoutDashboard, CalendarDays, FileText, CalendarClock, FolderKanban,
     Check, CreditCard, Landmark, Building2, Hash, FileCheck2, Camera, Upload, Calendar
 } from 'lucide-react';
 
@@ -36,8 +37,9 @@ export default function EmployeeFormPage() {
     const { id } = useParams();
     const isEditMode = Boolean(id);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(isEditMode);
     const [saving, setSaving] = useState(false);
+    const [loadError, setLoadError] = useState('');
 
     // Form States
     const [employeeId, setEmployeeId] = useState('');
@@ -89,6 +91,7 @@ export default function EmployeeFormPage() {
 
     const fetchEmployeeDetails = async () => {
         setLoading(true);
+        setLoadError('');
         try {
             const token = localStorage.getItem('token');
             const res = await axios.get('http://localhost:5000/api/hr/employees', {
@@ -117,10 +120,10 @@ export default function EmployeeFormPage() {
                 setBankName(emp.bankName || '');
                 setAccountNumber(emp.accountNumber || '');
                 setIfscCode(emp.ifscCode || '');
-            }
+            } else setLoadError('This employee could not be found.');
         } catch (error) {
             console.error('Error fetching employee details:', error);
-            alert('Failed to load employee details');
+            setLoadError('Failed to load employee details.');
         } finally {
             setLoading(false);
         }
@@ -136,6 +139,7 @@ export default function EmployeeFormPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading || loadError || saving) return;
         setSaving(true);
         const resolvedEmail = email || `${employeeId.toLowerCase().replace(/[^a-z0-9]/g, '')}@robotriq.com`;
         const payload = {
@@ -184,60 +188,20 @@ export default function EmployeeFormPage() {
     };
 
     return (
-        <Layout>
-            <div className="max-w-5xl mx-auto w-full animate-fade-up">
-                
-                {/* Sticky Header Action Bar */}
-                <div className="sticky top-0 z-40 bg-slate-50/80 backdrop-blur-xl border-b border-slate-200 py-4 px-6 flex items-center justify-between rounded-t-3xl shadow-sm mb-8 -mx-2 mt-2">
-                    <div className="flex items-center space-x-4">
-                        <button 
-                            type="button"
-                            onClick={() => navigate('/hr')} 
-                            className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer"
-                        >
-                            <ArrowLeft size={20} />
-                        </button>
-                        <div>
-                            <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wider mb-1">
-                                <Sparkles size={12} />
-                                <span>Employee Management</span>
-                            </div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-                                {isEditMode ? 'Edit Employee & Module Access' : 'Onboard New Employee'}
-                            </h1>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                        <button 
-                            type="button" 
-                            onClick={() => navigate('/hr')} 
-                            className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm cursor-pointer"
-                        >
-                            Cancel
-                        </button>
-                        <button 
-                            type="submit" 
-                            form="employeeForm" 
-                            disabled={saving || loading} 
-                            className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md shadow-blue-600/20 flex items-center disabled:opacity-50 cursor-pointer"
-                        >
-                            {saving ? 'Saving...' : <><Save size={18} className="mr-2" /> {isEditMode ? 'Save Changes' : 'Onboard Employee'}</>}
-                        </button>
-                    </div>
-                </div>
-
+        <WorkspaceEditor backTo="/hr" backLabel="Attendance & HR" label="Employee management"
+            title={isEditMode ? 'Edit employee & module access' : 'Onboard new employee'} formId="employeeForm"
+            saveLabel={saving ? 'Saving…' : isEditMode ? 'Save changes' : 'Onboard employee'} disabled={saving || loading || !!loadError}>
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                     </div>
-                ) : (
-                    <form id="employeeForm" onSubmit={handleSubmit} className="space-y-8 pb-12">
+                ) : loadError ? <p role="alert">{loadError}</p> : (
+                    <form id="employeeForm" onSubmit={handleSubmit} className="hr-employee-editor">
                         
                         {/* Block 1: Personal Details */}
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-blue-600 rounded-l-[2rem]"></div>
+                        <div className="lead-editor-card">
                             
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center pl-2">
+                            <h3 className="hr-editor-section-title">
                                 <Users size={16} className="mr-2 text-blue-600" /> Personal Information
                             </h3>
 
@@ -339,10 +303,9 @@ export default function EmployeeFormPage() {
                         </div>
 
                         {/* Block 2: Work & Organization Details */}
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600 rounded-l-[2rem]"></div>
+                        <div className="lead-editor-card">
                             
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center pl-2">
+                            <h3 className="hr-editor-section-title">
                                 <Briefcase size={16} className="mr-2 text-indigo-600" /> Work & Organization Details
                             </h3>
 
@@ -456,10 +419,9 @@ export default function EmployeeFormPage() {
                         </div>
 
                         {/* Block 3: Statutory & Identity Details */}
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-amber-500 rounded-l-[2rem]"></div>
+                        <div className="lead-editor-card">
                             
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center pl-2">
+                            <h3 className="hr-editor-section-title">
                                 <FileCheck2 size={16} className="mr-2 text-amber-500" /> Statutory & Identity Details
                             </h3>
 
@@ -512,10 +474,9 @@ export default function EmployeeFormPage() {
                         </div>
 
                         {/* Block 4: Bank Account Details */}
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-emerald-600 rounded-l-[2rem]"></div>
+                        <div className="lead-editor-card">
                             
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center pl-2">
+                            <h3 className="hr-editor-section-title">
                                 <Landmark size={16} className="mr-2 text-emerald-600" /> Bank Account Details (Salary Disbursement)
                             </h3>
 
@@ -578,8 +539,7 @@ export default function EmployeeFormPage() {
                         </div>
 
                         {/* Block 5: Enabled Dashboard Sections & Modules (Requested feature) */}
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-blue-600 rounded-l-[2rem]"></div>
+                        <div className="lead-editor-card">
                             
                             <div className="flex justify-between items-start mb-6 pl-2">
                                 <div>
@@ -631,10 +591,9 @@ export default function EmployeeFormPage() {
                         </div>
 
                         {/* Block 4: App Access & Security */}
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500 rounded-l-[2rem]"></div>
+                        <div className="lead-editor-card">
                             
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center pl-2">
+                            <h3 className="hr-editor-section-title">
                                 <ShieldCheck size={16} className="mr-2 text-emerald-500" /> App Access & Security
                             </h3>
 
@@ -682,7 +641,6 @@ export default function EmployeeFormPage() {
 
                     </form>
                 )}
-            </div>
-        </Layout>
+        </WorkspaceEditor>
     );
 }

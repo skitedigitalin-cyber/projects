@@ -41,6 +41,10 @@ const tenantSchema = new mongoose.Schema({
         type: Number,
         default: 25
     },
+    monthlySalesTargets: {
+        type: Map,
+        of: Number
+    },
     invoiceTemplate: {
         type: String,
         default: 'skite-orange'

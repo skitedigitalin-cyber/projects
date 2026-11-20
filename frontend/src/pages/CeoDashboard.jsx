@@ -2,10 +2,13 @@ import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import CeoWorkspace from '../components/CeoWorkspace';
+import '../components/WorkspaceLayout.css';
+import './CeoDashboard.css';
 import { LogOut, Building, CheckCircle, XCircle, Plus, LayoutDashboard, Briefcase, FileText, CalendarClock, FolderKanban, Settings, Clock, Trash2 } from 'lucide-react';
 
 export default function CeoDashboard() {
-    const { logout } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -153,7 +156,11 @@ export default function CeoDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-8">
+        <div className="ceo-dashboard">
+            <CeoWorkspace company={user?.companyName} />
+            <details className="ceo-administration">
+            <summary>Workspace administration</summary>
+            <div className="ceo-administration-content bg-slate-50 p-4 md:p-8">
             <style dangerouslySetInnerHTML={{__html: `
                 @keyframes fadeUp {
                     from { opacity: 0; transform: translateY(20px); }
@@ -436,6 +443,8 @@ export default function CeoDashboard() {
                     </div>
                 </div>
             )}
+            </div>
+            </details>
         </div>
     );
 }

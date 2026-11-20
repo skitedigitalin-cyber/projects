@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
+import { Link } from 'react-router-dom';
+import WorkspacePermissions from '../components/WorkspacePermissions';
+import './Settings.css';
 import { AuthContext } from '../context/AuthContext';
 import { 
     Palette, CheckCircle2, Monitor, Droplet, Flame, Leaf, Hexagon, 
@@ -41,7 +44,9 @@ export default function Settings() {
     const { user, updateContextUser } = useContext(AuthContext);
     const isSkite = checkIsSkite(user);
     const isRobotriq = checkIsRobotriq(user);
-    const [activeTab, setActiveTab] = useState(() => isRobotriq ? 'quotations' : 'invoices');
+    const [activeTab, setActiveTab] = useState('permissions');
+    const [savingTheme, setSavingTheme] = useState(false);
+    const [themeError, setThemeError] = useState('');
 
     useEffect(() => {
         if (isRobotriq && activeTab === 'invoices') {
@@ -186,16 +191,21 @@ export default function Settings() {
     }, []);
 
     const handleThemeChange = async (newTheme) => {
-        setThemeState(newTheme);
-        localStorage.setItem('app-theme', newTheme);
+        if (savingTheme || newTheme === theme) return;
+        setSavingTheme(true);
+        setThemeError('');
         try {
             const token = localStorage.getItem('token');
             await axios.put('http://localhost:5000/api/auth/theme', { theme: newTheme }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            setThemeState(newTheme);
             updateContextUser({ theme: newTheme });
         } catch (error) {
+            setThemeError('The workspace accent could not be saved.');
             console.error('Failed to save theme', error);
+        } finally {
+            setSavingTheme(false);
         }
     };
 
@@ -601,74 +611,40 @@ export default function Settings() {
     const availableTemplates = getInvoiceTemplates(isSkite);
     const currentTemplateObj = availableTemplates.find(t => t.id === selectedTemplate) || availableTemplates[0];
 
+    const views = [
+        ['company', 'Company profile'], ['permissions', 'Users & permissions'],
+        ...(!isRobotriq ? [['invoices', 'Invoice templates']] : []),
+        ['quotations', 'Quotation letterhead'], ['appearance', 'Appearance'], ['export', 'Data & export'],
+    ];
+
     return (
-        <Layout>
-            <div className="max-w-6xl mx-auto pt-4 pb-12 animate-fade-up">
-                {/* Header Section */}
-                <div className="mb-8 flex justify-between items-end">
-                    <div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-1">Settings</h1>
-                        <p className="text-slate-500 font-medium text-sm">Manage your workspace preferences, invoice templates, and appearance.</p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    {/* Settings Navigation Sidebar */}
-                    <div className="lg:col-span-1 space-y-2">
-                        <button 
-                            type="button"
-                            onClick={() => setActiveTab('appearance')}
-                            className={`w-full flex items-center justify-between px-4 py-3 font-bold rounded-xl border transition-all cursor-pointer ${
-                                activeTab === 'appearance'
-                                    ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                            }`}
-                        >
-                            <span className="flex items-center">
-                                <Palette size={18} className="mr-3" /> Appearance
-                            </span>
-                        </button>
-
-                        {!isRobotriq && (
-                            <button 
-                                type="button"
-                                onClick={() => setActiveTab('invoices')}
-                                className={`w-full flex items-center justify-between px-4 py-3 font-bold rounded-xl border transition-all cursor-pointer ${
-                                    activeTab === 'invoices'
-                                        ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
-                                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                                }`}
-                            >
-                                <span className="flex items-center">
-                                    <FileText size={18} className="mr-3 text-blue-600" /> Invoice Templates
-                                </span>
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
-                                    11
-                                </span>
-                            </button>
-                        )}
-
-                        <button 
-                            type="button"
-                            onClick={() => setActiveTab('quotations')}
-                            className={`w-full flex items-center justify-between px-4 py-3 font-bold rounded-xl border transition-all cursor-pointer ${
-                                activeTab === 'quotations'
-                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-sm'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                            }`}
-                        >
-                            <span className="flex items-center">
-                                <FileText size={18} className="mr-3 text-emerald-600" /> Quotation Letterhead
-                            </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                Header & Footer
-                            </span>
-                        </button>
-                    </div>
-
-                    {/* Settings Content Area */}
-                    <div className="lg:col-span-3 space-y-6">
-
+        <Layout workspace compactTools>
+            <div className="workspace-settings">
+                <header className="workspace-settings-heading">
+                    <p>Settings</p>
+                    <h1>{views.find(([id]) => id === activeTab)?.[1]}</h1>
+                </header>
+                <div className="workspace-settings-grid">
+                    <nav aria-label="Settings views">
+                        {views.map(([id, label]) => <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => setActiveTab(id)}>{label}</button>)}
+                        <Link to="/billing">Plan &amp; billing</Link>
+                    </nav>
+                    <div className="workspace-settings-content space-y-6">
+                        {activeTab === 'appearance' && themeError && <p className="workspace-settings-error" role="alert">{themeError}</p>}
+                        {activeTab === 'permissions' && <WorkspacePermissions theme={theme} themes={themes} onThemeChange={handleThemeChange} savingTheme={savingTheme} themeError={themeError} />}
+                        {activeTab === 'company' && <section className="workspace-settings-card">
+                            <header><h2>Company profile</h2></header>
+                            <dl className="workspace-settings-profile">
+                                {[['Name', companyDetails.name || user?.companyName], ['Email', companyDetails.email], ['Phone', companyDetails.phone], ['Address', companyDetails.address], ['GSTIN', companyDetails.gstNumber]].map(([label, value]) => (
+                                    <div key={label}><dt>{label}</dt><dd>{value || '—'}</dd></div>
+                                ))}
+                            </dl>
+                            <button className="workspace-settings-link" type="button" onClick={() => setActiveTab(isRobotriq ? 'quotations' : 'invoices')}>Edit document branding</button>
+                        </section>}
+                        {activeTab === 'export' && <section className="workspace-settings-card">
+                            <header><h2>Data &amp; export</h2></header>
+                            <div className="workspace-settings-links"><Link to="/sales">Export leads from Sales</Link>{!isRobotriq && <Link to="/finance">Download invoices from Finance</Link>}</div>
+                        </section>}
                         {/* ========================================================
                             TAB 1: INVOICE TEMPLATES (NON-ROBOTRIQ ONLY)
                             ======================================================== */}
@@ -1701,6 +1677,7 @@ export default function Settings() {
                                                 <button
                                                     key={t.id}
                                                     onClick={() => handleThemeChange(t.id)}
+                                        disabled={savingTheme}
                                                     className={`relative flex flex-col items-center justify-center p-6 rounded-[1.25rem] border-2 transition-all duration-300 group overflow-hidden cursor-pointer ${
                                                         theme === t.id 
                                                         ? 'border-blue-500 bg-blue-50 shadow-md scale-[1.02]' 

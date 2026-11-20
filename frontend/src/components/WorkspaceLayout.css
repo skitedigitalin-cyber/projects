@@ -1,0 +1,145 @@
+@font-face {
+    font-family: 'Skite Dashboard Geist';
+    src: url('../assets/geist/geist.woff2') format('woff2');
+    font-weight: 400 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Skite Dashboard Mono';
+    src: url('../assets/geist/geist-mono.woff2') format('woff2');
+    font-weight: 400 700;
+    font-display: swap;
+}
+
+.skite-workspace {
+    --workspace-accent: #ff6a3d;
+    min-height: 100dvh;
+    background: #f5f5f3;
+    color: #111;
+    font: 14px/1.5 'Skite Dashboard Geist', system-ui, sans-serif;
+}
+.skite-workspace[data-workspace-theme='default'] { --workspace-accent: #213b82; }
+.skite-workspace[data-workspace-theme='emerald'] { --workspace-accent: #057b5c; }
+.skite-workspace[data-workspace-theme='purple'] { --workspace-accent: #6d28d9; }
+.skite-workspace[data-workspace-theme='rose'] { --workspace-accent: #be123c; }
+.skite-workspace[data-workspace-theme='amber'] { --workspace-accent: #d97706; }
+
+.skite-workspace-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px clamp(16px, 4vw, 56px);
+}
+
+.skite-workspace-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
+
+.skite-workspace-brand > span {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 9px;
+    background: #111;
+}
+
+.skite-workspace-brand > span::after {
+    content: '';
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--workspace-accent);
+}
+
+.skite-workspace-nav {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(17 17 17 / 4%);
+}
+
+.skite-workspace-nav[hidden] { display: none; }
+.skite-workspace-nav a {
+    display: block;
+    padding: 7px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: background-color 160ms ease;
+}
+.skite-workspace-nav a:hover { background: #f0f0ee; }
+.skite-workspace-nav a[aria-current='page'] { background: #111; color: #fff; font-weight: 500; }
+
+.skite-workspace-tools { display: flex; justify-self: end; gap: 8px; }
+.skite-workspace-tools details { position: relative; }
+.skite-workspace-tools summary {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    list-style: none;
+}
+.skite-workspace-tools summary::-webkit-details-marker { display: none; }
+.skite-workspace-tools .skite-workspace-avatar { background: #111; color: #fff; font-weight: 500; }
+.skite-workspace-notice > span {
+    position: absolute;
+    inset: 11px 12px auto auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ff6a3d;
+}
+.skite-workspace-menu {
+    position: absolute;
+    z-index: 2;
+    top: calc(100% + 8px);
+    right: 0;
+    display: grid;
+    width: min(220px, 55vw);
+    gap: 3px;
+    padding: 12px;
+    border: 1px solid #ededeb;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgb(17 17 17 / 10%);
+    overflow-wrap: anywhere;
+}
+.skite-workspace-menu a, .skite-workspace-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+}
+.skite-workspace-menu a:hover, .skite-workspace-menu button:hover { background: #f5f5f3; }
+.skite-workspace :is(a, summary, button):focus-visible { outline: 2px solid #af3a16; outline-offset: 3px; }
+.skite-workspace-main {
+    max-width: 1320px;
+    margin-inline: auto;
+    padding: 24px clamp(16px, 4vw, 56px) 64px;
+}
+
+@media (max-width: 1000px) {
+    .skite-workspace-header { flex-wrap: wrap; }
+    .skite-workspace-nav { order: 1; width: 100%; overflow-x: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skite-workspace-nav a { transition: none; }
+}

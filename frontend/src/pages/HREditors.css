@@ -1,0 +1,15 @@
+.hr-task-timing label + label { margin-top: 16px; }
+.hr-task-timing select, .hr-task-timing input[type='date'] {
+    color-scheme: dark;
+    background: #282828;
+    border-color: #282828;
+    color: #fff;
+}
+.hr-employee-editor { display: grid; gap: 20px; }
+.hr-editor-section-title {
+    display: flex; align-items: center; gap: 8px; font-size: 18px;
+    font-weight: 500; letter-spacing: -.02em; margin-bottom: 18px;
+}
+.hr-editor-section-title svg { display: none; }
+.hr-employee-editor .lead-editor-card :is(input.pl-12, select.pl-12) { padding-left: 46px; }
+.hr-employee-editor .lead-editor-card label { font-weight: 500; }

@@ -350,13 +350,13 @@ export default function StudentManagement() {
     const calculatedPending = Math.max(0, (Number(formData.fees) || 0) - (Number(formData.paidAmount) || 0));
 
     return (
-        <div className="space-y-6">
+        <div className="student-directory space-y-6">
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+            <div className="student-directory-top flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
                         <GraduationCap size={28} className="text-teal-600" />
-                        <span>Students Management</span>
+                        <span>Directory &amp; admissions</span>
                     </h1>
                     <p className="text-sm text-slate-500 mt-0.5">
                         Robotriq Student Admissions, Course Tracking, Fee Collections & Balance Sheets.
@@ -373,7 +373,7 @@ export default function StudentManagement() {
             </div>
 
             {/* KPI Summary Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="student-directory-kpis grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
                         <GraduationCap size={24} />
@@ -416,12 +416,12 @@ export default function StudentManagement() {
             </div>
 
             {/* Filter & Search Controls */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="student-directory-filters flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="relative flex-1 max-w-md">
                     <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 
                         type="text" 
-                        placeholder="Search student ID, name, mobile, or order ID..." 
+                        aria-label="Search students" placeholder="Search student ID, name, mobile, or order ID..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:bg-white transition-all"
@@ -432,7 +432,7 @@ export default function StudentManagement() {
                     {/* Course Filter */}
                     <div className="relative">
                         <select
-                            value={selectedCourse}
+                            aria-label="Filter by course" value={selectedCourse}
                             onChange={(e) => setSelectedCourse(e.target.value)}
                             className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-teal-500 cursor-pointer max-w-xs truncate"
                         >
@@ -461,7 +461,7 @@ export default function StudentManagement() {
             </div>
 
             {/* Students Table */}
-            <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+            <div className="student-directory-table overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>

@@ -6,7 +6,7 @@ import {
     DollarSign, CreditCard, Banknote
 } from 'lucide-react';
 
-export default function InvoicePayment({ onBack }) {
+export default function InvoicePayment({ onBack, initialInvoice = null }) {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -21,9 +21,11 @@ export default function InvoicePayment({ onBack }) {
     const [currentPage, setCurrentPage] = useState(1);
 
     // Record Payment Modal State
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedInvoice, setSelectedInvoice] = useState(null);
-    const [paymentAmount, setPaymentAmount] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(Boolean(initialInvoice));
+    const [selectedInvoice, setSelectedInvoice] = useState(initialInvoice);
+    const [paymentAmount, setPaymentAmount] = useState(() => initialInvoice
+        ? String(Math.max(0, Number(initialInvoice.grandTotal || 0) - Number(initialInvoice.paidAmount || 0)))
+        : '');
     const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
     const [paymentMode, setPaymentMode] = useState('Bank Transfer');
     const [paymentNotes, setPaymentNotes] = useState('');

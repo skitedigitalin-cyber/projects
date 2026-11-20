@@ -1,0 +1,53 @@
+.invoice-workspace { display: grid; grid-template-columns: minmax(0, .605fr) minmax(0, 1fr); align-items: start; gap: 20px; animation: invoice-workspace-in 180ms ease-out; }
+.invoice-workspace-list, .invoice-workspace-paper { border-radius: 28px; background: #fff; min-width: 0; }
+.invoice-workspace-list { padding: 24px; }
+.invoice-workspace-list header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.invoice-workspace-list h2 { font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.invoice-workspace-list header span, .invoice-workspace-list p { color: #6b6b6b; font-size: 13px; }
+.invoice-workspace-list ul { max-height: 475px; overflow-y: auto; }
+.invoice-workspace-list li > button {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 12px;
+    width: 100%; min-height: 76px; border-radius: 18px; text-align: left; cursor: pointer;
+}
+.invoice-workspace-list li > button:hover, .invoice-workspace-list li > button[aria-pressed='true'] { background: #f5f5f3; }
+.invoice-workspace-list li > button > span { min-width: 0; }
+.invoice-workspace-list li > button > span:last-child { text-align: right; }
+.invoice-workspace-list strong { display: block; font-weight: 500; overflow-wrap: anywhere; }
+.invoice-workspace-list small { display: inline-block; color: #6b6b6b; font: 12px 'Skite Dashboard Mono', monospace; }
+.invoice-workspace-list small[data-status] { padding: 4px 9px; border-radius: 999px; background: #efefed; color: #111; font: 11px 'Skite Dashboard Geist', system-ui, sans-serif; }
+.invoice-workspace-list small[data-status='Overdue'] { background: #ff6a3d; }
+.invoice-workspace-list small[data-status='Due'] { background: #111; color: #fff; }
+.invoice-workspace-selected { display: grid; gap: 14px; min-width: 0; }
+.invoice-workspace-paper { padding: clamp(20px, 4vw, 40px); }
+.invoice-workspace-paper > header { display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 26px; }
+.invoice-workspace-paper header small { font: 11px 'Skite Dashboard Mono', monospace; text-transform: uppercase; letter-spacing: .05em; }
+.invoice-workspace-paper header :is(small, p), .invoice-workspace-paper dt, .invoice-workspace-table th { color: #6b6b6b; }
+.invoice-workspace-paper header h2 { margin-top: 3px; font-size: 28px; line-height: 1.2; font-weight: 500; letter-spacing: -.035em; overflow-wrap: anywhere; }
+.invoice-workspace-paper header > div:last-child { max-width: 55%; text-align: right; overflow-wrap: anywhere; }
+.invoice-workspace-paper header p { margin-top: 3px; font-size: 13px; }
+.invoice-workspace-paper header strong { font-weight: 500; }
+.invoice-workspace-metadata { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding-block: 16px; border-block: 1px solid #ededea; overflow-wrap: anywhere; }
+.invoice-workspace-metadata dt { font-size: 13px; }
+.invoice-workspace-metadata dd { margin-top: 2px; font-weight: 500; }
+.invoice-workspace-table { overflow-x: auto; margin-top: 24px; }
+.invoice-workspace-table table { width: 100%; text-align: left; min-width: 290px; }
+.invoice-workspace-table :is(th, td):last-child { text-align: right; }
+.invoice-workspace-table th { font-size: 12px; font-weight: 400; }
+.invoice-workspace-table :is(th, td) { padding: 10px 4px; overflow-wrap: anywhere; }
+.invoice-workspace-table td { border-top: 1px solid #ededea; }
+.invoice-workspace-totals { width: min(300px, 100%); margin: 24px 0 0 auto; }
+.invoice-workspace-totals div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-block: 3px; }
+.invoice-workspace-totals div:last-child { margin-top: 8px; border-top: 1px solid #ededea; padding-top: 10px; }
+.invoice-workspace-totals div:last-child dt { color: #111; }
+.invoice-workspace-totals div:last-child dd { font-size: 29px; line-height: 1.2; font-weight: 500; letter-spacing: -.04em; }
+.invoice-workspace-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.invoice-workspace-actions > * { display: inline-flex; align-items: center; padding: 0 21px; min-height: 48px; border-radius: 999px; background: #111; color: #fff; cursor: pointer; }
+.invoice-workspace-actions > a { background: #ff6a3d; color: #111; }
+.invoice-workspace-actions > button:last-child { background: white; color: #111; }
+.invoice-workspace-actions button:disabled { opacity: .6; cursor: default; }
+@keyframes invoice-workspace-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 850px) {
+    .invoice-workspace { grid-template-columns: minmax(0, 1fr); }
+    .invoice-workspace-list ul { max-height: 240px; }
+}
+@media (prefers-reduced-motion: reduce) { .invoice-workspace { animation: none; } }

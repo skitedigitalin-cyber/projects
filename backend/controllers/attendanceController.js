@@ -39,7 +39,7 @@ exports.getTodayStatus = async (req, res) => {
             ]
         });
 
-        res.json({ attendance, pendingPreviousCheckout });
+        res.json({ attendance, pendingPreviousCheckout, shift: employee.shift });
     } catch (error) {
         res.status(500).json({ message: 'Server Error', error: error.message });
     }

@@ -7,6 +7,9 @@ import { Plus, Search, X, Eye, Pencil, Trash2, Phone, Mail, MapPin, Building, Ta
 import LeadDetailsModal from '../components/LeadDetailsModal';
 import ProposalConfigTab from '../components/ProposalConfigTab';
 import SalesActivityLog from '../components/SalesActivityLog';
+import SalesLeadList from '../components/SalesLeadList';
+import SalesTargetSettings from '../components/SalesTargetSettings';
+import { compactRupees } from '../components/DashboardNumbers';
 
 const LEAD_SOURCES = ['Cold Leads', 'Meta Leads'];
 const LEAD_STATUSES = ['New', 'Contacted', 'Qualified', 'Appointment', 'Proposal Sent', 'Converted', 'Lost'];
@@ -231,8 +234,9 @@ export default function Sales() {
     );
     const activeMasterList = useMemo(() => isRobotriq ? ROBOTRIQ_LEVELS : MASTER_SERVICES, [isRobotriq]);
 
-    const [activeTab, setActiveTab] = useState('dashboard');
+    const [activeTab, setActiveTab] = useState('list');
     const [leads, setLeads] = useState([]);
+    const [leadStatus, setLeadStatus] = useState('loading');
     const [selectedSource, setSelectedSource] = useState(null);
     const [selectedService, setSelectedService] = useState(null); // null = Level 2 (Services screen), string = Level 3 (Pipeline screen)
     const [pipelineTab, setPipelineTab] = useState('Leads');
@@ -281,7 +285,11 @@ export default function Sales() {
         try {
             const res = await axios.get('http://localhost:5000/api/leads');
             setLeads(Array.isArray(res.data) ? res.data : []);
-        } catch (error) { console.error("Error fetching leads:", error); }
+            setLeadStatus('ready');
+        } catch (error) {
+            setLeadStatus('error');
+            console.error("Error fetching leads:", error);
+        }
     };
 
     const handleInputChange = (e) => {
@@ -705,8 +713,10 @@ export default function Sales() {
         );
     };
 
+    const openValue = leads.reduce((value, lead) => ['Converted', 'Lost'].includes(lead.leadStatus) ? value : value + (Number(lead.leadValue) || 0), 0);
+
     return (
-        <Layout>
+        <Layout workspace compactTools>
             <style dangerouslySetInnerHTML={{__html: `
                 @keyframes fadeUp {
                     from { opacity: 0; transform: translateY(40px); }
@@ -737,16 +747,26 @@ export default function Sales() {
                 }
             `}} />
             
-            {/* Main Tabs */}
-            <div className="mb-6 animate-fade-up">
-                <div className="border-b border-gray-200">
-                    <nav className="flex space-x-8">
-                        {[{ id: 'dashboard', label: 'Sales Dashboard' }, { id: 'leads', label: 'Lead Management' }, { id: 'targets', label: 'Sales Targets' }].map(tab => (
-                            <button key={tab.id} onClick={() => { setActiveTab(tab.id); setSelectedSource(null); }} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer ${activeTab === tab.id ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>{tab.label}</button>
+            <header className="sales-page-heading">
+                <div>
+                    <p>Sales &amp; Leads</p>
+                    <h1>{leadStatus === 'loading' ? 'Loading leads…' : `${leads.length} ${leads.length === 1 ? 'lead' : 'leads'}`}
+                        {leadStatus === 'ready' && <span> · {compactRupees(openValue)} open</span>}
+                    </h1>
+                </div>
+                <div className="sales-page-actions">
+                    <nav aria-label="Sales views">
+                        {[['dashboard', 'Dashboard'], ['list', 'Leads'], ['targets', 'Targets']].map(([id, label]) => (
+                            <button type="button" key={id} aria-current={activeTab === id || (id === 'list' && activeTab === 'leads') ? 'page' : undefined}
+                                onClick={() => { setActiveTab(id); setSelectedSource(null); setSelectedService(null); }}>{label}</button>
                         ))}
                     </nav>
+                    <button type="button" onClick={() => navigate('/sales/lead/add')}><Plus size={15} /> Add lead</button>
                 </div>
-            </div>
+            </header>
+
+            {activeTab === 'list' && <SalesLeadList leads={leads} loading={leadStatus === 'loading'} failed={leadStatus === 'error'}
+                onView={openViewModal} onBrowseSources={() => setActiveTab('leads')} />}
 
             {/* ======== DASHBOARD TAB ======== */}
             {activeTab === 'dashboard' && (
@@ -1394,11 +1414,7 @@ export default function Sales() {
 
             {/* ======== TARGETS TAB ======== */}
             {activeTab === 'targets' && (
-                <div className="bg-white p-8 rounded-[1.5rem] shadow-sm border border-slate-100 text-center animate-fade-up">
-                    <Target size={48} className="mx-auto text-slate-300 mb-4" />
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">Sales Targets</h3>
-                    <p className="text-slate-500 font-medium">Coming soon — will be linked with Finance & Invoicing.</p>
-                </div>
+                <SalesTargetSettings canManage={['Admin', 'CEO'].includes(user?.role)} />
             )}
 
             {/* ======== MODALS ======== */}

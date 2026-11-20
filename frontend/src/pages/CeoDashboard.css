@@ -1,0 +1,51 @@
+.ceo-dashboard {
+    min-height: 100dvh;
+    background: #111;
+    color: #f5f5f3;
+    font: 14px/1.5 'Skite Dashboard Geist', system-ui, sans-serif;
+}
+.ceo-reference-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px clamp(16px, 4vw, 56px); }
+.ceo-reference-brand { display: inline-flex; align-items: center; gap: 4px; font-size: 16px; }
+.ceo-reference-brand > i { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 9px; background: #fff; margin-right: 6px; }
+.ceo-reference-brand > i::after, .ceo-live::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: #ff6a3d; }
+.ceo-reference-brand > span { color: #a7a7a7; }
+.ceo-live { display: inline-flex; align-items: center; gap: 8px; color: #c5c5c5; font: 12px 'Skite Dashboard Mono', monospace; text-transform: uppercase; }
+.ceo-live::before { width: 8px; height: 8px; }
+.ceo-reference-main { max-width: 1320px; margin-inline: auto; padding: 32px clamp(16px, 4vw, 56px) 22px; }
+.ceo-headline { margin-bottom: 42px; }
+.ceo-headline p { color: #969696; font: 12px 'Skite Dashboard Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+.ceo-headline h1 { margin: 12px 0 9px; font-size: clamp(45px, 7.8vw, 96px); line-height: 1; font-weight: 500; letter-spacing: -.055em; }
+.ceo-headline h1 span { color: #777; }
+.ceo-headline > div { color: #c5c5c5; font-size: clamp(14px, 2vw, 18px); }
+.ceo-ratios, .ceo-activity { display: grid; gap: 16px; }
+.ceo-ratios { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 20px; }
+.ceo-activity { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ceo-card { min-width: 0; padding: 24px; border-radius: 26px; background: #1a1a1a; }
+.ceo-ratios .ceo-card { display: grid; gap: 12px; align-content: space-between; min-height: 145px; }
+.ceo-ratios h2, .ceo-card > p, .ceo-card small { color: #b8b8b8; }
+.ceo-ratios strong { font-size: 40px; line-height: 1; font-weight: 500; letter-spacing: -.045em; }
+.ceo-ratios progress { width: 100%; height: 4px; border: 0; border-radius: 999px; overflow: hidden; accent-color: #f5f5f3; }
+.ceo-ratios progress::-webkit-progress-bar { background: #333; }
+.ceo-ratios progress::-webkit-progress-value { background: #f5f5f3; border-radius: 999px; }
+.ceo-activity .ceo-card { min-height: 428px; padding: 26px; }
+.ceo-activity h2 { margin-bottom: 12px; font-size: 18px; line-height: 1.3; font-weight: 500; }
+.ceo-feed li, .ceo-people li { display: grid; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid #2a2a2a; }
+.ceo-feed li { grid-template-columns: 46px minmax(0, 1fr); overflow-wrap: anywhere; }
+.ceo-feed time { color: #a3a3a3; font: 12px 'Skite Dashboard Mono', monospace; }
+.ceo-people li { grid-template-columns: 40px minmax(0, 1fr) auto; }
+.ceo-people li > span { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 50%; background: #2b2b2b; text-transform: uppercase; }
+.ceo-people li strong { font-weight: 500; }
+.ceo-people li small { display: block; }
+.ceo-administration { max-width: 1320px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 56px) 64px; }
+.ceo-administration summary { width: fit-content; padding: 10px 16px; border-radius: 999px; background: #242424; color: #fff; cursor: pointer; }
+.ceo-administration-content { margin-top: 16px; border-radius: 24px; color: #111; }
+.ceo-administration :is(summary, button, input):focus-visible { outline: 2px solid #ff6a3d; outline-offset: 3px; }
+@media (max-width: 800px) {
+    .ceo-ratios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ceo-activity { grid-template-columns: minmax(0, 1fr); }
+    .ceo-activity .ceo-card { min-height: auto; }
+}
+@media (max-width: 410px) {
+    .ceo-card, .ceo-activity .ceo-card { padding: 18px; }
+    .ceo-headline { margin-bottom: 25px; }
+}

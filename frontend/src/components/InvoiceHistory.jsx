@@ -8,12 +8,14 @@ import {
     FileX, Trash2
 } from 'lucide-react';
 import InvoiceRenderer from './invoiceTemplates/InvoiceRenderer';
+import InvoiceWorkspace from './InvoiceWorkspace';
 import { INVOICE_TEMPLATES } from './invoiceTemplates/templateConfigs';
 import { generateSingleInvoicePdf, generateNativeInvoicePdf, generateBatchInvoicesPdf } from '../utils/invoicePdfGenerator';
 
-export default function InvoiceHistory({ onNavigateToInvoices }) {
+export default function InvoiceHistory({ onNavigateToInvoices, workspace = false, onInvoicesChange, onRecordPayment }) {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
 
     // Active Template state (synced with settings / tenant)
     const [activeTemplate, setActiveTemplate] = useState(
@@ -140,11 +142,15 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
     const fetchInvoices = async () => {
         try {
             setLoading(true);
+            setLoadError(false);
             const res = await axios.get('http://localhost:5000/api/invoices', {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
-            setInvoices(res.data);
+            const records = Array.isArray(res.data) ? res.data : [];
+            setInvoices(records);
+            onInvoicesChange?.(records);
         } catch (error) {
+            setLoadError(true);
             console.error('Error fetching invoices in InvoiceHistory', error);
         } finally {
             setLoading(false);
@@ -346,6 +352,11 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
 
     const hasActiveFilters = searchTerm !== '' || selectedClient !== '' || statusFilter !== 'ALL' || activeGstTab !== 'all' || fromDate !== '' || toDate !== '' || sortBy !== 'date-desc';
     const activeTemplateObj = INVOICE_TEMPLATES.find(t => t.id === activeTemplate) || INVOICE_TEMPLATES[0];
+
+    if (workspace) {
+        return <InvoiceWorkspace invoices={invoices} company={company} loading={loading} failed={loadError}
+            downloadingId={rowDownloadingId} onDownload={handleDownloadSinglePdf} onRecordPayment={onRecordPayment} />;
+    }
 
     return (
         <div className="space-y-6">

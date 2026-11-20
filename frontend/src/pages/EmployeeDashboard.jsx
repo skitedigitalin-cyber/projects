@@ -13,6 +13,7 @@ import {
 import MyAttendance from '../components/MyAttendance';
 import MyLeaves from '../components/MyLeaves';
 import MyTasks from '../components/MyTasks';
+import EmployeeMobileHome from '../components/EmployeeMobileHome';
 
 const isProjectChecklistTask = (task) => {
     if (!task) return false;
@@ -31,6 +32,11 @@ export default function EmployeeDashboard() {
         navigate('/');
     };
     const [activeTab, setActiveTab] = useState('dashboard');
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [shift, setShift] = useState('');
+    const [myTasks, setMyTasks] = useState([]);
+    const [myFollowUps, setMyFollowUps] = useState(null);
+    const salesEnabled = user?.activeModules?.includes('sales');
     
     // Dashboard Overview States
     const [attendance, setAttendance] = useState(null);
@@ -110,9 +116,11 @@ export default function EmployeeDashboard() {
                 axios.get('http://localhost:5000/api/hr/permissions/my-permissions', { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: [] }))
             ]);
             setAttendance(attRes.data.attendance);
+            setShift(attRes.data.shift);
             setPendingPrevious(attRes.data.pendingPreviousCheckout || null);
             
             const pendingList = Array.isArray(taskRes.data) ? taskRes.data.filter(t => t.status !== 'Completed') : [];
+            setMyTasks(Array.isArray(taskRes.data) ? taskRes.data : []);
             setTasksCount(pendingList.length);
             setPendingTasks(pendingList);
 
@@ -128,6 +136,15 @@ export default function EmployeeDashboard() {
     useEffect(() => {
         fetchOverview();
     }, [activeTab]); // Refetch when tab changes to keep overview fresh
+
+    useEffect(() => {
+        if (!salesEnabled || activeTab !== 'dashboard') return;
+        const controller = new AbortController();
+        axios.get('http://localhost:5000/api/leads/my-follow-ups', { signal: controller.signal })
+            .then(({ data }) => setMyFollowUps(data))
+            .catch(() => { if (!controller.signal.aborted) setMyFollowUps(null); });
+        return () => controller.abort();
+    }, [salesEnabled, activeTab]);
 
     const handleCheckIn = async () => {
         if (pendingPrevious) {
@@ -249,6 +266,19 @@ export default function EmployeeDashboard() {
         { id: 'tasks', name: 'My Tasks', icon: <CheckSquare size={18} strokeWidth={1.5} /> },
         { id: 'project-tasks', name: 'Project Tasks', icon: <ListChecks size={18} strokeWidth={1.5} /> },
     ];
+
+    const employeeToday = currentTime.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const taskDay = value => new Date(value).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const todayTasks = myTasks.filter(task => task.dueDate && taskDay(task.dueDate) === employeeToday);
+    const taskSummary = {
+        total: todayTasks.length,
+        completed: todayTasks.filter(task => task.status === 'Completed').length,
+        overdue: pendingTasks.filter(task => task.dueDate && taskDay(task.dueDate) < employeeToday).length
+    };
+    const openMobileTab = tab => {
+        setActiveTab(tab);
+        setMobileMenuOpen(false);
+    };
 
     const renderContent = () => {
         switch(activeTab) {
@@ -558,9 +588,10 @@ export default function EmployeeDashboard() {
     if (loading && activeTab === 'dashboard') return <div className="min-h-screen flex items-center justify-center text-[#787774] text-sm bg-[#FBFBFA]">Loading workspace...</div>;
 
     return (
-        <div className="flex h-screen bg-[#FBFBFA] font-sans text-[#111111]">
+        <div className="employee-portal flex h-screen bg-[#FBFBFA] font-sans text-[#111111]">
+            {mobileMenuOpen && <button type="button" className="employee-menu-scrim" aria-label="Close employee menu" onClick={() => setMobileMenuOpen(false)} />}
             {/* Sidebar - Minimalist Editorial with smooth collapse */}
-            <aside className={`bg-white border-r border-[#EAEAEA] flex flex-col transition-all duration-300 ease-in-out shrink-0 overflow-hidden ${
+            <aside id="employee-portal-menu" data-mobile-open={mobileMenuOpen} className={`employee-portal-sidebar bg-white border-r border-[#EAEAEA] flex flex-col transition-all duration-300 ease-in-out shrink-0 overflow-hidden ${
                 isSidebarCollapsed ? 'w-0 border-r-0 opacity-0 pointer-events-none' : 'w-64 opacity-100'
             }`}>
                 <div className="w-64 flex flex-col h-full">
@@ -570,7 +601,7 @@ export default function EmployeeDashboard() {
                             <span className="text-sm font-bold tracking-tight">Skite Workspace</span>
                         </div>
                         <button
-                            onClick={toggleSidebar}
+                            onClick={mobileMenuOpen ? () => setMobileMenuOpen(false) : toggleSidebar}
                             title="Close Sidebar (Ctrl+B)"
                             className="p-1 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
                         >
@@ -585,7 +616,7 @@ export default function EmployeeDashboard() {
                             {navItems.map((item) => (
                                 <button
                                     key={item.id}
-                                    onClick={() => setActiveTab(item.id)}
+                                    onClick={() => openMobileTab(item.id)}
                                     className={`w-full flex items-center px-3 py-2 text-sm rounded-[4px] transition-colors ${
                                         activeTab === item.id 
                                         ? 'bg-[#F7F6F3] text-[#111111] font-medium' 
@@ -718,12 +749,12 @@ export default function EmployeeDashboard() {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden relative z-10 min-w-0">
-            <header className="h-16 bg-white border-b border-[#EAEAEA] flex items-center justify-between px-6 shrink-0">
+            <header className={`employee-portal-header h-16 bg-white border-b border-[#EAEAEA] flex items-center justify-between px-6 shrink-0 ${activeTab === 'dashboard' ? 'employee-portal-home-header' : ''}`}>
                 <div className="flex items-center space-x-3">
                     <button
-                        onClick={toggleSidebar}
+                            onClick={toggleSidebar}
                         title={isSidebarCollapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all cursor-pointer border border-[#EAEAEA] active:scale-95"
+                            className="employee-desktop-toggle p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all cursor-pointer border border-[#EAEAEA] active:scale-95"
                     >
                         {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
                     </button>
@@ -738,12 +769,32 @@ export default function EmployeeDashboard() {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-y-auto overflow-x-hidden p-8">
+                <main className="employee-portal-content flex-1 overflow-y-auto overflow-x-hidden p-8">
                     <div className="max-w-5xl mx-auto">
-                        {renderContent()}
+                        {activeTab === 'dashboard' && (
+                            <EmployeeMobileHome name={user?.name} now={currentTime} attendance={attendance}
+                                shift={shift} pendingPrevious={pendingPrevious} duration={calculateDuration(attendance?.checkInTime)}
+                                taskSummary={taskSummary} followUps={myFollowUps} salesEnabled={salesEnabled}
+                                loading={loading} onOpenProfile={() => setMobileMenuOpen(true)}
+                                onCheckIn={handleCheckIn} onCheckOut={() => setIsCheckOutModalOpen(true)}
+                                onMissedCheckOut={() => setIsPreviousCheckoutModalOpen(true)} />
+                        )}
+                        {activeTab === 'dashboard' ? (
+                            <details className="employee-overview-disclosure" open>
+                                <summary>Attendance, requests and assigned work</summary>
+                                {renderContent()}
+                            </details>
+                        ) : renderContent()}
                     </div>
                 </main>
             </div>
+
+            <nav className="employee-bottom-nav" aria-label="Employee navigation">
+                <button type="button" aria-current={activeTab === 'dashboard' ? 'page' : undefined} onClick={() => openMobileTab('dashboard')}>Home</button>
+                {salesEnabled && <Link to="/sales">Leads</Link>}
+                <button type="button" aria-current={activeTab === 'tasks' ? 'page' : undefined} onClick={() => openMobileTab('tasks')}>Tasks</button>
+                <button type="button" aria-controls="employee-portal-menu" aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(open => !open)}>Me</button>
+            </nav>
 
             {/* Modals - Minimalist Style */}
             {/* Modal for Missed Previous Day Checkout */}

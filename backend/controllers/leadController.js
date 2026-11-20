@@ -1,8 +1,15 @@
 const Lead = require('../models/Lead');
 const Invoice = require('../models/Invoice');
 const Tenant = require('../models/Tenant');
+const User = require('../models/User');
 
 // Get overview stats for main dashboard
+const summarizeCollections = require('../utils/dashboardCollections');
+const summarizePipeline = require('../utils/dashboardPipeline');
+const loadDashboardTeam = require('../utils/dashboardTeam');
+const { getDashboardTarget } = require('./salesTargetController');
+const { conversionChange, countMonthlyWins } = require('../utils/leadConversions');
+
 exports.getDashboardStats = async (req, res) => {
     try {
         const tenantId = req.user.tenantId;
@@ -62,8 +69,20 @@ exports.getDashboardStats = async (req, res) => {
             leadSource: l.leadSource || 'Direct',
             leadStatus: l.leadStatus || 'New',
             leadValue: l.leadValue || 0,
+            createdAt: l.createdAt,
             initials: (l.customerName || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
         }));
+
+        const collections = ['Admin', 'CEO'].includes(req.user.role) ? summarizeCollections(invoices, now) : undefined;
+        const [overview, salesTarget] = collections
+            ? await Promise.all([loadDashboardTeam(tenantId, now, collections.revenue.at(-1).invoiced).catch(error => {
+                console.error('Dashboard overview unavailable:', error.message);
+                return undefined;
+            }), getDashboardTarget(tenantId, now, collections).catch(error => {
+                console.error('Sales target unavailable:', error.message);
+                return undefined;
+            })])
+            : [];
 
         res.json({
             totalPipelineValue,
@@ -81,6 +100,12 @@ exports.getDashboardStats = async (req, res) => {
                 coldCount
             },
             conversionRate,
+            convertedCount,
+            monthlyWins: countMonthlyWins(leads, now),
+            ...summarizePipeline(leads, now),
+            collections,
+            overview,
+            salesTarget,
             recentLeads
         });
     } catch (error) {
@@ -88,6 +113,57 @@ exports.getDashboardStats = async (req, res) => {
         res.status(500).json({ message: 'Server Error fetching dashboard stats' });
     }
 };
+
+exports.getMyFollowUps = async (req, res) => {
+    try {
+        const { tenantId, userId } = req.user;
+        const allowed = await User.exists({ _id: userId, tenantId, isActive: true, activeModules: 'sales' });
+        if (!allowed) return res.status(403).json({ message: 'Sales access required' });
+
+        const leads = await Lead.find({ tenantId, assignedSalesperson: userId })
+            .select('companyName customerName leadStatus callbackAlertDate callbackAlertTime nextFollowUpDate mobileNumber')
+            .lean();
+        const phones = new Map(leads.map(lead => [String(lead._id), lead.mobileNumber]));
+        const { followUps, followUpCount, overdueFollowUpCount } = summarizePipeline(leads, new Date());
+        return res.json({
+            followUps: followUps.map(item => ({ ...item, phone: phones.get(String(item.id)) })),
+            followUpCount,
+            overdueFollowUpCount
+        });
+    } catch (error) {
+        console.error('Assigned follow-ups unavailable:', error.message);
+        return res.status(500).json({ message: 'Could not load follow-ups' });
+    }
+};
+
+const isLeadManager = user => ['Admin', 'CEO'].includes(user.role);
+const ownerFilter = tenantId => ({
+    tenantId,
+    isActive: true,
+    $or: [{ role: { $in: ['Admin', 'CEO'] } }, { activeModules: 'sales' }]
+});
+
+exports.getLeadOwners = async (req, res) => {
+    if (!isLeadManager(req.user)) return res.status(403).json({ message: 'Lead owner management requires an admin account' });
+    try {
+        const owners = await User.find(ownerFilter(req.user.tenantId)).select('name').sort({ name: 1 }).lean();
+        return res.json(owners);
+    } catch (error) {
+        return res.status(500).json({ message: 'Could not load lead owners' });
+    }
+};
+
+async function validateOwnerChange(req) {
+    if (!Object.hasOwn(req.body, 'assignedSalesperson')) return null;
+    if (!isLeadManager(req.user)) return { status: 403, message: 'Lead owner management requires an admin account' };
+    const owner = req.body.assignedSalesperson;
+    if (owner === null) return null;
+    if (typeof owner !== 'string' || !/^[a-f\d]{24}$/i.test(owner)
+        || !await User.exists({ ...ownerFilter(req.user.tenantId), _id: owner })) {
+        return { status: 400, message: 'Choose an active salesperson in this workspace' };
+    }
+    return null;
+}
 
 // Get all leads for the logged-in tenant
 exports.getLeads = async (req, res) => {
@@ -107,6 +183,8 @@ exports.getLeads = async (req, res) => {
 // Create a new lead
 exports.createLead = async (req, res) => {
     try {
+        const ownerError = await validateOwnerChange(req);
+        if (ownerError) return res.status(ownerError.status).json({ message: ownerError.message });
         // Enforce Free Trial limits (Max 50 leads during 30-day trial)
         const tenant = await Tenant.findById(req.user.tenantId);
         if (tenant && tenant.status === 'trial') {
@@ -125,7 +203,8 @@ exports.createLead = async (req, res) => {
         const newLead = new Lead({
             ...req.body,
             leadId,
-            tenantId: req.user.tenantId
+            tenantId: req.user.tenantId,
+            convertedAt: req.body.leadStatus === 'Converted' ? new Date() : null
         });
 
         const savedLead = await newLead.save();
@@ -139,13 +218,31 @@ exports.createLead = async (req, res) => {
 // Update a lead
 exports.updateLead = async (req, res) => {
     try {
-        const lead = await Lead.findOneAndUpdate(
-            { _id: req.params.id, tenantId: req.user.tenantId },
-            req.body,
-            { new: true }
-        );
-        if (!lead) return res.status(404).json({ message: 'Lead not found' });
-        res.json(lead);
+        const ownerError = await validateOwnerChange(req);
+        if (ownerError) return res.status(ownerError.status).json({ message: ownerError.message });
+        const filter = { _id: req.params.id, tenantId: req.user.tenantId };
+        const updates = { ...req.body };
+        delete updates.tenantId;
+        delete updates.convertedAt;
+
+        if (updates.leadStatus === undefined) {
+            const lead = await Lead.findOneAndUpdate(filter, { $set: updates }, { new: true });
+            if (!lead) return res.status(404).json({ message: 'Lead not found' });
+            return res.json(lead);
+        }
+
+        // Apply a stage change only against the state it was calculated from.
+        for (let attempt = 0; attempt < 3; attempt++) {
+            const current = await Lead.findOne(filter).select('leadStatus').lean();
+            if (!current) return res.status(404).json({ message: 'Lead not found' });
+            const lead = await Lead.findOneAndUpdate(
+                { ...filter, leadStatus: current.leadStatus ?? null },
+                { $set: { ...updates, ...conversionChange(current.leadStatus, updates.leadStatus) } },
+                { new: true }
+            );
+            if (lead) return res.json(lead);
+        }
+        return res.status(409).json({ message: 'The lead changed while you were saving. Try again.' });
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });
     }

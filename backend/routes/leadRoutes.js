@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const leadController = require('../controllers/leadController');
+const salesTargets = require('../controllers/salesTargetController');
 const auth = require('../middleware/authMiddleware');
 const multer = require('multer');
 const { uploadBufferToCloudinary } = require('../utils/cloudinary');
@@ -41,6 +42,9 @@ router.put('/config/:sourceName', auth, leadController.saveConfig);
 
 // Lead Routes
 router.get('/dashboard-stats', auth, leadController.getDashboardStats);
+router.route('/sales-target').get(auth, salesTargets.getSalesTarget).put(auth, salesTargets.updateSalesTarget);
+router.get('/my-follow-ups', auth, leadController.getMyFollowUps);
+router.get('/owners', auth, leadController.getLeadOwners);
 router.get('/', auth, leadController.getLeads);
 router.post('/', auth, leadController.createLead);
 router.put('/:id', auth, leadController.updateLead);

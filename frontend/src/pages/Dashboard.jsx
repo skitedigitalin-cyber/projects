@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
-import { Users, DollarSign, TrendingUp, PhoneCall, AlertCircle, Target, ArrowRight, Activity, ChevronRight, Sparkles, BarChart3, Plus, ArrowUpRight } from 'lucide-react';
+import DashboardNumbers, { compactRupees } from '../components/DashboardNumbers';
+import DashboardActivity from '../components/DashboardActivity';
+import { Users, DollarSign, TrendingUp, PhoneCall, AlertCircle, Target, ArrowRight, Activity, ChevronRight, BarChart3, Plus, ArrowUpRight } from 'lucide-react';
 
 export default function Dashboard() {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [period, setPeriod] = useState('month');
 
     useEffect(() => {
         fetchDashboardData();
@@ -47,8 +50,18 @@ export default function Dashboard() {
         }
     };
 
+    const now = new Date();
+    const dateParts = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }).formatToParts(now);
+    const datePart = type => dateParts.find(part => part.type === type)?.value;
+    const dateLabel = `${datePart('weekday')} · ${datePart('day')} ${datePart('month')}`;
+    const hour = now.getHours();
+    const greeting = hour < 12 ? 'Good morning.' : hour < 18 ? 'Good afternoon.' : 'Good evening.';
+    const overdue = stats?.collections?.overdueAmount ?? 0;
+    const alerts = `${actionItems} ${actionItems === 1 ? 'thing needs' : 'things need'} you today`;
+    const summary = stats ? `${alerts}${overdue > 0 ? `, and ${compactRupees(overdue)} is overdue` : ''}.` : 'Here’s your workspace overview.';
+
     return (
-        <Layout>
+        <Layout workspace pendingCount={actionItems}>
             <style dangerouslySetInnerHTML={{__html: `
                 @keyframes fadeUp {
                     from { opacity: 0; transform: translateY(40px); }
@@ -79,34 +92,24 @@ export default function Dashboard() {
                 }
             `}} />
 
-            <div className="max-w-[1400px] mx-auto pt-4 pb-12">
-                {/* Header Section */}
-                <div className="mb-10 animate-fade-up flex justify-between items-end">
+            <div className="skite-dashboard">
+                <section className="dashboard-intro">
                     <div>
-                        <div className="inline-flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold tracking-wide uppercase mb-3">
-                            <Sparkles size={14} className="text-blue-500" />
-                            <span>Workspace Active</span>
+                        <time className="dashboard-intro-date" dateTime={now.toISOString()}>{dateLabel}</time>
+                        <h1>{greeting} <span>{summary}</span></h1>
+                    </div>
+                    <div className="dashboard-intro-actions">
+                        <div className="dashboard-periods" role="group" aria-label="Collections period">
+                            {['today', 'week', 'month'].map(value => (
+                                <button key={value} type="button" aria-pressed={period === value} onClick={() => setPeriod(value)}>{value}</button>
+                            ))}
                         </div>
-                        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
-                            Overview
-                        </h1>
-                        <p className="text-slate-500 font-medium">Your live revenue and pipeline performance for this tenant.</p>
+                        <button type="button" onClick={() => navigate('/sales/lead/add')}><Plus size={16} /> New lead</button>
                     </div>
-                    <div className="hidden md:flex items-center space-x-3">
-                        <button 
-                            onClick={() => navigate('/sales')} 
-                            className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-full hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95 shadow-sm cursor-pointer"
-                        >
-                            View Pipeline
-                        </button>
-                        <button 
-                            onClick={() => navigate('/sales/lead/add')} 
-                            className="px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-full hover:bg-slate-800 transition-all active:scale-95 shadow-md hover:shadow-lg flex items-center cursor-pointer"
-                        >
-                            <Plus size={16} className="mr-2" /> New Deal
-                        </button>
-                    </div>
-                </div>
+                </section>
+
+                <DashboardNumbers stats={stats} loading={loading} period={period} />
+                <DashboardActivity stats={stats} loading={loading} />
 
                 {/* KPI Cards - Double Bezel Bento Style */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">

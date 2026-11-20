@@ -1,0 +1,49 @@
+.lead-editor-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 20px clamp(16px, 4vw, 56px); }
+.lead-editor-toolbar > div { display: flex; align-items: center; gap: 10px; }
+.lead-editor-toolbar :is(a, button) { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 20px; border-radius: 999px; cursor: pointer; }
+.lead-editor-toolbar > a { background: #fff; }
+.lead-editor-toolbar button[type='submit'] { background: #111; color: #fff; font-weight: 600; }
+.lead-editor-toolbar button[type='submit']:hover { background: #333; }
+.lead-editor-toolbar button:disabled { opacity: .5; cursor: default; }
+.lead-editor-content { max-width: 1056px; margin-inline: auto; padding: 24px clamp(16px, 3vw, 24px) 64px; }
+.lead-editor-heading { margin-bottom: 26px; }
+.lead-editor-heading p { color: #6b6b6b; font: 12px 'Skite Dashboard Mono', monospace; letter-spacing: .04em; text-transform: uppercase; }
+.lead-editor-heading h1 { margin-top: 8px; font-size: clamp(34px, 4.1vw, 48px); line-height: 1.1; font-weight: 500; letter-spacing: -.045em; }
+.lead-editor-form { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: start; gap: 20px; animation: lead-editor-in 180ms ease-out; }
+.lead-editor-fields { display: grid; gap: 20px; }
+.lead-editor-card { min-width: 0; padding: 28px; border-radius: 28px; background: #fff; }
+.lead-editor-card h2 { margin-bottom: 16px; font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.lead-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 18px; }
+.lead-field-wide { grid-column: 1 / -1; }
+.lead-editor-card label { display: grid; min-width: 0; gap: 7px; font-size: 13px; }
+.lead-editor-card :is(input:not([type='radio']), select, textarea) {
+    min-width: 0; width: 100%; min-height: 52px; padding: 12px 18px; border: 1px solid #e2e2df; border-radius: 17px;
+    background: #fff; color: #111; font: 14px 'Skite Dashboard Geist', system-ui, sans-serif;
+}
+.lead-editor-card textarea { min-height: 106px; line-height: 1.5; resize: vertical; }
+.lead-editor-card :is(input, select, textarea):focus-visible { outline: 2px solid #af3a16; outline-offset: 1px; }
+.lead-temperature { margin: 0 0 16px; border: 0; padding: 0; }
+.lead-temperature legend { margin-bottom: 7px; font-size: 13px; }
+.lead-temperature > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lead-temperature label { position: relative; }
+.lead-temperature input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.lead-temperature span { display: grid; place-items: center; min-height: 48px; border: 1px solid #e2e2df; border-radius: 16px; cursor: pointer; }
+.lead-temperature input:checked + span { background: #111; color: #fff; border-color: #111; font-weight: 600; }
+.lead-temperature input:focus-visible + span { outline: 2px solid #af3a16; outline-offset: 2px; }
+.lead-followup .lead-editor-card { background: #111; color: #fff; }
+.lead-followup input[type='datetime-local'] { color-scheme: dark; background: #282828; border-color: #282828; color: #fff; }
+.lead-followup label, .lead-followup .lead-editor-card p { color: #d4d4d4; }
+.lead-followup .lead-editor-card p { margin: 16px 0 8px; font-size: 13px; }
+.lead-followup .lead-editor-card span { display: inline-block; padding: 8px 14px; border-radius: 999px; background: #ff6a3d; color: #111; font-size: 13px; }
+.lead-followup > p { margin: 18px 8px 0; font-size: 13px; color: #6b6b6b; }
+.lead-save-error { color: #b42318; background: #fff; padding: 12px 16px; border-radius: 12px; }
+@keyframes lead-editor-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 840px) { .lead-editor-form { grid-template-columns: 1fr; } }
+@media (max-width: 480px) {
+    .lead-editor-toolbar :is(a, button) { padding-inline: 12px; }
+    .lead-editor-toolbar > div { gap: 3px; }
+    .lead-editor-card { padding: 20px; }
+    .lead-field-grid { grid-template-columns: 1fr; }
+    .lead-editor-content { padding-top: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .lead-editor-form { animation: none; } }

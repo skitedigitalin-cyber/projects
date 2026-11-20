@@ -1,0 +1,51 @@
+.workspace-settings-heading { margin-bottom: 22px; }
+.workspace-settings-heading p { color: #6b6b6b; font: 12px 'Skite Dashboard Mono', monospace; letter-spacing: .04em; text-transform: uppercase; }
+.workspace-settings-heading h1 { margin-top: 8px; font-size: clamp(34px, 4.1vw, 48px); line-height: 1.1; font-weight: 500; letter-spacing: -.045em; }
+.workspace-settings-grid { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-items: start; gap: 20px; }
+.workspace-settings-grid > nav { display: grid; gap: 2px; }
+.workspace-settings-grid > nav > * { width: 100%; padding: 12px 16px; border-radius: 15px; text-align: left; white-space: nowrap; cursor: pointer; }
+.workspace-settings-grid > nav > *:hover, .workspace-settings-grid > nav > [aria-current='page'] { background: #fff; }
+.workspace-settings-content { min-width: 0; }
+.workspace-permissions { display: grid; gap: 20px; animation: workspace-permissions-in 180ms ease-out; }
+.workspace-settings-card { min-width: 0; padding: 26px; border-radius: 28px; background: #fff; }
+.workspace-settings-card header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+.workspace-settings-card h2 { font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.workspace-settings-card :is(header span, p, small, dt) { color: #6b6b6b; font-size: 13px; }
+.workspace-permissions-scroll { position: relative; overflow: auto; max-height: 480px; }
+.workspace-permissions table { width: 100%; min-width: 600px; table-layout: fixed; }
+.workspace-permissions thead th { padding: 0 0 10px; color: #6b6b6b; font-size: 13px; font-weight: 400; }
+.workspace-permissions th:first-child { width: 26%; text-align: left; }
+.workspace-permissions tbody :is(th, td) { height: 61px; border-top: 1px solid #ededea; }
+.workspace-permissions tbody th { padding-block: 8px; padding-right: 10px; font-weight: 500; overflow-wrap: anywhere; }
+.workspace-permissions th small { display: block; font-weight: 400; }
+.workspace-permissions td { text-align: center; }
+.workspace-permissions [role='switch'] {
+    width: 44px; height: 26px; padding: 3px; border-radius: 999px; background: #e0e0dd; cursor: pointer;
+    vertical-align: middle; transition: background-color 150ms ease;
+}
+.workspace-permissions [role='switch'] span { display: block; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform 150ms ease; }
+.workspace-permissions [role='switch'][aria-checked='true'] { background: #111; }
+.workspace-permissions [role='switch'][aria-checked='true'] span { transform: translateX(18px); }
+.workspace-permissions button:disabled { opacity: .65; cursor: default; }
+.workspace-accent-options { display: flex; flex-wrap: wrap; gap: 10px; max-width: 800px; }
+.workspace-accent-options button, .workspace-settings-link, .workspace-settings-links a {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 47px; padding: 0 14px; border-radius: 999px;
+    background: #f5f5f3; cursor: pointer;
+}
+.workspace-accent-options button[aria-pressed='true'] { background: #fff; box-shadow: inset 0 0 0 2px #111; }
+.workspace-accent-options button span { width: 22px; height: 22px; border-radius: 50%; }
+.workspace-settings-card p.workspace-settings-error { margin-block: 9px; color: #b42318; }
+.workspace-settings-profile { display: grid; gap: 10px; margin-bottom: 18px; }
+.workspace-settings-profile dd { overflow-wrap: anywhere; }
+.workspace-settings-links { display: flex; flex-wrap: wrap; gap: 10px; }
+@keyframes workspace-permissions-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 900px) {
+    .workspace-settings-grid { grid-template-columns: minmax(0, 1fr); }
+    .workspace-settings-grid > nav { display: flex; overflow: auto; }
+    .workspace-settings-grid > nav > * { flex: none; width: auto; }
+}
+@media (max-width: 480px) { .workspace-settings-card { padding: 20px; } }
+@media (prefers-reduced-motion: reduce) {
+    .workspace-permissions { animation: none; }
+    .workspace-permissions [role='switch'], .workspace-permissions [role='switch'] span { transition: none; }
+}

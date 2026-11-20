@@ -1,150 +1,132 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, CreditCard, Lock, Sparkles, CheckCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import '../components/WorkspaceLayout.css';
+import './Billing.css';
+
+const billingApi = 'http://localhost:5000/api/billing';
+const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` });
+const money = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+const dateName = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' });
+
+function loadRazorpay() {
+    if (window.Razorpay) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = resolve;
+        script.onerror = () => { script.remove(); reject(new Error('Razorpay could not be loaded.')); };
+        document.body.appendChild(script);
+    });
+}
 
 export default function Billing() {
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
+    const [summary, setSummary] = useState(null);
+    const [overviewError, setOverviewError] = useState('');
+    const [checkoutError, setCheckoutError] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        // Fetch or init logic here if needed
+        const controller = new AbortController();
+        axios.get(`${billingApi}/overview`, { headers: authHeaders(), signal: controller.signal })
+            .then(({ data }) => setSummary(data))
+            .catch(error => { if (!controller.signal.aborted) setOverviewError(error.response?.data?.message || 'Billing details could not be loaded.'); });
+        return () => controller.abort();
     }, []);
 
-    const loadRazorpayScript = () => {
-        return new Promise((resolve) => {
-            const script = document.createElement('script');
-            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.body.appendChild(script);
-        });
-    };
-
     const handlePayment = async () => {
+        if (loading) return;
         setLoading(true);
-        const res = await loadRazorpayScript();
-
-        if (!res) {
-            alert('Razorpay SDK failed to load. Are you online?');
-            setLoading(false);
-            return;
-        }
-
+        setCheckoutError('');
         try {
-            const token = localStorage.getItem('token');
-            const { data } = await axios.post('http://localhost:5000/api/billing/create-order', {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const options = {
-                key: 'rzp_test_dummy_key_id', // Replace with real key in production
-                amount: data.amount,
-                currency: data.currency,
-                name: 'Skite Prime CRM',
-                description: 'Monthly Workspace Subscription',
-                order_id: data.orderId,
-                handler: async function (response) {
+            await loadRazorpay();
+            const headers = authHeaders();
+            const { data } = await axios.post(`${billingApi}/create-order`, {}, { headers });
+            if (!data.keyId || !data.orderId) throw new Error('Checkout is currently unavailable.');
+            const payment = new window.Razorpay({
+                key: data.keyId, amount: data.amount, currency: data.currency, order_id: data.orderId,
+                name: 'Skite Prime CRM', description: 'Monthly Workspace Subscription',
+                theme: { color: '#ff6a3d' },
+                modal: { ondismiss: () => setLoading(false) },
+                handler: async ({ razorpay_order_id, razorpay_payment_id, razorpay_signature }) => {
                     try {
-                        await axios.post('http://localhost:5000/api/billing/verify-payment', {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature
-                        }, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        alert('Payment Successful! Welcome to Skite Prime.');
+                        await axios.post(`${billingApi}/verify-payment`, { razorpay_order_id, razorpay_payment_id, razorpay_signature }, { headers });
                         window.location.href = '/dashboard';
-                    } catch (err) {
-                        alert('Payment verification failed.');
+                    } catch {
+                        setCheckoutError('Payment could not be verified. Check your payment status before retrying.');
+                    } finally {
+                        setLoading(false);
                     }
                 },
-                theme: {
-                    color: '#2563eb'
-                }
-            };
-
-            const paymentObject = new window.Razorpay(options);
-            paymentObject.open();
+            });
+            payment.open();
         } catch (error) {
-            console.error(error);
-            alert('Could not initiate payment. Try again.');
-        } finally {
+            setCheckoutError(error.response?.data?.message || error.message || 'Could not initiate payment.');
             setLoading(false);
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        navigate('/');
-    };
+    const expiry = summary?.validUntil && Number.isFinite(Date.parse(summary.validUntil)) ? dateName.format(new Date(summary.validUntil)) : null;
+    const livePlan = summary?.status === 'active';
+    const trial = summary?.status === 'trial';
+    const initials = user?.name?.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'AD';
+    const signOut = () => { logout(); navigate('/'); };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4" style={{ background: "linear-gradient(to bottom right, #f8fafc, #eff6ff)" }}>
-            <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8 items-center">
-                
-                {/* Left Side: Info */}
-                <div className="space-y-6 animate-fade-up">
-                    <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full font-bold text-sm">
-                        <Sparkles size={16} className="mr-2" /> Trial Expired
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                        Continue using <span className="text-blue-600">Skite Prime</span>
-                    </h1>
-                    <p className="text-lg text-slate-600 font-medium">
-                        Your 1-day free trial has expired. Subscribe to our monthly plan to keep your workspace active.
-                    </p>
-                    <ul className="space-y-4 mt-8">
-                        {['Unlimited Lead Management', 'Full HR & Attendance Suite', 'Finance & Invoicing access', 'Premium priority support'].map((item, idx) => (
-                            <li key={idx} className="flex items-center text-slate-700 font-bold">
-                                <CheckCircle size={20} className="text-emerald-500 mr-3" />
-                                {item}
-                            </li>
+        <div className="skite-workspace billing-page" data-workspace-theme={user?.theme}>
+            <header className="billing-toolbar">
+                <Link to="/settings"><ArrowLeft size={15} /> Settings</Link>
+                <details className="skite-workspace-tools">
+                    <summary className="skite-workspace-avatar" aria-label="Billing account menu">{initials}</summary>
+                    <div className="skite-workspace-menu"><strong>{user?.name}</strong><button type="button" onClick={signOut}>Sign out of workspace</button></div>
+                </details>
+            </header>
+            <main className="billing-content">
+                <header className="billing-heading">
+                    <div><p>Plan &amp; billing</p><h1>{summary ? (trial ? 'Free trial' : livePlan ? summary.plan || 'Monthly plan' : 'Workspace access expired') : 'Plan & billing'}
+                        {expiry && <span> · {livePlan ? 'access until' : trial ? 'ends' : 'ended'} {expiry}</span>}</h1></div>
+                    <span className="billing-cycle">Monthly</span>
+                </header>
+                {overviewError && <p className="billing-alert" role="alert">{overviewError}</p>}
+                {!summary && !overviewError && <p role="status">Loading billing details…</p>}
+                {summary && <>
+                    <section className="billing-usage" aria-label="Workspace usage">
+                        {summary.usage.map(item => (
+                            <article key={item.label}>
+                                <h2>{item.label}</h2>
+                                <strong>{item.used}{item.limit > 0 && <small> / {item.limit.toLocaleString('en-IN')}</small>}</strong>
+                                {item.limit > 0 && <progress value={Math.min(item.used, item.limit)} max={item.limit} aria-label={`${item.label} quota usage`} />}
+                            </article>
                         ))}
-                    </ul>
-                </div>
-
-                {/* Right Side: Checkout Card */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-200 relative overflow-hidden animate-fade-up delay-100">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
-                    
-                    <div className="text-center mb-8">
-                        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <ShieldCheck size={32} />
-                        </div>
-                        <h2 className="text-2xl font-bold text-slate-900">Secure Payment</h2>
-                        <p className="text-slate-500 text-sm mt-1">Cards only (Powered by Razorpay)</p>
-                    </div>
-
-                    <div className="space-y-6">
-                        <button 
-                            onClick={handlePayment}
-                            disabled={loading}
-                            className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center group disabled:opacity-70 disabled:hover:translate-y-0"
-                        >
-                            {loading ? 'Initiating Secure Checkout...' : (
-                                <>
-                                    <CreditCard size={22} className="mr-3 group-hover:scale-110 transition-transform" />
-                                    Pay Now
-                                </>
-                            )}
-                        </button>
-
-                        <div className="flex items-center justify-center text-xs text-slate-400 font-medium">
-                            <Lock size={12} className="mr-1" />
-                            100% Encrypted & Secure transaction
-                        </div>
-
-                        <div className="border-t border-slate-100 pt-6 text-center">
-                            <button onClick={handleLogout} className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">
-                                Sign out of workspace
+                    </section>
+                    <section className="billing-plans" aria-label="Billing options">
+                        <article>
+                            <h2>Trial</h2><strong>{money.format(0)}</strong>
+                            <ul><li>Employee records</li><li>Lead management</li><li>GST invoicing</li><li>Core workspace modules</li></ul>
+                            <p className="billing-plan-status">{trial ? `Trial active${expiry ? ' until ' + expiry : ''}` : 'Trial unavailable'}</p>
+                        </article>
+                        <article className="billing-primary-plan">
+                            <header><h2>Monthly workspace</h2>{livePlan && <span>Active</span>}</header>
+                            <strong>{money.format(summary.monthlyPrice)}<small> / month</small></strong>
+                            <ul><li>30 days of workspace access</li><li>Lead management</li><li>Attendance &amp; HR</li><li>Finance &amp; invoicing</li></ul>
+                            <button type="button" onClick={handlePayment} disabled={loading || !summary.checkoutAvailable}>
+                                {loading ? 'Opening checkout…' : !summary.checkoutAvailable ? 'Checkout unavailable' : livePlan ? 'Extend access' : 'Subscribe'}
                             </button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+                        </article>
+                        <article>
+                            <h2>Billing details</h2><strong>Razorpay</strong>
+                            <ul><li>Monthly payment</li><li>Workspace access: {summary.status === 'expired' ? 'expired' : 'active'}</li>
+                                {expiry && <li>Access {summary.status === 'expired' ? 'ended' : 'until'} {expiry}</li>}</ul>
+                            {summary.status !== 'expired' ? <Link to="/dashboard">Return to workspace</Link> : <button type="button" onClick={signOut}>Sign out</button>}
+                        </article>
+                    </section>
+                    {checkoutError && <p className="billing-alert" role="alert">{checkoutError}</p>}
+                </>}
+            </main>
         </div>
     );
 }

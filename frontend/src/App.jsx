@@ -36,10 +36,13 @@ axios.interceptors.response.use(
 
 const isEmployee = (u) => u && u.role !== 'Admin' && u.role !== 'CEO';
 
-const ProtectedRoute = ({ children, adminOnly = false, employeeOnly = false, requiredModule = null }) => {
+const ProtectedRoute = ({ children, adminOnly = false, employeeOnly = false, ceoOnly = false, requiredModule = null }) => {
   const { user, loading } = useContext(AuthContext);
   if (loading) return <div>Loading...</div>;
   if (!user) return <Navigate to="/" replace />;
+  if (ceoOnly && user.role !== 'CEO') {
+    return <Navigate to={isEmployee(user) ? '/employee-dashboard' : '/dashboard'} replace />;
+  }
 
   // Admin-only routes (e.g., Settings, Billing)
   if (adminOnly && isEmployee(user)) {
@@ -94,7 +97,7 @@ function App() {
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/billing" element={<ProtectedRoute adminOnly><Billing /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute adminOnly><Settings /></ProtectedRoute>} />
-            <Route path="/ceo-dashboard" element={<ProtectedRoute><CeoDashboard /></ProtectedRoute>} />
+            <Route path="/ceo-dashboard" element={<ProtectedRoute ceoOnly><CeoDashboard /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute requiredModule="dashboard"><Dashboard /></ProtectedRoute>} />
             <Route path="/calendar" element={<ProtectedRoute requiredModule="calendar"><CalendarView /></ProtectedRoute>} />
             <Route path="/employee-dashboard" element={<ProtectedRoute employeeOnly><EmployeeDashboard /></ProtectedRoute>} />

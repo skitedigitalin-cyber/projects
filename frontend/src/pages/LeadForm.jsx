@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, Users, Building, Phone, Mail, MapPin, Target, CheckCircle, Save, Briefcase } from 'lucide-react';
+import WorkspaceEditor from '../components/WorkspaceEditor';
 
 const MASTER_SERVICES = [
     'Paid Campaigns',
@@ -26,6 +25,10 @@ const ROBOTRIQ_COURSES = [
 const LEAD_SOURCES = ['Cold Leads', 'Meta Leads'];
 const LEAD_STATUSES = ['New', 'Contacted', 'Qualified', 'Appointment', 'Proposal Sent', 'Converted', 'Lost'];
 const LEAD_TEMPS = ['Hot', 'Warm', 'Cold'];
+const followUpFormat = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
+});
+const followUpInput = value => value ? followUpFormat.format(new Date(value)).replace(' ', 'T') : '';
 
 export default function LeadForm() {
     const navigate = useNavigate();
@@ -38,8 +41,24 @@ export default function LeadForm() {
     const activeMasterServices = useMemo(() => isRobotriq ? ROBOTRIQ_COURSES : MASTER_SERVICES, [isRobotriq]);
     const defaultService = activeMasterServices[0];
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(isEditMode);
     const [saving, setSaving] = useState(false);
+    const [loadError, setLoadError] = useState('');
+    const [saveError, setSaveError] = useState('');
+    const [owners, setOwners] = useState([]);
+    const [owner, setOwner] = useState('');
+    const [originalOwner, setOriginalOwner] = useState('');
+    const [originalFollowUp, setOriginalFollowUp] = useState('');
+    const canAssign = ['Admin', 'CEO'].includes(user?.role);
+
+    useEffect(() => {
+        if (!canAssign) return;
+        const controller = new AbortController();
+        axios.get('http://localhost:5000/api/leads/owners', { signal: controller.signal })
+            .then(({ data }) => setOwners(Array.isArray(data) ? data : []))
+            .catch(error => { if (!controller.signal.aborted) console.error('Lead owners unavailable:', error); });
+        return () => controller.abort();
+    }, [canAssign]);
 
     const emptyForm = {
         customerName: '', companyName: '', mobileNumber: '', email: '',
@@ -74,6 +93,7 @@ export default function LeadForm() {
 
     const fetchLeadData = async () => {
         setLoading(true);
+        setLoadError('');
         try {
             const token = localStorage.getItem('token');
             const res = await axios.get('http://localhost:5000/api/leads', {
@@ -81,6 +101,10 @@ export default function LeadForm() {
             });
             const lead = res.data.find(l => l._id === id);
             if (lead) {
+                const existingOwner = lead.assignedSalesperson?._id || lead.assignedSalesperson || '';
+                setOwner(existingOwner);
+                setOriginalOwner(existingOwner);
+                setOriginalFollowUp(lead.nextFollowUpDate || '');
                 const rawSource = lead.leadSource || 'Meta Leads';
                 const normSource = (rawSource === 'Cold' || rawSource === 'Cold Call')
                     ? 'Cold Leads'
@@ -106,13 +130,13 @@ export default function LeadForm() {
                     leadValue: lead.leadValue || '',
                     leadStatus: lead.leadStatus || 'New',
                     leadTemperature: lead.leadTemperature || 'Cold',
-                    nextFollowUpDate: lead.nextFollowUpDate ? lead.nextFollowUpDate.split('T')[0] : '',
+                    nextFollowUpDate: followUpInput(lead.nextFollowUpDate),
                     notes: lead.notes || ''
                 });
-            }
+            } else setLoadError('This lead could not be found.');
         } catch (error) {
             console.error('Error fetching lead details:', error);
-            alert('Failed to load lead details');
+            setLoadError('Failed to load lead details.');
         } finally {
             setLoading(false);
         }
@@ -124,6 +148,8 @@ export default function LeadForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (saving || loading || loadError) return;
+        setSaveError('');
         setSaving(true);
         try {
             const token = localStorage.getItem('token');
@@ -136,7 +162,11 @@ export default function LeadForm() {
             const payload = {
                 ...formData,
                 serviceType: finalService,
-                productServiceInterested: finalService
+                productServiceInterested: finalService,
+                nextFollowUpDate: formData.nextFollowUpDate === followUpInput(originalFollowUp)
+                    ? originalFollowUp || null
+                    : formData.nextFollowUpDate ? new Date(`${formData.nextFollowUpDate}:00+05:30`).toISOString() : null,
+                ...(canAssign && owner !== originalOwner && { assignedSalesperson: owner || null })
             };
 
             if (isEditMode) {
@@ -147,198 +177,80 @@ export default function LeadForm() {
             navigate('/sales');
         } catch (error) {
             console.error('Error saving lead:', error);
-            alert('Error saving lead details');
+            setSaveError(error.response?.data?.message || 'Error saving lead details.');
         } finally {
             setSaving(false);
         }
     };
 
+    const optionsFor = (values, current) => current && !values.includes(current) ? [...values, current] : values;
+
     return (
-        <Layout>
-            <div className="max-w-5xl mx-auto w-full animate-fade-up">
-                
-                {/* Sticky Header Action Bar */}
-                <div className="sticky top-0 z-40 bg-slate-50/80 backdrop-blur-xl border-b border-slate-200 py-4 px-6 flex items-center justify-between rounded-t-3xl shadow-sm mb-8 -mx-2 mt-2">
-                    <div className="flex items-center space-x-4">
-                        <button onClick={() => navigate('/sales')} className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer">
-                            <ArrowLeft size={20} />
-                        </button>
-                        <div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">{isEditMode ? 'Edit Lead' : 'Create New Lead'}</h1>
-                            <p className="text-sm font-medium text-slate-500">{isEditMode ? 'Update existing lead information' : 'Add a new prospect to your pipeline'}</p>
+        <WorkspaceEditor backTo="/sales" backLabel="Sales & Leads" label={isEditMode ? 'Edit lead' : 'New lead'}
+            title="Who are we talking to?" formId="leadForm" saveLabel={saving ? 'Saving…' : 'Save lead'} disabled={saving || loading || !!loadError}>
+                {loading ? <p role="status">Loading lead…</p> : loadError ? <p role="alert">{loadError}</p> : (
+                    <form id="leadForm" onSubmit={handleSubmit} className="lead-editor-form">
+                        <div className="lead-editor-fields">
+                            {saveError && <p className="lead-save-error" role="alert">{saveError}</p>}
+                            <section className="lead-editor-card" aria-labelledby="lead-contact-title">
+                                <h2 id="lead-contact-title">Contact</h2>
+                                <div className="lead-field-grid">
+                                    <label>Company<input name="companyName" value={formData.companyName} onChange={handleInputChange} placeholder="Company name" /></label>
+                                    <label>Contact person<input required name="customerName" value={formData.customerName} onChange={handleInputChange} placeholder="Full name" /></label>
+                                    <label>Phone / WhatsApp<input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleInputChange} placeholder="+91" /></label>
+                                    <label>Email<input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="name@company.com" /></label>
+                                </div>
+                            </section>
+                            <section className="lead-editor-card" aria-labelledby="lead-deal-title">
+                                <h2 id="lead-deal-title">Deal</h2>
+                                <fieldset className="lead-temperature">
+                                    <legend>Temperature</legend>
+                                    <div>{LEAD_TEMPS.map(value => (
+                                        <label key={value}>
+                                            <input type="radio" name="leadTemperature" value={value} checked={formData.leadTemperature === value} onChange={handleInputChange} />
+                                            <span>{value}</span>
+                                        </label>
+                                    ))}</div>
+                                </fieldset>
+                                <div className="lead-field-grid">
+                                    <label>Stage<select name="leadStatus" value={formData.leadStatus} onChange={handleInputChange}>
+                                        {optionsFor(LEAD_STATUSES, formData.leadStatus).map(value => <option key={value}>{value}</option>)}
+                                    </select></label>
+                                    <label>Source<select name="leadSource" value={formData.leadSource} onChange={handleInputChange}>
+                                        {optionsFor(LEAD_SOURCES, formData.leadSource).map(value => <option key={value}>{value}</option>)}
+                                    </select></label>
+                                    <label>Deal value (₹)<input type="number" name="leadValue" value={formData.leadValue} onChange={handleInputChange} placeholder="0" /></label>
+                                    {canAssign && <label>Owner<select value={owner} onChange={event => setOwner(event.target.value)}>
+                                        <option value="">Unassigned</option>
+                                        {originalOwner && !owners.some(item => item._id === originalOwner) && <option value={originalOwner}>Current owner</option>}
+                                        {owners.map(item => <option value={item._id} key={item._id}>{item.name}</option>)}
+                                    </select></label>}
+                                    <label className="lead-field-wide">Notes<textarea name="notes" rows="3" value={formData.notes} onChange={handleInputChange} placeholder="What did they ask for?" /></label>
+                                </div>
+                            </section>
+                            <section className="lead-editor-card" aria-labelledby="lead-context-title">
+                                <h2 id="lead-context-title">Location and service</h2>
+                                <div className="lead-field-grid">
+                                    <label>Location<input name="location" value={formData.location} onChange={handleInputChange} placeholder="City, country" /></label>
+                                    <label>Industry<input name="industry" value={formData.industry} onChange={handleInputChange} placeholder="Industry" /></label>
+                                    <label className="lead-field-wide">Service interested<select name="serviceType" value={formData.serviceType} onChange={handleInputChange}>
+                                        {activeMasterServices.map(value => <option key={value}>{value}</option>)}
+                                        <option value="Other">Other / Custom Service</option>
+                                    </select></label>
+                                    {formData.serviceType === 'Other' && <label className="lead-field-wide">Custom service<input required name="customService" value={formData.customService} onChange={handleInputChange} /></label>}
+                                </div>
+                            </section>
                         </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                        <button type="button" onClick={() => navigate('/sales')} className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">
-                            Cancel
-                        </button>
-                        <button type="submit" form="leadForm" disabled={saving || loading} className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md shadow-blue-600/20 flex items-center disabled:opacity-50 cursor-pointer">
-                            {saving ? 'Saving...' : <><Save size={18} className="mr-2" /> Save Lead</>}
-                        </button>
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                    </div>
-                ) : (
-                    <form id="leadForm" onSubmit={handleSubmit} className="space-y-8 pb-12">
-                        
-                        {/* Block 1: Basic Info */}
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-blue-500 rounded-l-[2rem]"></div>
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center">
-                                <Users size={16} className="mr-2" /> Primary Contact
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Customer Name *</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><Users size={18} /></div>
-                                        <input required type="text" name="customerName" value={formData.customerName} onChange={handleInputChange} 
-                                            className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-800" placeholder="e.g. John Doe" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Company Name</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><Building size={18} /></div>
-                                        <input type="text" name="companyName" value={formData.companyName} onChange={handleInputChange} 
-                                            className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-800" placeholder="e.g. Acme Corp" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Mobile Number</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><Phone size={18} /></div>
-                                        <input type="text" name="mobileNumber" value={formData.mobileNumber} onChange={handleInputChange} 
-                                            className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-800" placeholder="+1 234 567 890" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Email Address</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><Mail size={18} /></div>
-                                        <input type="email" name="email" value={formData.email} onChange={handleInputChange} 
-                                            className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-800" placeholder="john@example.com" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Location</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><MapPin size={18} /></div>
-                                        <input type="text" name="location" value={formData.location} onChange={handleInputChange} 
-                                            className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-800" placeholder="City, Country" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Industry</label>
-                                    <input type="text" name="industry" value={formData.industry} onChange={handleInputChange} 
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-800" placeholder="e.g. Tech, Retail" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Block 2: Business Needs & Pipeline */}
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500 rounded-l-[2rem]"></div>
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center">
-                                <Target size={16} className="mr-2" /> Pipeline Configuration
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Lead Source</label>
-                                    <select name="leadSource" value={formData.leadSource} onChange={handleInputChange} 
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-slate-800 appearance-none">
-                                        {LEAD_SOURCES.map(o => <option key={o}>{o}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Lead Status</label>
-                                    <select name="leadStatus" value={formData.leadStatus} onChange={handleInputChange} 
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-slate-800 appearance-none">
-                                        {LEAD_STATUSES.map(o => <option key={o}>{o}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Temperature</label>
-                                    <select name="leadTemperature" value={formData.leadTemperature} onChange={handleInputChange} 
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-slate-800 appearance-none">
-                                        {LEAD_TEMPS.map(o => <option key={o}>{o}</option>)}
-                                    </select>
-                                </div>
-                                
-                                <div className="space-y-2 md:col-span-2">
-                                    <label className="text-sm font-bold text-slate-700 flex items-center justify-between">
-                                        <span className="flex items-center">
-                                            <Briefcase size={16} className="mr-1.5 text-emerald-600" />
-                                            Service Interested *
-                                        </span>
-                                        <span className="text-[11px] font-semibold text-slate-400">Select master service or custom</span>
-                                    </label>
-                                    <div className="space-y-2.5">
-                                        <select 
-                                            name="serviceType" 
-                                            value={formData.serviceType} 
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-                                                setFormData(prev => ({
-                                                    ...prev,
-                                                    serviceType: val,
-                                                    productServiceInterested: val === 'Other' ? (prev.customService || '') : val
-                                                }));
-                                            }} 
-                                            className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-semibold text-slate-800 cursor-pointer"
-                                        >
-                                            {activeMasterServices.map(s => (
-                                                <option key={s} value={s}>{s}</option>
-                                            ))}
-                                            <option value="Other">Other / Custom Service...</option>
-                                        </select>
-
-                                        {formData.serviceType === 'Other' && (
-                                            <input 
-                                                type="text" 
-                                                name="customService" 
-                                                value={formData.customService} 
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        customService: val,
-                                                        productServiceInterested: val
-                                                    }));
-                                                }} 
-                                                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-slate-800" 
-                                                placeholder="Type your custom service name..." 
-                                                required={formData.serviceType === 'Other'}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Estimated Value (₹)</label>
-                                    <input type="number" name="leadValue" value={formData.leadValue} onChange={handleInputChange} 
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-emerald-600" placeholder="0.00" />
-                                </div>
-                                
-                                <div className="space-y-2 md:col-span-1">
-                                    <label className="text-sm font-bold text-slate-700">Next Follow-up Date</label>
-                                    <input type="date" name="nextFollowUpDate" value={formData.nextFollowUpDate} onChange={handleInputChange} 
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-slate-800" />
-                                </div>
-                                <div className="space-y-2 md:col-span-2">
-                                    <label className="text-sm font-bold text-slate-700">Additional Notes</label>
-                                    <textarea name="notes" rows="3" value={formData.notes} onChange={handleInputChange} 
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-slate-800 resize-none" placeholder="Add any background context, objections, or pain points..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-
+                        <aside className="lead-followup">
+                            <section className="lead-editor-card" aria-labelledby="lead-followup-title">
+                                <h2 id="lead-followup-title">Next follow-up</h2>
+                                <label>Date &amp; time (IST)<input type="datetime-local" name="nextFollowUpDate" value={formData.nextFollowUpDate} onChange={handleInputChange} /></label>
+                                <p>Remind via</p><span>App</span>
+                            </section>
+                            <p>Overdue follow-ups appear in red in Sales &amp; Leads and on the dashboard.</p>
+                        </aside>
                     </form>
                 )}
-            </div>
-        </Layout>
+        </WorkspaceEditor>
     );
 }

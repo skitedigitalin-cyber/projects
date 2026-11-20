@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getHRDashboardStats } = require('../controllers/hrDashboardController');
+const { getHRDashboardStats, getHRWorkspace } = require('../controllers/hrDashboardController');
 const { getEmployees, createEmployee, updateEmployee, deleteEmployee } = require('../controllers/employeeController');
 const { getTodayStatus, checkIn, checkOut, startBreak, endBreak, getAllAttendance, getMyAttendanceRecords, deleteAttendance, bulkDeleteAttendance } = require('../controllers/attendanceController');
 const { getAllLeaves, updateLeaveStatus, applyLeave, getMyLeaves } = require('../controllers/leaveController');
@@ -13,6 +13,7 @@ router.use(auth);
 
 // Dashboard Route
 router.get('/dashboard', getHRDashboardStats);
+router.get('/workspace', getHRWorkspace);
 
 // Employee routes
 router.route('/employees').get(getEmployees).post(createEmployee);

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { invoicePaymentRows } from '../utils/accountSummary';
 import { 
     ArrowLeft, Plus, Trash2, TrendingUp, TrendingDown, FileText, 
     CheckCircle, Filter, Edit2, Check, X, Calendar, DollarSign,
     RefreshCw, IndianRupee, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
-export default function IncomeExpense() {
+export default function IncomeExpense({ onRecordsChange } = {}) {
     const [invoices, setInvoices] = useState([]);
     const [expenses, setExpenses] = useState([]);
     const [manualIncomes, setManualIncomes] = useState([]);
@@ -52,17 +53,19 @@ export default function IncomeExpense() {
             setLoading(true);
             const [invRes, payRes] = await Promise.all([
                 axios.get('http://localhost:5000/api/invoices', getHeaders()),
-                axios.get('http://localhost:5000/api/payments', getHeaders()).catch(() => ({ data: [] }))
+                axios.get('http://localhost:5000/api/payments', getHeaders()).catch(() => ({ data: [], failed: true }))
             ]);
 
             const invData = Array.isArray(invRes.data) ? invRes.data : [];
             setInvoices(invData);
 
             const payData = Array.isArray(payRes.data) ? payRes.data : [];
+            onRecordsChange?.(payRes.failed ? { failed: true } : { invoices: invData, payments: payData });
             // Separate outward (expense) vs inward manual income
             setExpenses(payData.filter(t => t.paymentType === 'Outward'));
             setManualIncomes(payData.filter(t => t.paymentType === 'Inward' && t.category !== 'Customer Payment'));
         } catch (err) {
+            onRecordsChange?.({ failed: true });
             console.error('Error fetching income/expense data:', err);
         } finally {
             setLoading(false);
@@ -96,53 +99,10 @@ export default function IncomeExpense() {
         const from = hasFilter ? new Date(dateFilter.from).setHours(0, 0, 0, 0) : null;
         const to = hasFilter ? new Date(dateFilter.to).setHours(23, 59, 59, 999) : null;
 
-        return invoices.flatMap(inv => {
-            const clientName = inv.customerId?.customerName || inv.customerId?.companyName || inv.clientDetails?.name || 'Customer';
-            const invNo = inv.invoiceNumber || '';
-            const history = inv.payments || inv.paymentHistory || [];
-
-            // Case 1: Multiple individual payments in history
-            if (history.length > 0) {
-                return history
-                    .map((payment, i) => ({
-                        key: `${inv._id}-${i}`,
-                        invoiceId: inv._id,
-                        invoiceNumber: invNo,
-                        paymentIndex: i,
-                        clientName,
-                        amount: Number(payment.amount) || 0,
-                        date: payment.paymentDate || payment.date || inv.lastPaymentDate || inv.invoiceDate,
-                        isLegacy: false
-                    }))
-                    .filter(row => {
-                        if (row.amount <= 0) return false;
-                        if (!hasFilter) return true;
-                        const pDate = new Date(row.date).getTime();
-                        return pDate >= from && pDate <= to;
-                    });
-            }
-
-            // Case 2: Legacy invoice with paidAmount > 0 (single lump sum)
-            if ((Number(inv.paidAmount) || 0) > 0) {
-                const rawDate = inv.lastPaymentDate || inv.invoiceDate || inv.date || inv.createdAt;
-                const pDate = new Date(rawDate).getTime();
-                const matchesDate = !hasFilter || (pDate >= from && pDate <= to);
-
-                if (matchesDate) {
-                    return [{
-                        key: inv._id,
-                        invoiceId: inv._id,
-                        invoiceNumber: invNo,
-                        paymentIndex: -1,
-                        clientName,
-                        amount: Number(inv.paidAmount) || 0,
-                        date: rawDate,
-                        isLegacy: true
-                    }];
-                }
-            }
-
-            return [];
+        return invoices.flatMap(invoicePaymentRows).filter(row => {
+            if (!hasFilter) return true;
+            const date = new Date(row.date).getTime();
+            return date >= from && date <= to;
         });
     };
 

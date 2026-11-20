@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import { updateLeaveStatus } from '../utils/leaveActions';
 import { 
     Check, X, Clock, FileSignature, Calendar, Search, 
     ChevronLeft, ChevronRight, CheckCircle2, Hourglass, 
@@ -39,10 +40,7 @@ export default function LeaveManagement() {
     const updateStatus = async (id, status) => {
         setUpdatingId(id);
         try {
-            await axios.put(`http://localhost:5000/api/hr/leaves/${id}/status`, 
-                { status, managerComments: status === 'Approved' ? 'Approved by HR' : 'Rejected by HR' },
-                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-            );
+            await updateLeaveStatus(id, status);
             await fetchLeaves();
         } catch (error) {
             alert(error.response?.data?.message || "Failed to update leave status");

@@ -3,10 +3,12 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { 
     LayoutDashboard, Users, UserRound, Briefcase, FileText, CalendarClock, 
-    LogOut, FolderKanban, Settings, CalendarDays, PanelLeftClose, PanelLeftOpen, Landmark, GraduationCap 
+    LogOut, FolderKanban, Settings, CalendarDays, PanelLeftClose, PanelLeftOpen, Landmark, GraduationCap,
+    Search, Bell
 } from 'lucide-react';
+import './WorkspaceLayout.css';
 
-export default function Layout({ children, noPadding = false }) {
+export default function Layout({ children, noPadding = false, workspace = false, pendingCount = 0, compactTools = false }) {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
@@ -100,6 +102,59 @@ export default function Layout({ children, noPadding = false }) {
             path: '/employee-dashboard',
             icon: <LayoutDashboard size={20} className="text-indigo-600" />
         });
+    }
+
+    if (workspace) {
+        const navLabels = { sales: 'Sales', hr: 'HR', projects: 'Team' };
+        const initials = user?.name?.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
+
+        return (
+            <div className="skite-workspace" data-workspace-theme={user?.theme}>
+                <header className="skite-workspace-header">
+                    <Link to="/dashboard" className="skite-workspace-brand">
+                        <span aria-hidden="true" /> skite
+                    </Link>
+                    <nav className="skite-workspace-nav" aria-label="Main navigation" hidden={isCollapsed}>
+                        {navItems.map(item => (
+                            <Link key={item.id} to={item.path} aria-current={location.pathname === item.path ? 'page' : undefined}>
+                                {navLabels[item.id] || item.name}
+                            </Link>
+                        ))}
+                    </nav>
+                    <div className="skite-workspace-tools">
+                        {!compactTools && <details>
+                            <summary aria-label="Find a workspace page"><Search size={18} /></summary>
+                            <div className="skite-workspace-menu">
+                                <strong>Workspace pages</strong>
+                                {navItems.map(item => <Link key={item.id} to={item.path}>{item.name}</Link>)}
+                                <button type="button" onClick={toggleSidebar}> {isCollapsed ? 'Show' : 'Hide'} main navigation</button>
+                            </div>
+                        </details>}
+                        {!compactTools && <details>
+                            <summary className="skite-workspace-notice" aria-label={`Follow-ups (${pendingCount} pending)`}>
+                                <Bell size={18} />
+                                {pendingCount > 0 && <span aria-hidden="true" />}
+                            </summary>
+                            <div className="skite-workspace-menu">
+                                <strong>{pendingCount} pending follow-ups</strong>
+                                {navItems.some(item => item.id === 'sales') && <Link to="/sales">Open Sales &amp; Leads</Link>}
+                            </div>
+                        </details>}
+                        <details>
+                            <summary className="skite-workspace-avatar" aria-label="Account menu">{initials || <UserRound size={18} />}</summary>
+                            <div className="skite-workspace-menu">
+                                <strong>{user?.name}</strong>
+                                <span>{user?.role}</span>
+                                <small>Tenant ID: {user?.tenantId?._id ?? user?.tenantId}</small>
+                                {compactTools && <button type="button" onClick={toggleSidebar}>{isCollapsed ? 'Show' : 'Hide'} main navigation</button>}
+                                <button type="button" onClick={handleLogout}><LogOut size={16} /> Log out</button>
+                            </div>
+                        </details>
+                    </div>
+                </header>
+                <main className={noPadding ? undefined : 'skite-workspace-main'}>{children}</main>
+            </div>
+        );
     }
 
     return (

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import './CalendarView.css';
 import axios from 'axios';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus, X, Flag, Bookmark, Clock, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 
 export default function CalendarView() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
@@ -19,24 +21,26 @@ export default function CalendarView() {
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+    const selectedMonth = currentDate.getMonth();
+    const selectedYear = currentDate.getFullYear();
     useEffect(() => {
-        fetchEvents();
-    }, [currentDate.getMonth(), currentDate.getFullYear()]);
-
-    const fetchEvents = async () => {
+        const controller = new AbortController();
         setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/api/calendar?month=' + (currentDate.getMonth() + 1) + '&year=' + currentDate.getFullYear(), {
-                headers: { Authorization: 'Bearer ' + token }
-            });
-            setEvents(res.data);
-        } catch (error) {
-            console.error('Error fetching calendar events', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+        setLoadError(false);
+        setEvents([]);
+        axios.get('http://localhost:5000/api/calendar', {
+            params: { month: selectedMonth + 1, year: selectedYear },
+            signal: controller.signal,
+            headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+        }).then(({ data }) => {
+            setEvents(Array.isArray(data) ? data : []);
+        }).catch(() => {
+            if (!controller.signal.aborted) setLoadError(true);
+        }).finally(() => {
+            if (!controller.signal.aborted) setLoading(false);
+        });
+        return () => controller.abort();
+    }, [selectedMonth, selectedYear]);
 
     const handlePrevMonth = () => {
         setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
@@ -64,7 +68,7 @@ export default function CalendarView() {
             }, {
                 headers: { Authorization: 'Bearer ' + token }
             });
-            setEvents([...events, res.data]);
+            setEvents(previous => [...previous, res.data]);
             setIsModalOpen(false);
         } catch (error) {
             console.error('Error saving event', error);
@@ -80,7 +84,7 @@ export default function CalendarView() {
             await axios.delete('http://localhost:5000/api/calendar/' + id, {
                 headers: { Authorization: 'Bearer ' + token }
             });
-            setEvents(events.filter(ev => ev._id !== id));
+            setEvents(previous => previous.filter(ev => ev._id !== id));
         } catch (error) {
             console.error('Error deleting event', error);
         }
@@ -115,227 +119,99 @@ export default function CalendarView() {
         return d > t;
     }).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0, 5);
 
+    const today = new Date();
+    const isCurrentMonth = today.getMonth() === currentDate.getMonth() && today.getFullYear() === currentDate.getFullYear();
+    const cells = generateCalendarCells();
+    const firstDay = getFirstDayOfMonth(currentDate.getMonth(), currentDate.getFullYear());
+    const eventTypes = events.reduce((counts, event) => {
+        counts.set(event.type, (counts.get(event.type) ?? 0) + 1);
+        return counts;
+    }, new Map());
+
+    const renderAgenda = (items, empty, showDate = false) => items.length > 0 ? (
+        <ul className="calendar-agenda-list">
+            {items.map(event => (
+                <li key={event._id}>
+                    <time dateTime={event.date}>{showDate ? new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : event.type}</time>
+                    <div><strong>{event.title}</strong>{event.description && <p>{event.description}</p>}</div>
+                    <button type="button" aria-label={`Delete ${event.title}`} onClick={e => deleteEvent(e, event._id)}><X size={15} /></button>
+                </li>
+            ))}
+        </ul>
+    ) : <p className="calendar-muted">{loading ? 'Loading events…' : loadError ? 'Events are currently unavailable.' : empty}</p>;
+
     return (
-        <Layout>
-            <style dangerouslySetInnerHTML={{__html: `
-                @keyframes calendarPop {
-                    0% { opacity: 0; transform: scale(0.9) translateY(10px); }
-                    100% { opacity: 1; transform: scale(1) translateY(0); }
-                }
-                .calendar-cell-animate {
-                    animation: calendarPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                    opacity: 0;
-                }
-            `}} />
-            <div className="max-w-[90rem] mx-auto pt-4 pb-12 animate-fade-up">
-                {/* Header */}
-                <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <Layout workspace compactTools>
+            <div className="workspace-calendar">
+                <header className="calendar-page-heading">
                     <div>
-                        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2 flex items-center">
-                            <CalendarIcon size={32} className="mr-3 text-blue-600" />
-                            Workspace Calendar
-                        </h1>
-                        <p className="text-slate-500 font-medium">Manage holidays, team events, and personal notes.</p>
+                        <p>Calendar</p>
+                        <h1>{monthNames[currentDate.getMonth()]} <span>{currentDate.getFullYear()}</span></h1>
                     </div>
-                    <div className="flex items-center space-x-4 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-                        <button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
-                            <ChevronLeft size={20} className="text-slate-600" />
-                        </button>
-                        <span className="text-lg font-bold text-slate-900 w-40 text-center">
-                            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-                        </span>
-                        <button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
-                            <ChevronRight size={20} className="text-slate-600" />
-                        </button>
+                    <div className="calendar-controls">
+                        <button type="button" aria-label="Previous month" onClick={handlePrevMonth}><ChevronLeft size={17} /></button>
+                        <button type="button" onClick={() => setCurrentDate(new Date())}>Today</button>
+                        <button type="button" aria-label="Next month" onClick={handleNextMonth}><ChevronRight size={17} /></button>
+                        <button type="button" onClick={() => handleDayClick(isCurrentMonth ? today.getDate() : 1)}><Plus size={15} /> New event</button>
                     </div>
-                </div>
-
-                {/* Main Content Layout */}
-                <div className="flex flex-col xl:flex-row gap-8">
-                    
-                    {/* Left Column: Calendar Grid */}
-                    <div className="flex-1">
-                        <div className="bg-gradient-to-br from-slate-100 to-slate-50 rounded-[2rem] border border-slate-200 shadow-inner overflow-hidden p-3">
-                            <div className="bg-slate-200/50 rounded-[1.5rem] p-2 border border-slate-300/50 shadow-inner">
-                                {/* Days Header */}
-                                <div className="grid grid-cols-7 gap-1 mb-1">
-                                    {days.map(d => (
-                                        <div key={d} className="text-center py-2.5 mb-2 mx-1 rounded-xl bg-slate-200/50 text-xs font-extrabold text-slate-500 uppercase tracking-wider shadow-sm">
-                                            {d}
-                                        </div>
-                                    ))}
-                                </div>
-                                
-                                {/* Calendar Body */}
-                                <div className="grid grid-cols-7 gap-1">
-                                    {generateCalendarCells().map((cell, idx) => (
-                                        <div 
-                                            key={idx} 
-                                            onClick={() => handleDayClick(cell.day)}
-                                            style={{ animationDelay: `${idx * 15}ms` }}
-                                            className={"calendar-cell-animate min-h-[120px] p-2 rounded-2xl border relative group transition-all " + (cell.day ? 'bg-white border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer' : 'bg-slate-50/30 border-dashed border-slate-200/50')}
-                                        >
-                                            {cell.day && (
-                                                <>
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <span className={"text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full " + (
-                                                            todayStr === new Date(currentDate.getFullYear(), currentDate.getMonth(), cell.day).toDateString()
-                                                            ? 'bg-blue-600 text-white shadow-md ring-4 ring-blue-600/20'
-                                                            : 'text-slate-700 group-hover:text-blue-600 group-hover:bg-blue-50'
-                                                        )}>
-                                                            {cell.day}
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <div className="space-y-1.5 overflow-y-auto max-h-[80px] custom-scrollbar">
-                                                        {cell.events?.map(ev => (
-                                                            <div 
-                                                                key={ev._id} 
-                                                                onClick={(e) => e.stopPropagation()}
-                                                                className={"text-xs px-2 py-1.5 rounded-lg border flex justify-between items-center group/ev relative " + (
-                                                                    ev.type === 'Holiday' ? 'bg-rose-50 text-rose-700 border-rose-100' : 
-                                                                    ev.type === 'Meeting' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                                                                    'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                                                )}
-                                                                title={ev.description || ev.title}
-                                                            >
-                                                                <div className="flex items-center truncate mr-1">
-                                                                    {ev.type === 'Holiday' ? <Flag size={10} className="mr-1.5 flex-shrink-0" /> : <Bookmark size={10} className="mr-1.5 flex-shrink-0" />}
-                                                                    <span className="font-semibold truncate">{ev.title}</span>
-                                                                </div>
-                                                                <button 
-                                                                    type="button"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        deleteEvent(e, ev._id);
-                                                                    }}
-                                                                    className="opacity-0 group-hover/ev:opacity-100 hover:bg-red-100 p-0.5 rounded text-slate-400 hover:text-red-600 transition-all flex-shrink-0 cursor-pointer"
-                                                                    title="Delete event"
-                                                                >
-                                                                    <X size={12} strokeWidth={2.5} />
-                                                                </button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Today & Upcoming Sidebar */}
-                    <div className="w-full xl:w-96 flex-shrink-0 flex flex-col space-y-6">
-                        
-                        {/* Today's Agenda */}
-                        <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100">
-                            <div className="bg-white rounded-[1.5rem] p-6 shadow-sm">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center">
-                                        <Sparkles size={18} className="mr-2 text-blue-600" />
-                                        Today's Agenda
-                                    </h2>
-                                    <span className="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
-                                        {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                                    </span>
-                                </div>
-                                
-                                {todayEvents.length > 0 ? (
-                                    <div className="space-y-3">
-                                        {todayEvents.map(ev => (
-                                            <div key={ev._id} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-blue-200 transition-all group flex items-start justify-between">
-                                                <div className="flex items-start">
-                                                    <div className={"w-2 h-2 rounded-full mt-1.5 mr-3 flex-shrink-0 " + (ev.type === 'Holiday' ? 'bg-rose-500' : ev.type === 'Meeting' ? 'bg-amber-500' : 'bg-emerald-500')}></div>
-                                                    <div>
-                                                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{ev.title}</h4>
-                                                        <p className="text-xs text-slate-500 mt-1 font-medium">{ev.description || ev.type}</p>
-                                                    </div>
+                </header>
+                <div className="calendar-page-grid">
+                    <section className="calendar-month-panel" aria-label="Month calendar" aria-busy={loading}>
+                        <div className="calendar-month-grid">
+                            {days.map(label => <span className="calendar-weekday" key={label}>{label}</span>)}
+                            {cells.map((cell, index) => {
+                                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), cell.day ?? index - firstDay + 1);
+                                return (
+                                    <div className="calendar-day" key={index} data-current={!!cell.day && cell.day === today.getDate() && isCurrentMonth}
+                                        onClick={event => { if (cell.day && event.target === event.currentTarget) handleDayClick(cell.day); }}>
+                                        {cell.day ? (
+                                            <button className="calendar-day-number" type="button" aria-label={`Add event on ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`} onClick={() => handleDayClick(cell.day)}>{cell.day}</button>
+                                        ) : <span className="calendar-adjacent-day" aria-hidden="true">{date.getDate()}</span>}
+                                        {cell.events?.length > 0 && <div className="calendar-cell-events">
+                                            {cell.events.map(event => (
+                                                <div className="calendar-event-chip" key={event._id} data-type={event.type} title={event.description || event.title}>
+                                                    <span>{event.title}</span>
+                                                    <button type="button" aria-label={`Delete ${event.title}`} onClick={e => deleteEvent(e, event._id)}><X size={12} /></button>
                                                 </div>
-                                                <button 
-                                                    type="button"
-                                                    onClick={(e) => deleteEvent(e, ev._id)} 
-                                                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
-                                                    title="Delete event"
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>}
                                     </div>
-                                ) : (
-                                    <div className="text-center py-8">
-                                        <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                            <CalendarIcon size={20} className="text-slate-400" />
-                                        </div>
-                                        <p className="text-sm font-medium text-slate-500">No events scheduled for today.</p>
-                                        <p className="text-xs text-slate-400 mt-1">Enjoy your day!</p>
-                                    </div>
-                                )}
-                            </div>
+                                );
+                            })}
+                            {Array.from({ length: (7 - cells.length % 7) % 7 }, (_, index) => <span className="calendar-adjacent-day calendar-trailing-day" aria-hidden="true" key={index}>{index + 1}</span>)}
                         </div>
-
-                        {/* Upcoming Events */}
-                        <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100">
-                            <div className="bg-white rounded-[1.5rem] p-6 shadow-sm">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center">
-                                        <Clock size={18} className="mr-2 text-slate-600" />
-                                        Upcoming
-                                    </h2>
-                                </div>
-
-                                {upcomingEvents.length > 0 ? (
-                                    <div className="space-y-3">
-                                        {upcomingEvents.map(ev => (
-                                            <div key={ev._id} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-blue-200 transition-all group flex items-start justify-between">
-                                                <div className="flex items-start">
-                                                    <div className={"w-2 h-2 rounded-full mt-1.5 mr-3 flex-shrink-0 " + (ev.type === 'Holiday' ? 'bg-rose-500' : ev.type === 'Meeting' ? 'bg-amber-500' : 'bg-emerald-500')}></div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{ev.title}</h4>
-                                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex-shrink-0">
-                                                                {new Date(ev.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                                                            </span>
-                                                        </div>
-                                                        <p className="text-xs text-slate-500 mt-1 font-medium">{ev.type}</p>
-                                                    </div>
-                                                </div>
-                                                <button 
-                                                    type="button"
-                                                    onClick={(e) => deleteEvent(e, ev._id)} 
-                                                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
-                                                    title="Delete event"
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-6">
-                                        <p className="text-sm font-medium text-slate-500">No upcoming events this month.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                    </section>
+                    <aside className="calendar-side">
+                        <section className="calendar-agenda">
+                            <h2>Today</h2>
+                            {renderAgenda(todayEvents, isCurrentMonth ? 'No events scheduled for today.' : 'Go to Today to see today’s events.')}
+                        </section>
+                        <section className="calendar-month-summary">
+                            <p>{isCurrentMonth ? 'This month' : monthNames[currentDate.getMonth()]}</p>
+                            <strong>{loading || loadError ? '—' : events.length} <span>events</span></strong>
+                            {eventTypes.size > 0 && <small>{[...eventTypes].map(([type, count]) => `${count} ${type.toLowerCase()}${count === 1 ? '' : 's'}`).join(' · ')}</small>}
+                        </section>
+                        <section className="calendar-agenda">
+                            <h2>Upcoming</h2>
+                            {renderAgenda(upcomingEvents, 'No upcoming events this month.', true)}
+                        </section>
+                    </aside>
                 </div>
             </div>
 
             {/* Add Event Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-fade-up">
-                        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-[var(--app-bg)]">
+                <dialog className="calendar-event-dialog bg-white rounded-3xl w-full shadow-2xl"
+                    ref={dialog => { if (dialog && !dialog.open) dialog.showModal(); }}
+                    onCancel={() => setIsModalOpen(false)} aria-labelledby="calendar-event-title">
+                        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 tracking-tight">Add Calendar Note</h3>
+                                <h3 id="calendar-event-title" className="text-lg font-medium tracking-tight">New event</h3>
                                 <p className="text-xs text-slate-500 font-medium">
                                     {selectedDate?.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                                 </p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-100 transition-colors">
+                            <button type="button" aria-label="Close event dialog" onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-100 transition-colors">
                                 <X size={18} className="text-slate-500" />
                             </button>
                         </div>
@@ -344,6 +220,7 @@ export default function CalendarView() {
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Event Title</label>
                                     <input 
+                                        autoFocus
                                         type="text" 
                                         required 
                                         value={formData.title}
@@ -376,13 +253,12 @@ export default function CalendarView() {
                                 </div>
                             </div>
                             <div className="mt-8">
-                                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-[0.98]">
+                                <button type="submit" className="w-full bg-[#111] hover:bg-[#333] text-white font-medium py-3.5 px-4 rounded-full">
                                     Save to Calendar
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
+                </dialog>
             )}
         </Layout>
     );
