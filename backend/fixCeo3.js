@@ -1,0 +1,33 @@
+
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const User = require('./models/User');
+const Tenant = require('./models/Tenant');
+require('dotenv').config();
+
+mongoose.connect(process.env.MONGO_URI).then(async () => {
+    console.log('Connected to:', process.env.MONGO_URI);
+    await User.deleteMany({ role: 'CEO' });
+
+    let hqTenant = await Tenant.findOne({ subDomain: 'hq' });
+    if (!hqTenant) {
+        hqTenant = new Tenant({ companyName: 'HQ', subDomain: 'hq' });
+        await hqTenant.save();
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('ceo123', salt);
+
+    const ceo = new User({
+        tenantId: hqTenant._id,
+        name: 'CEO Admin',
+        email: 'ceo@skiteprime.com',
+        password: hashedPassword,
+        role: 'CEO'
+    });
+    await ceo.save();
+
+    console.log('CEO Fixed in right DB: ceo@skiteprime.com / ceo123');
+    process.exit(0);
+});
+

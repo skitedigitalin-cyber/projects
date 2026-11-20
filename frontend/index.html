@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skite Prime</title>
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('app-theme') || 'skite-orange';
+          if (saved && saved !== 'default') {
+            document.documentElement.setAttribute('data-theme', saved);
+          } else {
+            document.documentElement.setAttribute('data-theme', 'skite-orange');
+          }
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'skite-orange');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

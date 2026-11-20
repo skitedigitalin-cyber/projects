@@ -1,0 +1,329 @@
+@import "tailwindcss";
+
+html { 
+  scroll-behavior: smooth; 
+}
+body { 
+  overflow-x: clip; 
+  width: 100%; 
+}
+#root { 
+  overflow-x: clip; 
+  width: 100%; 
+}
+
+/* Global theme overrides for Tailwind v4 */
+:root {
+    --app-bg: #f8fafc;
+    --app-bg-grad: #f1f5f9;
+    --app-blob-1: rgba(59, 130, 246, 0.14);
+    --app-blob-2: rgba(99, 102, 241, 0.10);
+}
+
+/* 1. SKITE ORANGE (Official Brand Theme #FF4500) */
+:root[data-theme='skite-orange'],
+html[data-theme='skite-orange'],
+:root[data-theme='orange'],
+html[data-theme='orange'] { 
+    --color-blue-50: #fff7ed; 
+    --color-blue-100: #ffedd5; 
+    --color-blue-200: #fed7aa; 
+    --color-blue-300: #fdba74; 
+    --color-blue-400: #fb923c; 
+    --color-blue-500: #f97316; 
+    --color-blue-600: #FF4500; /* Official Skite Orange */
+    --color-blue-700: #ea580c; 
+    --color-blue-800: #c2410c; 
+    --color-blue-900: #7c2d12; 
+    --color-blue-950: #431407; 
+
+    --color-indigo-50: #fff7ed; 
+    --color-indigo-100: #ffedd5; 
+    --color-indigo-200: #fed7aa; 
+    --color-indigo-300: #fdba74; 
+    --color-indigo-400: #fb923c; 
+    --color-indigo-500: #f97316; 
+    --color-indigo-600: #FF4500; 
+    --color-indigo-700: #ea580c; 
+    --color-indigo-800: #c2410c; 
+    --color-indigo-900: #7c2d12; 
+    --color-indigo-950: #431407; 
+
+    --app-blob-1: rgba(255, 69, 0, 0.18);
+    --app-blob-2: rgba(251, 146, 60, 0.14);
+}
+
+/* 2. EMERALD FOREST */
+:root[data-theme='emerald'] { 
+    --color-blue-50: var(--color-emerald-50); 
+    --color-blue-100: var(--color-emerald-100); 
+    --color-blue-200: var(--color-emerald-200); 
+    --color-blue-300: var(--color-emerald-300); 
+    --color-blue-400: var(--color-emerald-400); 
+    --color-blue-500: var(--color-emerald-500); 
+    --color-blue-600: var(--color-emerald-600); 
+    --color-blue-700: var(--color-emerald-700); 
+    --color-blue-800: var(--color-emerald-800); 
+    --color-blue-900: var(--color-emerald-900); 
+
+    --color-indigo-50: var(--color-emerald-50);
+    --color-indigo-100: var(--color-emerald-100);
+    --color-indigo-200: var(--color-emerald-200);
+    --color-indigo-300: var(--color-emerald-300);
+    --color-indigo-400: var(--color-emerald-400);
+    --color-indigo-500: var(--color-emerald-500);
+    --color-indigo-600: var(--color-emerald-600);
+    --color-indigo-700: var(--color-emerald-700);
+    --color-indigo-800: var(--color-emerald-800);
+    --color-indigo-900: var(--color-emerald-900);
+
+    --app-blob-1: rgba(16, 185, 129, 0.15);
+    --app-blob-2: rgba(5, 150, 105, 0.12);
+}
+
+/* 3. ROYAL PURPLE */
+:root[data-theme='purple'] { 
+    --color-blue-50: var(--color-purple-50); 
+    --color-blue-100: var(--color-purple-100); 
+    --color-blue-200: var(--color-purple-200); 
+    --color-blue-300: var(--color-purple-300); 
+    --color-blue-400: var(--color-purple-400); 
+    --color-blue-500: var(--color-purple-500); 
+    --color-blue-600: var(--color-purple-600); 
+    --color-blue-700: var(--color-purple-700); 
+    --color-blue-800: var(--color-purple-800); 
+    --color-blue-900: var(--color-purple-900); 
+
+    --color-indigo-50: var(--color-purple-50);
+    --color-indigo-100: var(--color-purple-100);
+    --color-indigo-200: var(--color-purple-200);
+    --color-indigo-300: var(--color-purple-300);
+    --color-indigo-400: var(--color-purple-400);
+    --color-indigo-500: var(--color-purple-500);
+    --color-indigo-600: var(--color-purple-600);
+    --color-indigo-700: var(--color-purple-700);
+    --color-indigo-800: var(--color-purple-800);
+    --color-indigo-900: var(--color-purple-900);
+
+    --app-blob-1: rgba(168, 85, 247, 0.15);
+    --app-blob-2: rgba(147, 51, 234, 0.12);
+}
+
+/* 4. CRIMSON ROSE */
+:root[data-theme='rose'] { 
+    --color-blue-50: var(--color-rose-50); 
+    --color-blue-100: var(--color-rose-100); 
+    --color-blue-200: var(--color-rose-200); 
+    --color-blue-300: var(--color-rose-300); 
+    --color-blue-400: var(--color-rose-400); 
+    --color-blue-500: var(--color-rose-500); 
+    --color-blue-600: var(--color-rose-600); 
+    --color-blue-700: var(--color-rose-700); 
+    --color-blue-800: var(--color-rose-800); 
+    --color-blue-900: var(--color-rose-900); 
+
+    --color-indigo-50: var(--color-rose-50);
+    --color-indigo-100: var(--color-rose-100);
+    --color-indigo-200: var(--color-rose-200);
+    --color-indigo-300: var(--color-rose-300);
+    --color-indigo-400: var(--color-rose-400);
+    --color-indigo-500: var(--color-rose-500);
+    --color-indigo-600: var(--color-rose-600);
+    --color-indigo-700: var(--color-rose-700);
+    --color-indigo-800: var(--color-rose-800);
+    --color-indigo-900: var(--color-rose-900);
+
+    --app-blob-1: rgba(244, 63, 94, 0.15);
+    --app-blob-2: rgba(225, 29, 72, 0.12);
+}
+
+/* 5. SUNSET AMBER */
+:root[data-theme='amber'] { 
+    --color-blue-50: var(--color-amber-50); 
+    --color-blue-100: var(--color-amber-100); 
+    --color-blue-200: var(--color-amber-200); 
+    --color-blue-300: var(--color-amber-300); 
+    --color-blue-400: var(--color-amber-400); 
+    --color-blue-500: var(--color-amber-500); 
+    --color-blue-600: var(--color-amber-600); 
+    --color-blue-700: var(--color-amber-700); 
+    --color-blue-800: var(--color-amber-800); 
+    --color-blue-900: var(--color-amber-900); 
+
+    --color-indigo-50: var(--color-amber-50);
+    --color-indigo-100: var(--color-amber-100);
+    --color-indigo-200: var(--color-amber-200);
+    --color-indigo-300: var(--color-amber-300);
+    --color-indigo-400: var(--color-amber-400);
+    --color-indigo-500: var(--color-amber-500);
+    --color-indigo-600: var(--color-amber-600);
+    --color-indigo-700: var(--color-amber-700);
+    --color-indigo-800: var(--color-amber-800);
+    --color-indigo-900: var(--color-amber-900);
+
+    --app-blob-1: rgba(245, 158, 11, 0.15);
+    --app-blob-2: rgba(217, 119, 6, 0.12);
+}
+
+/* Background Texture Modes */
+:root[data-bg-style='minimal'] .bg-blobs {
+    display: none !important;
+}
+:root[data-bg-style='grid'] {
+    background-image: linear-gradient(var(--color-slate-200) 1px, transparent 1px), linear-gradient(90deg, var(--color-slate-200) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+/* ============================================================
+   HIGH-END AGENCY MOTION & INTERPOLATION (Awwwards-Tier)
+   ============================================================ */
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(1deg);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(12px) rotate(-1deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes pingSubtle {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  60% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes badgeShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-float-slow {
+  animation: floatSlow 16s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 18s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 14s ease-in-out infinite;
+}
+
+.animate-ping-subtle {
+  animation: pingSubtle 4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.delay-75 { animation-delay: 120ms; }
+.delay-100 { animation-delay: 200ms; }
+.delay-150 { animation-delay: 320ms; }
+.delay-200 { animation-delay: 440ms; }
+.delay-300 { animation-delay: 640ms; }
+.delay-400 { animation-delay: 840ms; }
+.delay-500 { animation-delay: 1040ms; }
+.delay-600 { animation-delay: 1240ms; }
+
+/* Print styling for Invoice Modal */
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printable-invoice-modal-content, #printable-invoice-modal-content * {
+    visibility: visible;
+  }
+  #printable-invoice-modal-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page {
+    margin: 10mm;
+    size: auto;
+  }
+}
