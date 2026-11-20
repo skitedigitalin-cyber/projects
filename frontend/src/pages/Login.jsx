@@ -36,7 +36,7 @@ export default function Login() {
         <div className="flex h-screen items-center justify-center bg-gray-50">
             <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-blue-600 mb-2">Skite CRM</h2>
+                    <h2 className="text-3xl font-bold text-blue-600 mb-2">Skite Prime</h2>
                     <p className="text-gray-500">Sign in to your workspace</p>
                 </div>
                 

@@ -41,7 +41,7 @@ export default function Billing() {
                 key: 'rzp_test_dummy_key_id', // Replace with real key in production
                 amount: data.amount,
                 currency: data.currency,
-                name: 'Skite CRM',
+                name: 'Skite Prime CRM',
                 description: 'Monthly Workspace Subscription',
                 order_id: data.orderId,
                 handler: async function (response) {
@@ -53,7 +53,7 @@ export default function Billing() {
                         }, {
                             headers: { Authorization: `Bearer ${token}` }
                         });
-                        alert('Payment Successful! Welcome to Skite CRM.');
+                        alert('Payment Successful! Welcome to Skite Prime.');
                         window.location.href = '/dashboard';
                     } catch (err) {
                         alert('Payment verification failed.');
@@ -90,7 +90,7 @@ export default function Billing() {
                         <Sparkles size={16} className="mr-2" /> Trial Expired
                     </div>
                     <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                        Continue using <span className="text-blue-600">Skite CRM</span>
+                        Continue using <span className="text-blue-600">Skite Prime</span>
                     </h1>
                     <p className="text-lg text-slate-600 font-medium">
                         Your 1-day free trial has expired. Subscribe to our monthly plan to keep your workspace active.

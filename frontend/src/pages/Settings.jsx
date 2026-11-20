@@ -1031,7 +1031,7 @@ export default function Settings() {
                                             Workspace Theme
                                         </h2>
                                         <p className="text-slate-500 text-sm font-medium mb-8">
-                                            Personalize your Skite CRM experience. Theme changes are saved instantly and apply across all dashboards.
+                                            Personalize your Skite Prime experience. Theme changes are saved instantly and apply across all dashboards.
                                         </p>
 
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
