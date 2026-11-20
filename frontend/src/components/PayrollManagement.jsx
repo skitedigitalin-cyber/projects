@@ -563,7 +563,7 @@ export default function PayrollManagement() {
                         {/* Header letterhead */}
                         <div className="flex items-center justify-between pb-5 border-b border-slate-200">
                             <div>
-                                <h3 className="font-black text-xl text-slate-900 tracking-tight">Skite Prime ERP</h3>
+                                <h3 className="font-black text-xl text-slate-900 tracking-tight">Skite CRM</h3>
                                 <p className="text-xs text-slate-500 font-medium">Monthly Attendance & Payroll Slip</p>
                             </div>
                             <div className="text-right">
@@ -652,7 +652,7 @@ export default function PayrollManagement() {
 
                         {/* Actions */}
                         <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                            <span className="text-[10px] text-slate-400 font-medium">Generated via Skite Prime Payroll System</span>
+                            <span className="text-[10px] text-slate-400 font-medium">Generated via Skite CRM Payroll System</span>
                             <div className="flex gap-2">
                                 <button
                                     type="button"

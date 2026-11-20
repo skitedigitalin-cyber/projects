@@ -270,7 +270,7 @@ export default function InvoiceHistory({ onNavigateToInvoices }) {
         setBatchProgress({ current: 0, total: filteredInvoices.length });
 
         try {
-            const bundleFilename = `SkitePrime_Invoices_${statusFilter}_${new Date().toISOString().slice(0, 10)}`;
+            const bundleFilename = `SkiteCRM_Invoices_${statusFilter}_${new Date().toISOString().slice(0, 10)}`;
             await generateBatchInvoicesPdf(
                 filteredInvoices, 
                 bundleFilename, 

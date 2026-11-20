@@ -115,9 +115,9 @@ export default function Layout({ children, noPadding = false }) {
                 }`}
             >
                 <div className="w-64 flex flex-col h-full">
-                    {/* Header with Skite Prime & Close Toggle */}
+                    {/* Header with Skite CRM & Close Toggle */}
                     <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200/60">
-                        <h1 className="text-xl font-bold text-blue-700 tracking-tight">Skite Prime</h1>
+                        <h1 className="text-xl font-bold text-blue-700 tracking-tight">Skite CRM</h1>
                         <button
                             onClick={toggleSidebar}
                             title="Close Sidebar (Ctrl+B)"
@@ -177,7 +177,7 @@ export default function Layout({ children, noPadding = false }) {
                             {isCollapsed ? <PanelLeftOpen size={19} /> : <PanelLeftClose size={19} />}
                         </button>
                         <h2 className="text-lg font-bold text-gray-800 tracking-tight">
-                            {navItems.find(item => item.path === location.pathname)?.name || 'Skite Prime'}
+                            {navItems.find(item => item.path === location.pathname)?.name || 'Skite CRM'}
                         </h2>
                     </div>
                     <div className="text-xs sm:text-sm text-gray-500 font-medium">
