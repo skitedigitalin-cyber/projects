@@ -27,14 +27,16 @@ const paymentSchema = new mongoose.Schema({
     notes: String
 }, { timestamps: true });
 
-paymentSchema.pre('save', async function () {
-    const year = new Date().getFullYear();
-    const count = await mongoose.model('Payment').countDocuments({ tenantId: this.tenantId });
+paymentSchema.pre('save', function () {
+    if (!this.isNew) return;
+
+    // A document ID stays unique across tenants, concurrent saves, and deletions.
+    const reference = this._id.toHexString().toUpperCase();
     if (!this.paymentId) {
-        this.paymentId = `PAY-${(count + 1).toString().padStart(5, '0')}`;
+        this.paymentId = `PAY-${reference}`;
     }
     if (!this.receiptNumber) {
-        this.receiptNumber = `RCP-${year}-${(count + 1).toString().padStart(4, '0')}`;
+        this.receiptNumber = `RCP-${new Date().getFullYear()}-${reference}`;
     }
 });
 

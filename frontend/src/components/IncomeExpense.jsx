@@ -171,7 +171,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
             fetchData();
         } catch (err) {
             console.error('Error adding income:', err);
-            alert('Failed to add income');
+            alert(err.response?.data?.message || 'Failed to add income. Check your connection and try again.');
         } finally {
             setSubmittingIncome(false);
         }
@@ -196,7 +196,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
             fetchData();
         } catch (err) {
             console.error('Error adding expense:', err);
-            alert('Failed to add expense');
+            alert(err.response?.data?.message || 'Failed to add expense. Check your connection and try again.');
         } finally {
             setSubmittingExpense(false);
         }

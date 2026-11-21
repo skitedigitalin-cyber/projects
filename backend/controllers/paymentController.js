@@ -49,7 +49,14 @@ exports.createPayment = async (req, res) => {
 
         res.status(201).json(payment);
     } catch (error) {
-        res.status(500).json({ message: 'Server Error', error: error.message });
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Check the payment amount, date, and payment method.' });
+        }
+        if (error.code === 11000) {
+            return res.status(409).json({ message: 'A payment with this reference already exists.' });
+        }
+        console.error('Error saving payment:', error);
+        res.status(500).json({ message: 'The payment could not be saved.' });
     }
 };
 
