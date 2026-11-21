@@ -39,7 +39,7 @@ const leadSchema = new mongoose.Schema({
     // ---- New fields for Call Status Tracking ----
     callStatus: {
         type: String,
-        default: 'Lead' // Can be Lead, Callback (1)..(5), Not Attend, Rejected
+        default: 'Lead' // Can be Lead, Callback (1)..(5), Not Attend, Rejected, Waiting List
     },
     callbackAlertDate: String,
     callbackAlertTime: String,
@@ -48,6 +48,7 @@ const leadSchema = new mongoose.Schema({
     callback3Description: String,
     callback4Description: String,
     callback5Description: String,
+    waitingListDescription: String,
     rejectReason: String,
     rejectedFromStage: String,
     
@@ -70,6 +71,7 @@ const leadSchema = new mongoose.Schema({
     closing: String,
     callHistory: Array,
     whatsappNumber: String,
+    website: String,
     date: String,
 
     // ---- New fields for Conversion ----

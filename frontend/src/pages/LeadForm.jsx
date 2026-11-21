@@ -34,6 +34,8 @@ export default function LeadForm() {
     const navigate = useNavigate();
     const location = useLocation();
     const { id } = useParams();
+    const salesSearch = location.state?.salesSearch;
+    const salesPath = salesSearch ? '/sales?' + salesSearch : '/sales';
     const isEditMode = Boolean(id);
 
     const { user } = useAuth();
@@ -61,7 +63,7 @@ export default function LeadForm() {
     }, [canAssign]);
 
     const emptyForm = {
-        customerName: '', companyName: '', mobileNumber: '', email: '',
+        customerName: '', companyName: '', mobileNumber: '', whatsappNumber: '', email: '',
         location: '', industry: '', leadSource: 'Meta Leads',
         serviceType: defaultService,
         productServiceInterested: defaultService,
@@ -120,6 +122,7 @@ export default function LeadForm() {
                     customerName: lead.customerName || '',
                     companyName: lead.companyName || '',
                     mobileNumber: lead.mobileNumber || '',
+                whatsappNumber: lead.whatsappNumber || '',
                     email: lead.email || '',
                     location: lead.location || '',
                     industry: lead.industry || '',
@@ -174,7 +177,7 @@ export default function LeadForm() {
             } else {
                 await axios.post('http://localhost:5000/api/leads', payload, { headers });
             }
-            navigate('/sales');
+            navigate(salesPath);
         } catch (error) {
             console.error('Error saving lead:', error);
             setSaveError(error.response?.data?.message || 'Error saving lead details.');
@@ -186,7 +189,7 @@ export default function LeadForm() {
     const optionsFor = (values, current) => current && !values.includes(current) ? [...values, current] : values;
 
     return (
-        <WorkspaceEditor backTo="/sales" backLabel="Sales & Leads" label={isEditMode ? 'Edit lead' : 'New lead'}
+        <WorkspaceEditor backTo={salesPath} backLabel="Sales & Leads" label={isEditMode ? 'Edit lead' : 'New lead'}
             title="Who are we talking to?" formId="leadForm" saveLabel={saving ? 'Saving…' : 'Save lead'} disabled={saving || loading || !!loadError}>
                 {loading ? <p role="status">Loading lead…</p> : loadError ? <p role="alert">{loadError}</p> : (
                     <form id="leadForm" onSubmit={handleSubmit} className="lead-editor-form">
@@ -231,6 +234,7 @@ export default function LeadForm() {
                             <section className="lead-editor-card" aria-labelledby="lead-context-title">
                                 <h2 id="lead-context-title">Location and service</h2>
                                 <div className="lead-field-grid">
+                                    <label>WhatsApp<input name="whatsappNumber" type="tel" value={formData.whatsappNumber || ''} onChange={handleInputChange} /></label>
                                     <label>Location<input name="location" value={formData.location} onChange={handleInputChange} placeholder="City, country" /></label>
                                     <label>Industry<input name="industry" value={formData.industry} onChange={handleInputChange} placeholder="Industry" /></label>
                                     <label className="lead-field-wide">Service interested<select name="serviceType" value={formData.serviceType} onChange={handleInputChange}>

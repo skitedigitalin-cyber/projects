@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { proposalConfigUrl } from '../utils/salesPipeline';
 import { MessageCircle, Save } from 'lucide-react';
 
-export default function ProposalConfigTab({ sourceName }) {
+export default function ProposalConfigTab({ sourceName, serviceType }) {
     const [message, setMessage] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const displayName = sourceName === 'All' ? 'Global' : sourceName;
+    const displayName = serviceType && serviceType !== 'All' ? serviceType : sourceName;
+    const configUrl = proposalConfigUrl(sourceName, serviceType);
 
     useEffect(() => {
         const fetchConfig = async () => {
             setLoading(true);
             try {
-                const res = await axios.get(`http://localhost:5000/api/leads/config/${displayName}`, {
+                const res = await axios.get(configUrl, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
                 setMessage(res.data.proposalMessage || '');
@@ -24,12 +26,12 @@ export default function ProposalConfigTab({ sourceName }) {
             }
         };
         fetchConfig();
-    }, [displayName]);
+    }, [configUrl]);
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            await axios.put(`http://localhost:5000/api/leads/config/${displayName}`, { proposalMessage: message }, {
+            await axios.put(configUrl, { proposalMessage: message }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             alert('Proposal message saved successfully!');

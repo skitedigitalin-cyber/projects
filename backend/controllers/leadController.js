@@ -225,6 +225,9 @@ exports.updateLead = async (req, res) => {
         delete updates.tenantId;
         delete updates.convertedAt;
 
+        const callHistoryEntry = typeof updates.callStatus === 'string'
+            ? { status: updates.callStatus, date: new Date() } : null;
+
         if (updates.leadStatus === undefined) {
             const lead = await Lead.findOneAndUpdate(filter, { $set: updates }, { new: true });
             if (!lead) return res.status(404).json({ message: 'Lead not found' });
@@ -237,7 +240,10 @@ exports.updateLead = async (req, res) => {
             if (!current) return res.status(404).json({ message: 'Lead not found' });
             const lead = await Lead.findOneAndUpdate(
                 { ...filter, leadStatus: current.leadStatus ?? null },
-                { $set: { ...updates, ...conversionChange(current.leadStatus, updates.leadStatus) } },
+                {
+                    $set: { ...updates, ...conversionChange(current.leadStatus, updates.leadStatus) },
+                    ...(callHistoryEntry && { $push: { callHistory: callHistoryEntry } })
+                },
                 { new: true }
             );
             if (lead) return res.json(lead);
@@ -263,6 +269,13 @@ const SourceConfig = require('../models/SourceConfig');
 exports.getConfig = async (req, res) => {
     try {
         let config = await SourceConfig.findOne({ tenantId: req.user.tenantId, sourceName: req.params.sourceName });
+        if (!config && req.params.sourceName.startsWith('service:') && typeof req.query.fallback === 'string') {
+            const aliases = ['Meta', 'Meta Leads', 'Meta Ads'].includes(req.query.fallback) ? ['Meta Leads', 'Meta', 'Meta Ads']
+                : ['Cold', 'Cold Leads', 'Cold Call'].includes(req.query.fallback) ? ['Cold Leads', 'Cold', 'Cold Call']
+                    : [req.query.fallback];
+            const configs = await SourceConfig.find({ tenantId: req.user.tenantId, sourceName: { $in: aliases } });
+            config = aliases.map(sourceName => configs.find(entry => entry.sourceName === sourceName)).find(Boolean);
+        }
         if (!config) config = new SourceConfig({ tenantId: req.user.tenantId, sourceName: req.params.sourceName });
         res.json(config);
     } catch (e) {

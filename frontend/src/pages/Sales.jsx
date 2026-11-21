@@ -1,36 +1,26 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Search, X, Eye, Pencil, Trash2, Phone, Mail, MapPin, Building, Target, ArrowLeft, Megaphone, Globe, Monitor, MessageCircle, Users, PhoneOutgoing, Camera, Link, MoreHorizontal, Bell, Clock, ChevronLeft, ChevronRight, Briefcase, Award, Zap, Cpu } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Phone, MapPin, Building, Target, ArrowLeft, Megaphone, Globe, Monitor, Users, PhoneOutgoing, Bell, Clock, ChevronLeft, ChevronRight, Briefcase, Award, Zap, Cpu } from 'lucide-react';
 import LeadDetailsModal from '../components/LeadDetailsModal';
 import ProposalConfigTab from '../components/ProposalConfigTab';
 import SalesActivityLog from '../components/SalesActivityLog';
 import SalesLeadList from '../components/SalesLeadList';
+import SalesChannelOverview, { SalesChannelMetrics } from '../components/SalesChannelOverview';
+import { leadReminder, reminderGroup } from '../utils/salesPipeline';
 import SalesTargetSettings from '../components/SalesTargetSettings';
 import { compactRupees } from '../components/DashboardNumbers';
 
-const LEAD_SOURCES = ['Cold Leads', 'Meta Leads'];
-const LEAD_STATUSES = ['New', 'Contacted', 'Qualified', 'Appointment', 'Proposal Sent', 'Converted', 'Lost'];
-const LEAD_TEMPS = ['Hot', 'Warm', 'Cold'];
+const LEAD_SOURCES = ['Meta Leads', 'Cold Leads'];
 
 const MASTER_SERVICES = [
-    'Paid Campaigns',
-    'Personal Branding',
     'Web Development',
     'SEO',
+    'Paid Campaigns',
+    'Personal Branding',
     'Full Digital Marketing'
-];
-
-const ROBOTRIQ_COURSES = [
-    'DELTA INDUSTRIAL AUTOMATION',
-    'SIEMENS INDUSTRIAL AUTOMATION',
-    'ABB PROCESS AUTOMATION',
-    'SCHNEIDER ELECTRIC INDUSTRIAL AUTOMATION',
-    'INDUSTRIAL AUTOMATION 4.0',
-    'MITSUBISHI ELECTRIC FACTORY AUTOMATION',
-    'ALLEN BRADLEY - ROCKWELL AUTOMATION'
 ];
 
 const SOURCE_CONFIG = {
@@ -157,6 +147,8 @@ const getLeadLevel = (lead) => {
     if (lead?.level && lead.level !== '-') return lead.level;
     const raw = (lead?.serviceType || lead?.productServiceInterested || lead?.course || '').trim();
     if (!raw) return 'Beginner';
+    const level = ROBOTRIQ_LEVELS.find(value => value.toLowerCase() === raw.toLowerCase());
+    if (level) return level;
     const count = raw.split(',').map(c => c.trim()).filter(Boolean).length;
     if (count === 1) return 'Beginner';
     if (count === 2) return 'Intermediate';
@@ -220,6 +212,14 @@ const getServiceConfig = (name) => {
     };
 };
 
+const normalizeLeadStage = lead => {
+    if (['New', 'Lead', 'Contacted', 'Not', undefined, null].includes(lead.leadStatus)) {
+        const status = { Qualified: 'Qualified', Appointment: 'Appointment', Convert: 'Converted', Converted: 'Converted' }[lead.leadStage];
+        if (status && lead.callStatus !== 'Rejected') return { ...lead, leadStatus: status };
+    }
+    return lead;
+};
+
 export default function Sales() {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -232,13 +232,21 @@ export default function Sales() {
         String(user?.tenantId?._id || user?.tenantId || '').includes('6afd35731172da4b0de9a48e') ||
         rawStored.toLowerCase().includes('robotriq')
     );
-    const activeMasterList = useMemo(() => isRobotriq ? ROBOTRIQ_LEVELS : MASTER_SERVICES, [isRobotriq]);
 
-    const [activeTab, setActiveTab] = useState('list');
+    const [params, setParams] = useSearchParams();
+    const activeTab = params.get('view') || 'leads';
+    const setActiveTab = view => setParams(view === 'leads' ? {} : { view });
     const [leads, setLeads] = useState([]);
     const [leadStatus, setLeadStatus] = useState('loading');
-    const [selectedSource, setSelectedSource] = useState(null);
-    const [selectedService, setSelectedService] = useState(null); // null = Level 2 (Services screen), string = Level 3 (Pipeline screen)
+    const selectedSource = LEAD_SOURCES.includes(params.get('channel')) ? params.get('channel') : null;
+    const selectedService = selectedSource ? params.get('service') : null;
+    const channelList = selectedSource ? params.get('list') : null;
+    const openChannel = channel => setParams(channel ? { channel } : {});
+    const setSelectedService = service => {
+        setPipelineTab('Leads');
+        setSearchTerm('');
+        setParams(service ? { channel: selectedSource, service } : { channel: selectedSource });
+    };
     const [pipelineTab, setPipelineTab] = useState('Leads');
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -264,60 +272,23 @@ export default function Sales() {
     }, [selectedSource, selectedService, searchTerm, pipelineTab]);
 
     // Modals
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
+    const [draftCallStatus, setDraftCallStatus] = useState(null);
 
     // Form
-    const emptyForm = {
-        customerName: '', companyName: '', mobileNumber: '', email: '',
-        location: '', industry: '', leadSource: 'Meta Leads',
-        productServiceInterested: '', leadValue: '', leadStatus: 'New',
-        leadTemperature: 'Cold', nextFollowUpDate: '', notes: ''
-    };
-    const [formData, setFormData] = useState({ ...emptyForm });
-
-    useEffect(() => { fetchLeads(); }, []);
-
-    const fetchLeads = async () => {
+    async function fetchLeads() {
         try {
             const res = await axios.get('http://localhost:5000/api/leads');
-            setLeads(Array.isArray(res.data) ? res.data : []);
+            setLeads(Array.isArray(res.data) ? res.data.map(normalizeLeadStage) : []);
             setLeadStatus('ready');
         } catch (error) {
             setLeadStatus('error');
             console.error("Error fetching leads:", error);
         }
-    };
-
-    const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    // --- CRUD ---
-    const handleAddLead = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.post('http://localhost:5000/api/leads', formData);
-            setIsAddModalOpen(false);
-            setFormData({ ...emptyForm });
-            fetchLeads();
-            setActiveTab('leads');
-        } catch (error) { console.error("Error adding lead:", error); }
-    };
-
-    const handleEditLead = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.put(`http://localhost:5000/api/leads/${selectedLead._id}`, formData);
-            setIsEditModalOpen(false);
-            setSelectedLead(null);
-            setFormData({ ...emptyForm });
-            fetchLeads();
-        } catch (error) { console.error("Error editing lead:", error); }
-    };
+    }
+    useEffect(() => { fetchLeads(); }, []);
 
     const handleDeleteLead = async () => {
         try {
@@ -326,22 +297,6 @@ export default function Sales() {
             setSelectedLead(null);
             fetchLeads();
         } catch (error) { console.error("Error deleting lead:", error); }
-    };
-
-    const handleQuickStatusChange = async (lead, newStatus) => {
-        try {
-            await axios.put(`http://localhost:5000/api/leads/${lead._id}`, { leadStatus: newStatus });
-            fetchLeads();
-        } catch (error) { console.error("Error updating status:", error); }
-    };
-
-    const handleQuickTempChange = async (lead, newTemp) => {
-        try {
-            await axios.put(`http://localhost:5000/api/leads/${lead._id}`, { leadTemperature: newTemp }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            fetchLeads();
-        } catch (error) { console.error("Error updating temperature:", error); }
     };
 
     const handleDragStart = (e, leadId) => {
@@ -354,7 +309,7 @@ export default function Sales() {
         if (!leadId) return;
 
         const originalLead = leads.find(l => l._id === leadId);
-        if (!originalLead) return;
+        if (!originalLead || ['Qualified', 'Appointment', 'Converted'].includes(originalLead.leadStatus)) return;
 
         let newCallStatus = targetStage;
         if (targetStage === 'New') {
@@ -370,10 +325,8 @@ export default function Sales() {
         // We DO NOT save to the backend yet! 
         // We just open the modal with the pre-filled target status.
         // If they click 'Save' in the modal, it will save. If they click 'Close', nothing happens.
-        setSelectedLead({
-            ...originalLead,
-            callStatus: newCallStatus
-        });
+        setDraftCallStatus(newCallStatus);
+        setSelectedLead(originalLead);
         setIsViewModalOpen(true);
     };
 
@@ -381,23 +334,24 @@ export default function Sales() {
         e.preventDefault(); // Required to allow dropping
     };
 
-    const openViewModal = (lead) => { setSelectedLead(lead); setIsViewModalOpen(true); };
+    const openViewModal = (lead) => { setDraftCallStatus(null); setSelectedLead(lead); setIsViewModalOpen(true); };
     const openEditModal = (lead) => {
         setIsViewModalOpen(false); // Close view modal if it was open
-        navigate(`/sales/lead/edit/${lead._id}`);
+        navigate(`/sales/lead/edit/${lead._id}`, { state: { salesSearch: params.toString() } });
     };
     const openDeleteModal = (lead) => { setSelectedLead(lead); setIsDeleteModalOpen(true); };
     const openAddWithSource = (source, service) => { 
         navigate('/sales/lead/add', {
             state: {
                 leadSource: source === 'All' ? 'Meta Leads' : (source || 'Meta Leads'),
-                serviceType: service && service !== 'All' ? service : undefined
+                serviceType: service && service !== 'All' ? service : undefined,
+                salesSearch: params.toString()
             }
         }); 
     };
 
     // --- Filtered Leads & Dynamic Services ---
-    const getLeadsBySource = (source) => leads.filter(l => {
+    const getLeadsBySource = useCallback(source => leads.filter(l => {
         if (source === 'Cold Leads' || source === 'Cold') {
             return l.leadSource === 'Cold Leads' || l.leadSource === 'Cold' || l.leadSource === 'Cold Call';
         }
@@ -405,12 +359,12 @@ export default function Sales() {
             return l.leadSource === 'Meta Leads' || l.leadSource === 'Meta' || l.leadSource === 'Meta Ads';
         }
         return l.leadSource === source;
-    });
+    }), [leads]);
 
     // Available services for the currently selected source
     const availableServices = useMemo(() => {
         if (!selectedSource) return [];
-        const sourceLeads = selectedSource === 'All' ? leads : getLeadsBySource(selectedSource);
+        const sourceLeads = getLeadsBySource(selectedSource);
         
         const map = {};
 
@@ -484,12 +438,8 @@ export default function Sales() {
             if (l.leadStatus && map[s].statuses[l.leadStatus] !== undefined) {
                 map[s].statuses[l.leadStatus]++;
             }
-            const aDate = l.appointmentAlertDate || l.qualifiedAlertDate || l.callbackAlertDate;
-            const aTime = l.appointmentAlertTime || l.qualifiedAlertTime || l.callbackAlertTime || '00:00';
-            if (aDate && l.leadStatus !== 'Converted' && l.leadStatus !== 'Lost') {
-                const dt = new Date(`${aDate}T${aTime}`);
-                if (dt <= new Date()) map[s].alerts++;
-            }
+            const due = leadReminder(l);
+            if (due && due <= new Date()) map[s].alerts++;
         });
 
         return Object.values(map).sort((a, b) => {
@@ -503,31 +453,19 @@ export default function Sales() {
             if (bIdx !== -1) return 1;
             return a.name.localeCompare(b.name);
         });
-    }, [leads, selectedSource, isRobotriq]);
+    }, [getLeadsBySource, selectedSource, isRobotriq]);
 
-    const totalSourceLeadsCount = useMemo(() => {
-        if (!selectedSource) return 0;
-        return (selectedSource === 'All' ? leads : getLeadsBySource(selectedSource)).length;
-    }, [leads, selectedSource]);
-
-    const filteredSourceLeads = selectedSource
-        ? leads.filter(l => {
-            const matchesSource = selectedSource === 'All'
-                ? true
-                : (selectedSource === 'Cold Leads' || selectedSource === 'Cold')
-                    ? (l.leadSource === 'Cold Leads' || l.leadSource === 'Cold' || l.leadSource === 'Cold Call')
-                    : (selectedSource === 'Meta Leads' || selectedSource === 'Meta')
-                        ? (l.leadSource === 'Meta Leads' || l.leadSource === 'Meta' || l.leadSource === 'Meta Ads')
-                        : l.leadSource === selectedSource;
-
+    const channelLeads = selectedSource ? getLeadsBySource(selectedSource) : [];
+    const totalSourceLeadsCount = channelLeads.length;
+    const filteredSourceLeads = channelLeads.filter(l => {
             let matchesService = true;
             if (selectedService && selectedService !== 'All') {
                 if (isRobotriq) {
                     const leadLevel = getLeadLevel(l);
                     matchesService = leadLevel.toLowerCase() === selectedService.trim().toLowerCase();
                 } else {
-                    const leadService = (l.serviceType || l.productServiceInterested || 'General').trim().toLowerCase();
-                    matchesService = (leadService === selectedService.trim().toLowerCase() || leadService.includes(selectedService.trim().toLowerCase()));
+                    const leadService = ((l.serviceType || l.productServiceInterested || '').trim() || 'Web Development').toLowerCase();
+                    matchesService = leadService === selectedService.trim().toLowerCase();
                 }
             }
 
@@ -542,20 +480,10 @@ export default function Sales() {
                 (l.productServiceInterested || '').toLowerCase().includes(term)
             );
 
-            return matchesSource && matchesService && matchesSearch;
-        })
-        : [];
+            return matchesService && matchesSearch;
+        });
 
     // --- KPI ---
-    const totalLeads = leads.length;
-    const newLeads = leads.filter(l => l.leadStatus === 'New').length;
-    const totalValue = leads.reduce((acc, curr) => acc + (curr.leadValue || 0), 0);
-    const overdueFollowUps = leads.filter(l => l.nextFollowUpDate && new Date(l.nextFollowUpDate) < new Date() && l.leadStatus !== 'Converted' && l.leadStatus !== 'Lost').length;
-    const convertedLeads = leads.filter(l => l.leadStatus === 'Converted').length;
-    const lostLeads = leads.filter(l => l.leadStatus === 'Lost').length;
-    const hotLeads = leads.filter(l => l.leadTemperature === 'Hot').length;
-    const warmLeads = leads.filter(l => l.leadTemperature === 'Warm').length;
-    const coldLeads = leads.filter(l => l.leadTemperature === 'Cold').length;
 
     // --- Helpers ---
     const getTempBadge = (temp) => {
@@ -564,156 +492,10 @@ export default function Sales() {
     const getTempIcon = (temp) => {
         switch (temp) { case 'Hot': return '🔥'; case 'Warm': return '🌤️'; default: return '❄️'; }
     };
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'New': return 'bg-[#e6e6e3] text-[#111111]'; case 'Contacted': return 'bg-[#e6e6e3] text-[#111111]';
-            case 'Qualified': return 'bg-purple-100 text-purple-700'; case 'Proposal Sent': return 'bg-orange-100 text-orange-700';
-            case 'Converted': return 'bg-green-100 text-green-700'; case 'Lost': return 'bg-red-100 text-red-700';
-            default: return 'bg-gray-100 text-gray-700';
-        }
-    };
 
     // --- FORM MODAL ---
-    const renderFormModal = (title, isOpen, onClose, onSubmit, formId) => {
-        if (!isOpen) return null;
-        return (
-            <div className="fixed inset-0 bg-[#111111]/60 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-up">
-                <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col border border-slate-100 overflow-hidden">
-                    <div className="flex justify-between items-center p-8 border-b border-slate-100 bg-[#f5f5f3]/50">
-                        <div>
-                            <h2 className="text-2xl font-black text-[#111111] tracking-tight">{title}</h2>
-                            <p className="text-slate-500 text-sm mt-1 font-medium">Fill in the details to {title.toLowerCase()}</p>
-                        </div>
-                        <button onClick={onClose} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors cursor-pointer">
-                            <X size={24} />
-                        </button>
-                    </div>
-                    
-                    <div className="p-8 overflow-y-auto custom-scrollbar">
-                        <form id={formId} onSubmit={onSubmit} className="space-y-8">
-                            
-                            {/* Section 1: Contact Info */}
-                            <div>
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center">
-                                    <Users size={14} className="mr-2" /> Contact Information
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Customer Name *</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><Users size={18} /></div>
-                                            <input required type="text" name="customerName" value={formData.customerName} onChange={handleInputChange} 
-                                                className="w-full pl-10 pr-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800" placeholder="e.g. John Doe" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Company Name</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><Building size={18} /></div>
-                                            <input type="text" name="companyName" value={formData.companyName} onChange={handleInputChange} 
-                                                className="w-full pl-10 pr-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800" placeholder="e.g. Acme Corp" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Mobile Number</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><Phone size={18} /></div>
-                                            <input type="text" name="mobileNumber" value={formData.mobileNumber} onChange={handleInputChange} 
-                                                className="w-full pl-10 pr-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800" placeholder="e.g. +1 234 567 890" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Email Address</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><Mail size={18} /></div>
-                                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} 
-                                                className="w-full pl-10 pr-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800" placeholder="e.g. john@example.com" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Location</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><MapPin size={18} /></div>
-                                            <input type="text" name="location" value={formData.location} onChange={handleInputChange} 
-                                                className="w-full pl-10 pr-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800" placeholder="City, Country" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Industry</label>
-                                        <input type="text" name="industry" value={formData.industry} onChange={handleInputChange} 
-                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800" placeholder="e.g. Software, Real Estate" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Section 2: Lead Details */}
-                            <div className="pt-6 border-t border-slate-100">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center">
-                                    <Target size={14} className="mr-2" /> Lead specific details
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Lead Source</label>
-                                        <select name="leadSource" value={formData.leadSource} onChange={handleInputChange} 
-                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800 appearance-none">
-                                            {LEAD_SOURCES.map(o => <option key={o}>{o}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Lead Status</label>
-                                        <select name="leadStatus" value={formData.leadStatus} onChange={handleInputChange} 
-                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800 appearance-none">
-                                            {LEAD_STATUSES.map(o => <option key={o}>{o}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Temperature</label>
-                                        <select name="leadTemperature" value={formData.leadTemperature} onChange={handleInputChange} 
-                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800 appearance-none">
-                                            {LEAD_TEMPS.map(o => <option key={o}>{o}</option>)}
-                                        </select>
-                                    </div>
-                                    
-                                    <div className="space-y-1.5 md:col-span-2">
-                                        <label className="text-sm font-bold text-slate-700">Product / Service Interested</label>
-                                        <input type="text" name="productServiceInterested" value={formData.productServiceInterested} onChange={handleInputChange} 
-                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800" placeholder="What are they looking for?" />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-slate-700">Estimated Value ($)</label>
-                                        <input type="number" name="leadValue" value={formData.leadValue} onChange={handleInputChange} 
-                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800 font-bold text-green-700" placeholder="0.00" />
-                                    </div>
-                                    
-                                    <div className="space-y-1.5 md:col-span-1">
-                                        <label className="text-sm font-bold text-slate-700">Next Follow-up Date</label>
-                                        <input type="date" name="nextFollowUpDate" value={formData.nextFollowUpDate} onChange={handleInputChange} 
-                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800" />
-                                    </div>
-                                    <div className="space-y-1.5 md:col-span-2">
-                                        <label className="text-sm font-bold text-slate-700">Additional Notes</label>
-                                        <textarea name="notes" rows="2" value={formData.notes} onChange={handleInputChange} 
-                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl outline-none focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 transition-all font-medium text-slate-800 resize-none" placeholder="Add any background context..."></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <div className="p-6 border-t border-slate-100 flex justify-end space-x-3 bg-[#f5f5f3]/50 rounded-b-[2rem]">
-                        <button onClick={onClose} className="px-6 py-3 text-slate-600 bg-white border border-[#e6e6e3] rounded-xl hover:bg-[#f5f5f3] font-bold transition-all shadow-sm active:scale-95 cursor-pointer">
-                            Cancel
-                        </button>
-                        <button type="submit" form={formId} className="px-8 py-3 bg-[#111111] text-white rounded-xl hover:bg-[#303030] font-bold transition-all shadow-md hover:shadow-lg active:scale-95 cursor-pointer flex items-center">
-                            <Plus size={18} className="mr-2" /> Save Lead
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const openValue = leads.reduce((value, lead) => ['Converted', 'Lost'].includes(lead.leadStatus) ? value : value + (Number(lead.leadValue) || 0), 0);
+    const openValue = leads.reduce((value, lead) => ['Converted', 'Lost'].includes(lead.leadStatus)
+        ? value : value + (Number(lead.leadValue) || 0), 0);
 
     return (
         <Layout workspace compactTools>
@@ -756,12 +538,12 @@ export default function Sales() {
                 </div>
                 <div className="sales-page-actions">
                     <nav aria-label="Sales views">
-                        {[['dashboard', 'Dashboard'], ['list', 'Leads'], ['targets', 'Targets']].map(([id, label]) => (
-                            <button type="button" key={id} aria-current={activeTab === id || (id === 'list' && activeTab === 'leads') ? 'page' : undefined}
-                                onClick={() => { setActiveTab(id); setSelectedSource(null); setSelectedService(null); }}>{label}</button>
+                        {[['dashboard', 'Dashboard'], ['leads', 'Leads'], ['targets', 'Targets']].map(([id, label]) => (
+                            <button type="button" key={id} aria-current={activeTab === id || (id === 'leads' && activeTab === 'list') ? 'page' : undefined}
+                                onClick={() => setActiveTab(id)}>{label}</button>
                         ))}
                     </nav>
-                    <button type="button" onClick={() => navigate('/sales/lead/add')}><Plus size={15} /> Add lead</button>
+                    {!selectedSource && <button type="button" onClick={() => navigate('/sales/lead/add')}><Plus size={15} /> Add lead</button>}
                 </div>
             </header>
 
@@ -774,148 +556,57 @@ export default function Sales() {
                     {/* ======== DAILY CLIENT ACTIONS & STATUS LOG (WITH 2 DATE FILTERS & PAGINATION) ======== */}
                     <SalesActivityLog 
                         leads={leads} 
-                        onViewLead={(lead) => { 
-                            setSelectedLead(lead); 
-                            setIsViewModalOpen(true); 
-                        }} 
+                        onViewLead={openViewModal}
                     />
                 </div>
             )}
 
             {/* ======== LEAD MANAGEMENT TAB ======== */}
             {activeTab === 'leads' && !selectedSource && (
-                <div className="animate-fade-up delay-100">
-                    {/* Add New Lead Button */}
-                    <div className="mb-6">
-                        <button onClick={() => navigate('/sales/lead/add')} className="flex items-center bg-[#111111] text-white px-5 py-3 rounded-xl hover:bg-[#303030] transition-all shadow-sm hover:shadow-md cursor-pointer hover:scale-105">
-                            <Plus size={20} className="mr-2" /> Add New Lead
-                        </button>
+                <section className="mx-auto max-w-3xl py-8">
+                    <h2 className="mb-6 text-2xl font-bold">Choose your channel</h2>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {LEAD_SOURCES.map(source => (
+                            <button key={source} type="button" onClick={() => openChannel(source)}
+                                className="rounded-2xl border border-[#e6e6e3] bg-white p-6 text-left shadow-sm hover:bg-[#f5f5f3]">
+                                {SOURCE_CONFIG[source].icon}
+                                <span className="mt-4 block text-lg font-bold">{source}</span>
+                                <span className="mt-1 block text-sm text-slate-500">
+                                    {source === 'Meta Leads' ? 'Inbound ads' : 'Calling and manual lists'}
+                                </span>
+                                <span className="mt-4 flex items-center gap-1 text-sm font-semibold">Open pipeline <ChevronRight size={15} /></span>
+                            </button>
+                        ))}
                     </div>
+                    <button type="button" className="mt-5 text-sm font-semibold underline" onClick={() => setActiveTab('list')}>View all leads</button>
+                </section>
+            )}
 
-                    {/* Lead Sources Grid */}
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Lead Sources</h3>
-                    <p className="text-gray-500 text-sm mb-6">Click on a source to view and manage leads from that channel.</p>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {/* All Leads Card */}
-                        {(() => {
-                            let totalAlerts = 0;
-                            const now = new Date();
-                            leads.forEach(l => {
-                                if (l.callbackAlertDate && l.leadStatus !== 'Converted' && l.leadStatus !== 'Lost') {
-                                    const dt = new Date(`${l.callbackAlertDate}T${l.callbackAlertTime || '00:00'}`);
-                                    if (dt <= now) totalAlerts++;
-                                }
-                            });
-                            
-                            return (
-                                <button onClick={() => { setSelectedSource('All'); setSelectedService(null); }} className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-slate-100 transition-colors duration-500 group">
-                                    <div className="bg-white rounded-[1.5rem] p-6 h-full shadow-[0_2px_20px_-8px_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.08)] transition-all duration-500 text-left group-hover:scale-[1.02]">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="bg-[#f0f0ee] text-slate-600 p-3 rounded-xl group-hover:bg-[#e6e6e3] group-hover:text-[#3f3f3f] transition-colors relative">
-                                                <Users size={24} className="group-hover:scale-110 transition-transform" />
-                                                {totalAlerts > 0 && (
-                                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white animate-pulse shadow-sm flex items-center">
-                                                        <Bell size={8} className="mr-1" /> {totalAlerts}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <span className="text-3xl font-bold text-slate-800">{totalLeads}</span>
-                                        </div>
-                                        <h4 className="font-semibold text-slate-800 text-lg">All Leads</h4>
-                                        <p className="text-slate-500 text-sm mt-1">View all leads from every source</p>
-                                    </div>
-                                </button>
-                            );
-                        })()}
-
-                        {/* Individual Source Cards */}
-                        {LEAD_SOURCES.map(source => {
-                            const cfg = SOURCE_CONFIG[source] || SOURCE_CONFIG['Meta Leads'];
-                            const sourceLeads = getLeadsBySource(source);
-                            const count = sourceLeads.length;
-                            
-                            let sourceAlerts = 0;
-                            const now = new Date();
-                            sourceLeads.forEach(l => {
-                                if (l.callbackAlertDate && l.leadStatus !== 'Converted' && l.leadStatus !== 'Lost') {
-                                    const dt = new Date(`${l.callbackAlertDate}T${l.callbackAlertTime || '00:00'}`);
-                                    if (dt <= now) sourceAlerts++;
-                                }
-                            });
-
-                            return (
-                                <button key={source} onClick={() => { setSelectedSource(source); setSelectedService(null); }} className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-slate-100 transition-colors duration-500 group">
-                                    <div className="bg-white rounded-[1.5rem] p-6 h-full shadow-[0_2px_20px_-8px_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.08)] transition-all duration-500 text-left group-hover:scale-[1.02] flex flex-col justify-between">
-                                        <div>
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className={`${cfg.lightBg} ${cfg.textColor} p-3 rounded-xl transition-colors relative`}>
-                                                    <div className="group-hover:scale-110 transition-transform group-hover:rotate-12">{cfg.icon}</div>
-                                                    {sourceAlerts > 0 && (
-                                                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white animate-pulse shadow-sm flex items-center">
-                                                            <Bell size={8} className="mr-1" /> {sourceAlerts}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <span className="text-3xl font-bold text-slate-800">{count}</span>
-                                            </div>
-                                            <h4 className="font-semibold text-slate-800 text-lg">{source}</h4>
-                                            <p className="text-slate-500 text-sm mt-1">{count} lead{count !== 1 ? 's' : ''} from {source}</p>
-                                        </div>
-
-                                        {/* Services Breakdown Preview */}
-                                        <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-1.5">
-                                            {(() => {
-                                                const sMap = {};
-                                                sourceLeads.forEach(l => {
-                                                    if (isRobotriq) {
-                                                        const lvl = getLeadLevel(l);
-                                                        sMap[lvl] = (sMap[lvl] || 0) + 1;
-                                                    } else {
-                                                        const raw = (l.serviceType || l.productServiceInterested || '').trim();
-                                                        const matched = activeMasterList.find(m => m.toLowerCase() === raw.toLowerCase());
-                                                        const s = matched || raw || activeMasterList[0];
-                                                        sMap[s] = (sMap[s] || 0) + 1;
-                                                    }
-                                                });
-                                                // Show services with counts first, max 4 items
-                                                const displayList = [
-                                                    ...activeMasterList.filter(s => (sMap[s] || 0) > 0),
-                                                    ...activeMasterList.filter(s => (sMap[s] || 0) === 0)
-                                                ].slice(0, 4);
-
-                                                return displayList.map(sName => {
-                                                    const cnt = sMap[sName] || 0;
-                                                    return (
-                                                        <span key={sName} className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${
-                                                            cnt > 0 ? (isRobotriq ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-[#f0f0ee] text-slate-800') : 'bg-[#f5f5f3] text-slate-400 border border-[#e6e6e3]/50'
-                                                        }`}>
-                                                            {sName}: {cnt}
-                                                        </span>
-                                                    );
-                                                });
-                                            })()}
-                                        </div>
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+            {activeTab === 'leads' && selectedSource && channelList && (
+                <section>
+                    <button type="button" className="mb-4 flex items-center gap-2 text-sm font-semibold"
+                        onClick={() => openChannel(selectedSource)}><ArrowLeft size={16} /> Back to {selectedSource}</button>
+                    <h2 className="mb-4 text-xl font-bold">{channelList === 'today' ? 'Scheduled follow-ups'
+                        : channelList === 'missed' ? 'Missed follow-ups' : selectedSource}</h2>
+                    <SalesLeadList key={channelList} leads={channelLeads.filter(lead =>
+                        channelList === 'all' || reminderGroup(lead, new Date()) === channelList)}
+                        loading={leadStatus === 'loading'} failed={leadStatus === 'error'}
+                        onView={openViewModal} onBrowseSources={() => openChannel(null)} />
+                </section>
             )}
 
             {/* ======== LEVEL 2: SERVICES SELECTION GRID ======== */}
-            {activeTab === 'leads' && selectedSource && !selectedService && (
+            {activeTab === 'leads' && selectedSource && !selectedService && !channelList && (
                 <div className="animate-fade-up delay-100">
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <div className="flex items-center space-x-3.5">
                             <button 
-                                onClick={() => { setSelectedSource(null); setSelectedService(null); setSearchTerm(''); }} 
+                                onClick={() => openChannel(null)}
                                 className="p-2.5 border border-[#e6e6e3] rounded-xl bg-white hover:bg-[#f5f5f3] cursor-pointer transition-colors shadow-xs"
-                                title="Back to All Lead Sources"
+                                title="Change category"
                             >
-                                <ArrowLeft size={18} className="text-slate-700" />
+                                <span className="flex items-center gap-2 text-sm font-semibold"><ArrowLeft size={16} /> Change category</span>
                             </button>
                             <div>
                                 <div className="flex items-center gap-2">
@@ -930,22 +621,14 @@ export default function Sales() {
                             </div>
                         </div>
 
-                        <div className="flex items-center space-x-3">
-                            <button 
-                                onClick={() => setSelectedService('All')}
-                                className="px-4 py-2.5 bg-white border border-[#e6e6e3] hover:border-[#111111] text-slate-700 hover:text-[#3f3f3f] text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
-                            >
-                                <Users size={15} />
-                                <span>View All {selectedSource} Leads ({totalSourceLeadsCount})</span>
-                            </button>
-                            <button 
-                                onClick={() => openAddWithSource(selectedSource === 'All' ? 'Meta Leads' : selectedSource)} 
-                                className="flex items-center bg-[#111111] text-white px-4 py-2.5 rounded-xl hover:bg-[#303030] transition-all shadow-md text-xs font-bold cursor-pointer active:scale-95"
-                            >
-                                <Plus size={16} className="mr-1" /> Add Lead
-                            </button>
-                        </div>
                     </div>
+                    <SalesChannelMetrics leads={channelLeads}
+                        onOpen={list => setParams({ channel: selectedSource, list })} />
+                    <h3 className="mb-3 font-bold">Service segmentation</h3>
+                    <SalesChannelOverview key={selectedSource} source={selectedSource}
+                        leads={channelLeads} services={availableServices.map(service => service.name)}
+                        defaultService={isRobotriq ? ROBOTRIQ_LEVELS[0] : MASTER_SERVICES[0]}
+                        onChange={created => setLeads(current => [...created.slice().reverse(), ...current])} />
 
                     {/* Services Cards Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -955,6 +638,8 @@ export default function Sales() {
                             return (
                                 <div
                                     key={service.name}
+                                    role="button" tabIndex={0}
+                                    onKeyDown={event => { if (event.target === event.currentTarget && ['Enter', ' '].includes(event.key)) { event.preventDefault(); setSelectedService(service.name); } }}
                                     onClick={() => setSelectedService(service.name)}
                                     className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-slate-100 transition-all duration-300 group cursor-pointer hover:border-[#e6e6e3] hover:shadow-xl hover:-translate-y-1"
                                 >
@@ -1047,9 +732,9 @@ export default function Sales() {
 
             {/* ======== LEVEL 3: LEADS KANBAN BOARD (after clicking a service) ======== */}
             {activeTab === 'leads' && selectedSource && selectedService && (
-                <div className="h-full flex flex-col animate-fade-up delay-100">
+                <div className="flex min-w-0 flex-col animate-fade-up delay-100">
                     {/* Header */}
-                    <div className="flex items-center space-x-4 mb-5">
+                    <div className="mb-5 flex flex-wrap items-center gap-4">
                         <button 
                             onClick={() => { setSelectedService(null); setSearchTerm(''); }} 
                             className="p-2 border border-[#e6e6e3] rounded-lg bg-white hover:bg-[#f5f5f3] cursor-pointer transition-colors shadow-sm"
@@ -1067,19 +752,19 @@ export default function Sales() {
                                 </span>
                             </div>
                             <p className="text-xs text-slate-400 font-medium">
-                                <span className="hover:underline cursor-pointer" onClick={() => { setSelectedSource(null); setSelectedService(null); }}>Lead Management</span>
+                                <span className="hover:underline cursor-pointer" onClick={() => openChannel(null)}>Lead Management</span>
                                 {' > '}
                                 <span className="hover:underline cursor-pointer" onClick={() => setSelectedService(null)}>{selectedSource}</span>
                                 {' > '}
                                 <span className="text-slate-700 font-bold">{selectedService}</span>
                             </p>
                         </div>
-                        <div className="ml-auto flex items-center space-x-3">
+                        <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
                             <div className="relative group">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-500 transition-colors" size={16} />
-                                <input type="text" placeholder="Search leads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-64 pl-9 pr-4 py-2 bg-white border border-[#e6e6e3] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm transition-all hover:border-slate-300" />
+                                <input type="text" placeholder="Search leads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-52 sm:w-64 pl-9 pr-4 py-2 bg-white border border-[#e6e6e3] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm transition-all hover:border-slate-300" />
                             </div>
-                            <button onClick={() => openAddWithSource(selectedSource === 'All' ? 'Meta Leads' : selectedSource, selectedService)} className="flex items-center bg-[#111111] text-white px-4 py-2 rounded-full hover:bg-[#303030] transition-all shadow-md hover:shadow-lg text-sm font-semibold cursor-pointer active:scale-95">
+                            <button onClick={() => openAddWithSource(selectedSource, selectedService)} className="flex items-center bg-[#111111] text-white px-4 py-2 rounded-full hover:bg-[#303030] transition-all shadow-md hover:shadow-lg text-sm font-semibold cursor-pointer active:scale-95">
                                 <Plus size={16} className="mr-1.5" /> Add Lead
                             </button>
                         </div>
@@ -1100,12 +785,8 @@ export default function Sales() {
                                     let alerts = 0;
                                     const now = new Date();
                                     leadArray.forEach(l => {
-                                        const aDate = l.appointmentAlertDate || l.qualifiedAlertDate || l.callbackAlertDate;
-                                        const aTime = l.appointmentAlertTime || l.qualifiedAlertTime || l.callbackAlertTime || '00:00';
-                                        if (aDate && l.leadStatus !== 'Converted' && l.leadStatus !== 'Lost') {
-                                            const dt = new Date(`${aDate}T${aTime}`);
-                                            if (dt <= now) alerts++;
-                                        }
+                                        const due = leadReminder(l);
+                                        if (due && due <= now) alerts++;
                                     });
                                     return alerts;
                                 };
@@ -1158,15 +839,13 @@ export default function Sales() {
                             {(() => {
                                 // If Proposal Message Tab
                                 if (pipelineTab === 'Proposal Message') {
-                                    return <div className="animate-fade-up w-full"><ProposalConfigTab sourceName={selectedSource} /></div>;
+                                    return <div className="animate-fade-up w-full"><ProposalConfigTab key={selectedService} sourceName={selectedSource} serviceType={selectedService} /></div>;
                                 }
 
                                 const sortAlertsFirst = (a, b) => {
                                     const getAlertPriority = (l) => {
-                                        const aDate = l.appointmentAlertDate || l.qualifiedAlertDate || l.callbackAlertDate;
-                                        const aTime = l.appointmentAlertTime || l.qualifiedAlertTime || l.callbackAlertTime || '00:00';
-                                        if (!aDate) return 3;
-                                        const dt = new Date(`${aDate}T${aTime}`);
+                                        const dt = leadReminder(l);
+                                        if (!dt || Number.isNaN(+dt)) return 3;
                                         if (dt <= new Date()) return 1; // Overdue
                                         if (dt.toDateString() === new Date().toDateString()) return 2; // Today
                                         return 3; // Future or None
@@ -1178,11 +857,8 @@ export default function Sales() {
                                 };
 
                                 const getAlertStatusInfo = (lead) => {
-                                    const aDate = lead.appointmentAlertDate || lead.qualifiedAlertDate || lead.callbackAlertDate;
-                                    const aTime = lead.appointmentAlertTime || lead.qualifiedAlertTime || lead.callbackAlertTime || '00:00';
-                                    if (!aDate) return null;
-                                    if (lead.leadStatus === 'Converted' || lead.leadStatus === 'Lost') return null; // No alerts for terminal stages
-                                    const dt = new Date(`${aDate}T${aTime}`);
+                                    const dt = leadReminder(lead);
+                                    if (!dt || Number.isNaN(+dt)) return null;
                                     const now = new Date();
                                     let status = 'upcoming';
                                     if (dt <= now) status = 'overdue';
@@ -1206,6 +882,10 @@ export default function Sales() {
                                         <div 
                                             key={lead._id} 
                                             className={`${baseClass} ${borderClass}`} 
+                                            tabIndex={0}
+                                            role="button"
+                                            aria-label={lead.customerName}
+                                            onKeyDown={event => { if (event.target === event.currentTarget && ['Enter', ' '].includes(event.key)) { event.preventDefault(); openViewModal(lead); } }}
                                             onClick={() => openViewModal(lead)}
                                             draggable
                                             onDragStart={(e) => handleDragStart(e, lead._id)}
@@ -1249,6 +929,9 @@ export default function Sales() {
                                                 <p className="text-xs font-black text-[#111111] bg-[#f5f5f3] px-2 py-1 rounded-md border border-slate-100 group-hover:bg-[#f0f0ee] group-hover:text-[#111111] transition-colors">₹{(lead.leadValue || 0).toLocaleString()}</p>
                                             </div>
 
+                                            {/^(Callback|Waiting List)/.test(lead.callStatus || '') && (
+                                                <p className="mt-2 text-xs font-semibold text-slate-600">{lead.callStatus}{lead.waitingListDescription && lead.callStatus === 'Waiting List' ? ' · ' + lead.waitingListDescription : ''}</p>
+                                            )}
                                             {lead.callStatus === 'Rejected' && (
                                                 <div className="mt-3 p-2 bg-red-50 rounded-lg border border-red-100">
                                                     <p className="text-[10px] text-red-600 font-bold mb-0.5">Rejected from {lead.rejectedFromStage || 'Unknown'}</p>
@@ -1325,28 +1008,25 @@ export default function Sales() {
                                     { status: 'New', label: 'Lead', dotColor: 'bg-[#ff6a3d]', bgColor: 'bg-[#f5f5f3]/50' },
                                     { status: 'Contacted', label: 'Callback', dotColor: 'bg-amber-500', bgColor: 'bg-[#f5f5f3]/50' },
                                     { status: 'Not Attend', label: 'Not Attend', dotColor: 'bg-orange-500', bgColor: 'bg-[#f5f5f3]/50' },
-                                    { status: 'Rejected', label: 'Rejected', dotColor: 'bg-rose-500', bgColor: 'bg-[#f5f5f3]/50' }
+                                    { status: 'Rejected', label: 'Rejected', dotColor: 'bg-rose-500', bgColor: 'bg-[#f5f5f3]/50' },
+                                    { status: 'Waiting List', label: 'Waiting List', dotColor: 'bg-violet-500', bgColor: 'bg-[#f5f5f3]/50' }
                                 ];
 
                                 return (
-                                    <div className="flex space-x-5 w-full h-full animate-fade-up">
+                                    <div className="flex gap-4 w-full h-full overflow-x-auto pb-2 animate-fade-up">
                                     {kanbanStages.map((stage, idx) => {
                                     // Custom filtering to match the 4 requested columns based on callStatus!
                                     // ONLY include leads that are actually in the "Leads" tab (not Qualified/Appointment/Converted)
                                     const kanbanDisplayLeads = displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus));
                                     
-                                    let stageLeads = [];
-                                    if (stage.status === 'New') {
-                                        stageLeads = kanbanDisplayLeads.filter(l => !l.callStatus || l.callStatus === 'Lead' || l.callStatus === 'Pending' || (l.callStatus.includes('Attend') && !l.callStatus.toLowerCase().includes('not attend')));
-                                    } else if (stage.status === 'Contacted') {
-                                        stageLeads = kanbanDisplayLeads.filter(l => l.callStatus && l.callStatus.toLowerCase().includes('callback'));
-                                    } else if (stage.status === 'Not Attend') {
-                                        stageLeads = kanbanDisplayLeads.filter(l => l.callStatus && l.callStatus.toLowerCase().includes('not attend'));
-                                    } else if (stage.status === 'Rejected') {
-                                        stageLeads = kanbanDisplayLeads.filter(l => l.callStatus === 'Rejected');
-                                    }
-                                    
-                                    stageLeads = stageLeads.sort(sortAlertsFirst);
+                                    const stageLeads = kanbanDisplayLeads.filter(lead => {
+                                        const status = (lead.callStatus || '').toLowerCase();
+                                        if (status === 'rejected' || lead.leadStatus === 'Lost') return stage.status === 'Rejected';
+                                        if (status === 'waiting list') return stage.status === 'Waiting List';
+                                        if (status.includes('callback')) return stage.status === 'Contacted';
+                                        if (status.includes('not attend')) return stage.status === 'Not Attend';
+                                        return stage.status === 'New';
+                                    }).sort(sortAlertsFirst);
 
                                     const totalColPages = Math.ceil(stageLeads.length / PAGE_SIZE) || 1;
                                     const currentColPage = Math.min(kanbanPages[stage.status] || 1, totalColPages);
@@ -1355,7 +1035,7 @@ export default function Sales() {
                                     return (
                                         <div 
                                             key={idx} 
-                                            className={`flex-1 min-w-0 flex flex-col ${stage.bgColor} border border-[#e6e6e3] rounded-[1.5rem] overflow-hidden shadow-sm transition-colors duration-300`}
+                                            className={`flex-1 min-w-[210px] flex flex-col ${stage.bgColor} border border-[#e6e6e3] rounded-[1.5rem] overflow-hidden shadow-sm transition-colors duration-300`}
                                             onDragOver={handleDragOver}
                                             onDrop={(e) => handleDrop(e, stage.status)}
                                         >
@@ -1422,10 +1102,14 @@ export default function Sales() {
             {/* View Lead Modal (Advanced with Call Status & Pipeline Move) */}
             {isViewModalOpen && selectedLead && (
                 <LeadDetailsModal 
-                    lead={selectedLead} 
+                    key={selectedLead._id}
+                    lead={selectedLead}
+                    draftCallStatus={draftCallStatus}
+                    proposalService={selectedService && selectedService !== 'All' ? selectedService : (isRobotriq ? getLeadLevel(selectedLead) : null)}
                     onClose={() => { setIsViewModalOpen(false); setSelectedLead(null); }} 
-                    onUpdate={(updatedLead) => {
-                        setLeads(leads.map(l => l._id === updatedLead._id ? updatedLead : l));
+                    onUpdate={(savedLead) => {
+                        const updatedLead = normalizeLeadStage(savedLead);
+                        setLeads(current => current.map(l => l._id === updatedLead._id ? updatedLead : l));
                         setSelectedLead(updatedLead);
                     }}
                     onEdit={openEditModal}
