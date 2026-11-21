@@ -778,7 +778,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                             type="button"
                             onClick={handleSaveInvoice}
                             disabled={savingInvoice}
-                            className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 py-2 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
                         >
                             {savingInvoice ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                             <span>{editId ? 'Update Invoice' : 'Save Invoice'}</span>
@@ -860,7 +860,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 </div>
 
                                 {showClientDropdown && (
-                                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 max-h-52 overflow-y-auto shadow-xl">
+                                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 workspace-scroll-list max-h-52 shadow-xl">
                                         {customers
                                             .filter(c => (c.customerName || '').toLowerCase().includes(customerName.toLowerCase()) || 
                                                          (c.companyName || '').toLowerCase().includes(customerName.toLowerCase()))
@@ -980,7 +980,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                 </div>
 
                                                 {activeServiceDropdownIndex === index && (
-                                                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl">
+                                                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 workspace-scroll-list max-h-48 shadow-xl">
                                                         {SERVICES_LIST
                                                             .filter(s => s.name.toLowerCase().includes((item.description || '').toLowerCase()))
                                                             .map((srv, i) => (
@@ -1265,14 +1265,14 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                     onClick={() => { setGstFilter('GST'); setCurrentPage(1); }}
                     className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                         gstFilter === 'GST'
-                            ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/20'
+                            ? 'bg-[#111111] text-white shadow-xs'
                             : 'bg-white text-slate-600 hover:bg-[#f0f0ee] border border-[#e6e6e3]'
                     }`}
                 >
                     <FileText size={14} />
                     <span>GST Invoices</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                        gstFilter === 'GST' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-700 font-bold'
+                        gstFilter === 'GST' ? 'bg-white/15 text-white' : 'bg-[#f0f0ee] text-[#595959] font-bold'
                     }`}>
                         {gstCount}
                     </span>
@@ -1282,14 +1282,14 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                     onClick={() => { setGstFilter('NONGST'); setCurrentPage(1); }}
                     className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                         gstFilter === 'NONGST'
-                            ? 'bg-amber-600 text-white shadow-xs shadow-amber-600/20'
+                            ? 'bg-[#111111] text-white shadow-xs'
                             : 'bg-white text-slate-600 hover:bg-[#f0f0ee] border border-[#e6e6e3]'
                     }`}
                 >
                     <FileText size={14} />
                     <span>Without GST</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                        gstFilter === 'NONGST' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-700 font-bold'
+                        gstFilter === 'NONGST' ? 'bg-white/15 text-white' : 'bg-[#f0f0ee] text-[#595959] font-bold'
                     }`}>
                         {nonGstCount}
                     </span>

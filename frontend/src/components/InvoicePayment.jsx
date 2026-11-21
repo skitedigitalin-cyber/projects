@@ -239,27 +239,26 @@ export default function InvoicePayment({ onBack, initialInvoice = null }) {
                     </div>
 
                     {/* Date Filters: From Date & To Date */}
-                    <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 text-xs">
+                    <div className="accounts-date-range bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 text-xs">
                         <Calendar size={16} className="text-slate-500" />
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-slate-500 font-bold text-[11px]">From:</span>
+                        <label>
+                            <span className="text-slate-500 font-medium">From:</span>
                             <input 
                                 type="date" 
                                 value={fromDate} 
                                 onChange={(e) => setFromDate(e.target.value)}
                                 className="bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer"
                             />
-                        </div>
-                        <span className="text-slate-300">|</span>
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-slate-500 font-bold text-[11px]">To:</span>
+                        </label>
+                        <label>
+                            <span className="text-slate-500 font-medium">To:</span>
                             <input 
                                 type="date" 
                                 value={toDate} 
                                 onChange={(e) => setToDate(e.target.value)}
                                 className="bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer"
                             />
-                        </div>
+                        </label>
                         {(searchTerm || fromDate || toDate || filterType !== 'All') && (
                             <button 
                                 type="button"

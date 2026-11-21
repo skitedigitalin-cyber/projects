@@ -82,7 +82,7 @@ export default function TeamOverview({ groups, tasks, loading, navigation, onOpe
                     {stageLabels.map(label => (
                         <section key={label} aria-label={label}>
                             <h3>{label}<span>{columns[label].length}</span></h3>
-                            {columns[label].length ? <ul>{columns[label].map(({ task, link }) => {
+                            {columns[label].length ? <ul className="workspace-scroll-list">{columns[label].map(({ task, link }) => {
                                 const due = deadline(task.dueDate);
                                 const overdue = due && task.status !== 'Completed' && day.format(due) < now;
                                 const assignee = [task.employeeId?.firstName, task.employeeId?.lastName].filter(Boolean);

@@ -1317,7 +1317,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                         <button
                                             type="button"
                                             onClick={handleAddLetterheadItem}
-                                            className="flex items-center gap-1 px-3 py-1.5 bg-teal-600 hover:bg-[#111111] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
                                         >
                                             <Plus size={13} />
                                             <span>Add Component</span>
@@ -1586,7 +1586,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                     </div>
 
                                     {showClientDropdown && (
-                                        <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 max-h-52 overflow-y-auto shadow-xl">
+                                        <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 workspace-scroll-list max-h-52 shadow-xl">
                                             {customers
                                                 .filter(c => (c.customerName || '').toLowerCase().includes(customerName.toLowerCase()) || 
                                                              (c.companyName || '').toLowerCase().includes(customerName.toLowerCase()))
@@ -1697,7 +1697,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                     </button>
 
                                                     {activeServiceDropdownIndex === idx && (
-                                                        <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-[#e6e6e3] rounded-xl shadow-xl z-30 max-h-56 overflow-y-auto text-xs py-1">
+                                                        <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-[#e6e6e3] rounded-xl shadow-xl z-30 workspace-scroll-list max-h-56 text-xs py-1">
                                                             {PRESET_SERVICES.map((srv, sIdx) => (
                                                                 <div
                                                                     key={sIdx}
@@ -2215,7 +2215,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                         setViewingQuote(null);
                                         handleOpenEditEditor(q);
                                     }}
-                                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold flex items-center transition-colors cursor-pointer"
                                 >
                                     <Pencil size={14} className="mr-1.5" /> Edit
                                 </button>

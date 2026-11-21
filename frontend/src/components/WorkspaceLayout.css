@@ -21,7 +21,34 @@
     --workspace-soft: #f0f0ee;
     --workspace-coral: #ff6a3d;
     --workspace-danger: #b42318;
+    --workspace-danger-surface: #f9e9e5;
+    --workspace-success: #236249;
+    --workspace-success-surface: #e8f3ec;
+    --workspace-pending: #874123;
+    --workspace-pending-surface: #fff0e7;
     --workspace-card-radius: 28px;
+}
+
+.workspace-status { background: var(--workspace-soft); color: var(--workspace-muted); }
+.workspace-status-success { background: var(--workspace-success-surface); color: var(--workspace-success); }
+.workspace-status-danger { background: var(--workspace-danger-surface); color: var(--workspace-danger); }
+.workspace-status-pending { background: var(--workspace-pending-surface); color: var(--workspace-pending); }
+
+:is(.skite-workspace, .employee-portal, .ceo-dashboard) :is(.overflow-x-auto, .overflow-y-auto, .workspace-table-scroll, .workspace-scroll-list, .hr-month-scroll, .sales-table-scroll, .hr-view-table, .finance-ledger-table, .accounts-analysis-table, .workspace-permissions-scroll, .invoice-workspace-table) {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    scrollbar-width: thin;
+}
+.workspace-scroll-list {
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    padding-inline-end: 12px;
+    padding-block-end: 4px;
+}
+.workspace-table-scroll { overflow-x: auto; }
+.workspace-table-scroll:focus-visible, .workspace-scroll-list:focus-visible {
+    outline: 2px solid var(--workspace-coral);
+    outline-offset: -2px;
 }
 
 :is(.skite-workspace, .employee-portal, .ceo-dashboard, .workspace-invoice-preview) {
@@ -35,6 +62,8 @@
 
 :is(.skite-workspace, .employee-portal, .ceo-dashboard, .workspace-invoice-preview) select:not([multiple], [size]:not([size='1'])) {
     appearance: none;
+    min-inline-size: 0;
+    max-inline-size: 100%;
     background-image: var(--workspace-chevron);
     background-repeat: no-repeat;
     background-position: right var(--workspace-chevron-inset) center;

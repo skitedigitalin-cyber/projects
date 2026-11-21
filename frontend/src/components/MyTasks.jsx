@@ -903,7 +903,7 @@ export default function MyTasks({ initialTaskType = 'general' }) {
 
                                             {/* SEO Checklist Items Grid */}
                                             {isExpanded && (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 max-h-96 overflow-y-auto pr-1">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 workspace-scroll-list pt-1 max-h-96">
                                                     {task.seoProject.checklist
                                                         .filter(item => {
                                                             const activeCat = seoCategoryMap[task._id] || 'All';

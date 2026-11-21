@@ -386,7 +386,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                         className={`invoice-archive-export flex items-center gap-2 px-4 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
                             filteredInvoices.length === 0
                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/20'
+                                : 'bg-[#111111] text-white hover:bg-[#303030]'
                         }`}
                         title="Download filtered invoices as a single combined PDF"
                     >
@@ -480,14 +480,14 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                     onClick={() => setActiveGstTab('gst')}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                         activeGstTab === 'gst'
-                            ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
+                            ? 'bg-[#111111] text-white shadow-sm'
                             : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                     }`}
                 >
                     <FileText size={15} />
                     <span>GST Invoices</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                        activeGstTab === 'gst' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-700 font-bold'
+                        activeGstTab === 'gst' ? 'bg-white/15 text-white' : 'bg-[#f0f0ee] text-[#595959] font-bold'
                     }`}>
                         {gstCount}
                     </span>
@@ -497,14 +497,14 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                     onClick={() => setActiveGstTab('nongst')}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                         activeGstTab === 'nongst'
-                            ? 'bg-amber-600 text-white shadow-sm shadow-amber-600/20'
+                            ? 'bg-[#111111] text-white shadow-sm'
                             : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                     }`}
                 >
                     <FileX size={15} />
                     <span>Without GST</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                        activeGstTab === 'nongst' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-700 font-bold'
+                        activeGstTab === 'nongst' ? 'bg-white/15 text-white' : 'bg-[#f0f0ee] text-[#595959] font-bold'
                     }`}>
                         {nonGstCount}
                     </span>

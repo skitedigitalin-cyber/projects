@@ -685,7 +685,7 @@ export default function StudentManagement() {
                                 <button 
                                     type="button" 
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="px-4 py-1.5 bg-teal-500 hover:bg-teal-600 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                                    className="px-4 py-1.5 bg-[#303030] hover:bg-[#454545] text-white rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                                 >
                                     <Upload size={14} />
                                     <span>{photoPreview ? 'Change Photo' : 'Upload Photo'}</span>
@@ -878,7 +878,7 @@ export default function StudentManagement() {
                                         </div>
 
                                         {showCourseDropdown && (
-                                            <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#303030] border border-slate-700 rounded-xl shadow-2xl z-20 max-h-56 overflow-y-auto divide-y divide-slate-700/60">
+                                            <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#303030] border border-slate-700 rounded-xl shadow-2xl z-20 workspace-scroll-list max-h-56 divide-y divide-slate-700/60">
                                                 {COURSE_OPTIONS.map((c, i) => {
                                                     const isChecked = formData.selectedCourses.includes(c);
                                                     return (
@@ -1070,7 +1070,7 @@ export default function StudentManagement() {
                                 <button 
                                     type="submit" 
                                     disabled={saving}
-                                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-md shadow-emerald-500/20 cursor-pointer disabled:opacity-50"
+                                    className="px-5 py-2 bg-[#111111] hover:bg-[#303030] text-white font-bold rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50"
                                 >
                                     {saving ? 'Recording...' : 'Confirm Payment'}
                                 </button>

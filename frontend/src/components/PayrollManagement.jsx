@@ -178,24 +178,25 @@ export default function PayrollManagement() {
             <div className="hr-payroll-grid" data-selected={Boolean(payslipEmp)}>
                 <section className="hr-payroll-list hr-views-stack" aria-label="Staff ledger">
             {/* 3. Search and Department Filter Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#e6e6e3] shadow-sm">
-                <div className="relative w-full sm:w-80">
+            <div className="hr-payroll-toolbar bg-white p-4 rounded-2xl border border-[#e6e6e3]">
+                <div className="relative hr-payroll-search">
                     <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search staff by name or ID..."
+                        aria-label="Search payroll staff" placeholder="Search staff by name or ID..."
                         className="w-full pl-9 pr-4 py-2 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl text-xs font-medium text-[#111111] focus:outline-none focus:border-blue-600 focus:bg-white transition-all"
                     />
                 </div>
 
-                <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
+                <div className="hr-payroll-departments" role="group" aria-label="Department">
                     <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Department:</span>
                     {departments.map(dept => (
                         <button
                             key={dept}
                             type="button"
+                            aria-pressed={selectedDept === dept}
                             onClick={() => setSelectedDept(dept)}
                             className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                                 selectedDept === dept
@@ -227,7 +228,7 @@ export default function PayrollManagement() {
                 </div>
             ) : (
                 <div className="bg-white rounded-3xl border border-[#e6e6e3] shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="workspace-table-scroll" role="region" aria-label="Payroll records" tabIndex={0}>
                         <table className="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr className="bg-[#f5f5f3]/90 border-b border-[#e6e6e3] text-slate-500 font-bold uppercase tracking-wider text-[10px]">
@@ -248,7 +249,7 @@ export default function PayrollManagement() {
                                             {/* Employee Name & Code */}
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-xl bg-[#111111] text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                                    <div className="w-9 h-9 shrink-0 rounded-xl bg-[#111111] text-white flex items-center justify-center font-bold text-xs shadow-sm">
                                                         {r.name.substring(0, 2).toUpperCase()}
                                                     </div>
                                                     <div>
@@ -293,7 +294,7 @@ export default function PayrollManagement() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setViewDatesEmp(r)}
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f0f0ee] hover:bg-blue-100 text-blue-800 border border-blue-200 font-extrabold text-xs transition-colors cursor-pointer group"
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#3f3f3f] whitespace-nowrap font-semibold text-xs transition-colors cursor-pointer group"
                                                     title="Click to view dates"
                                                 >
                                                     <span>{r.effectiveDays} Days</span>
@@ -573,7 +574,7 @@ export default function PayrollManagement() {
                                 <span className="font-black text-sm">{viewDatesEmp.effectiveDays} Days ({viewDatesEmp.presentCount} Full + {viewDatesEmp.halfDayCount} Half)</span>
                             </div>
 
-                            <div className="max-h-60 overflow-y-auto space-y-1.5 pr-1">
+                            <div className="workspace-scroll-list max-h-60 overflow-y-auto space-y-1.5">
                                 {viewDatesEmp.presentDates.length === 0 ? (
                                     <p className="text-xs text-slate-400 text-center py-6">No present records clocked in this month.</p>
                                 ) : (

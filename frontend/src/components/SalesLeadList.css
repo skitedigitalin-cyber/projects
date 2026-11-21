@@ -48,7 +48,7 @@
 .sales-temp[data-temp='Hot'] { background: #ff6a3d; }
 .sales-temp[data-temp='Warm'] { background: #111; color: #fff; }
 .sales-list-panel td:nth-child(4) { font: 12px 'Skite Dashboard Mono', monospace; color: #6b6b6b; text-transform: uppercase; }
-.sales-list-panel td.sales-overdue { color: #b42318; }
+.sales-list-panel td.sales-overdue { color: var(--workspace-danger); }
 .sales-list-empty { padding-block: 32px; color: #6b6b6b; }
 .sales-list-panel footer { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-top: 16px; }
 @keyframes sales-reference-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }

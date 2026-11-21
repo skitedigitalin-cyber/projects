@@ -28,9 +28,9 @@
 .sales-activity-table td:nth-child(2) button:hover { text-decoration: underline; }
 .sales-activity-table time { font: 12px 'Skite Dashboard Mono', monospace; white-space: nowrap; }
 .sales-activity-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; background: var(--workspace-soft); font-size: 12px; }
-.sales-activity-badge[data-category='callback'] { background: #ffe8df; }
-.sales-activity-badge[data-stage='Lost'], .sales-activity-badge[data-category='lost'] { background: #fdecea; color: var(--workspace-danger); }
-.sales-activity-badge[data-stage='Converted'], .sales-activity-badge[data-category='converted'] { background: #edf6ee; color: #176638; }
+.sales-activity-badge[data-category='callback'] { background: var(--workspace-pending-surface); }
+.sales-activity-badge[data-stage='Lost'], .sales-activity-badge[data-category='lost'] { background: var(--workspace-danger-surface); color: var(--workspace-danger); }
+.sales-activity-badge[data-stage='Converted'], .sales-activity-badge[data-category='converted'] { background: var(--workspace-success-surface); color: var(--workspace-success); }
 .sales-activity-contact { justify-content: flex-end; flex-wrap: nowrap; gap: 4px; }
 .sales-activity-contact :is(a, button) { flex: none; min-height: 34px; padding-inline: 9px; white-space: nowrap; }
 .sales-activity-contact a { width: 34px; justify-content: center; padding-inline: 0; }

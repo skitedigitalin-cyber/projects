@@ -21,7 +21,7 @@
 .dashboard-sales small { font-size: 12px; }
 .dashboard-sales-metric small, .dashboard-sales-person small, .dashboard-sales-source { color: #6b6b6b; }
 .dashboard-sales-metric[data-featured='true'] small, .dashboard-sales-conversion small { color: #b5b5b5; }
-.dashboard-sales-metric small.dashboard-sales-attention { color: #b42318; }
+.dashboard-sales-metric small.dashboard-sales-attention { color: var(--workspace-danger); }
 .dashboard-sales-panels { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; }
 .dashboard-sales .dashboard-panel h3 { color: inherit; font-size: 17px; font-weight: 500; letter-spacing: -.02em; }
 .dashboard-sales .dashboard-panel a { max-width: 100%; }
@@ -53,8 +53,8 @@
 .dashboard-sales-feed li a > strong { text-align: right; }
 .dashboard-sales-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #f0f0ee; font-size: 11px; }
 .dashboard-sales-status { justify-self: start; padding: 2px 8px; border-radius: 999px; background: #f0f0ee; color: #3f3f3f; font-size: 12px; }
-.dashboard-sales-status[data-stage='Converted'] { background: #edf6ee; color: #176638; }
-.dashboard-sales-status[data-stage='Lost'] { background: #fdecea; color: #b42318; }
+.dashboard-sales-status[data-stage='Converted'] { background: var(--workspace-success-surface); color: var(--workspace-success); }
+.dashboard-sales-status[data-stage='Lost'] { background: var(--workspace-danger-surface); color: var(--workspace-danger); }
 
 @media (max-width: 860px) {
     .dashboard-sales-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }

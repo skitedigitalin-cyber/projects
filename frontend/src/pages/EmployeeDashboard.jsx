@@ -1039,7 +1039,7 @@ export default function EmployeeDashboard() {
                             {myPermissions.length > 0 && (
                                 <div className="pt-3 border-t border-[#ededea]">
                                     <h4 className="text-[11px] font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">My Recent Permissions</h4>
-                                    <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                                    <div className="workspace-scroll-list space-y-2 max-h-32">
                                         {myPermissions.slice(0, 3).map((p) => (
                                             <div key={p._id} className="p-2.5 bg-[#f5f5f3] rounded-xl border border-[#e6e6e3]/60 flex items-center justify-between text-xs">
                                                 <div>

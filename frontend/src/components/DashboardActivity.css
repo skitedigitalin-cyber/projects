@@ -24,7 +24,7 @@
     font: 12px 'Skite Dashboard Mono', monospace;
     color: #6b6b6b;
 }
-.dashboard-followups time.dashboard-followup-overdue { color: #b42318; text-transform: uppercase; }
+.dashboard-followups time.dashboard-followup-overdue { color: var(--workspace-danger); text-transform: uppercase; }
 .dashboard-followups small { display: block; color: #6b6b6b; font-size: 13px; }
 .dashboard-followup-open {
     display: grid;

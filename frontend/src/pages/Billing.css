@@ -32,7 +32,7 @@
 .billing-plans .billing-primary-plan button { background: #ff6a3d; color: #111; }
 .billing-primary-plan li::before, .billing-primary-plan small { color: #d4d4d4; }
 .billing-plans .billing-plan-status { background: #f5f5f3; color: #6b6b6b; }
-.billing-alert { margin-top: 20px; color: #b42318; background: #fff; padding: 12px 16px; border-radius: 14px; }
+.billing-alert { margin-top: 20px; color: var(--workspace-danger); background: #fff; padding: 12px 16px; border-radius: 14px; }
 @media (max-width: 840px) { .billing-plans { grid-template-columns: 1fr; } .billing-plans article { min-height: 0; } }
 @media (max-width: 520px) {
     .billing-usage { gap: 8px; }

@@ -35,7 +35,7 @@
 .team-project-rail li[data-current='true'] { background: var(--workspace-ink); color: var(--workspace-surface); }
 .team-project-rail li button:first-child { display: grid; flex: 1; min-width: 0; gap: 4px; padding: 3px; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
 .team-project-rail li button:last-child { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; }
-.team-project-rail li button:last-child:hover { background: #fdecea; color: var(--workspace-danger); }
+.team-project-rail li button:last-child:hover { background: var(--workspace-danger-surface); color: var(--workspace-danger); }
 .team-project-rail strong { font-weight: 500; }
 .team-project-rail small { color: var(--workspace-muted); font-size: 12px; }
 .team-project-rail li[data-current='true'] small { color: #d4d4d4; }
@@ -80,3 +80,4 @@
 @media (max-width: 900px) { .team-project-workspace { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 850px) { .team-web-workflow[data-show-both='true'] { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 450px) { .team-live-columns { grid-template-columns: minmax(0, 1fr); } }
+.team-seo-workspace form > div { min-width: 0; }

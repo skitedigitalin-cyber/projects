@@ -97,7 +97,7 @@ export default function HRWorkspace({ onSummaryChange, onViewLeaves, onViewAtten
             <div className="hr-reference-top">
                 <section className="hr-workspace-card" aria-labelledby="hr-today-title">
                     <header><h2 id="hr-today-title">Today</h2><button type="button" onClick={onViewAttendance}>Attendance →</button></header>
-                    {data.staff.length ? <ul className="hr-today-list">{data.staff.map(employee => {
+                    {data.staff.length ? <ul className="hr-today-list workspace-scroll-list">{data.staff.map(employee => {
                         const row = byEmployee.get(employee._id)?.get(data.today);
                         const isPresent = present(row);
                         const when = row?.checkInTime ? clock.format(new Date(row.checkInTime)) : '';
@@ -113,7 +113,7 @@ export default function HRWorkspace({ onSummaryChange, onViewLeaves, onViewAtten
                 <section className="hr-workspace-card" aria-labelledby="hr-leaves-title">
                     <header><h2 id="hr-leaves-title">Leave requests</h2><button type="button" onClick={onViewLeaves}>View all →</button></header>
                     {updateError && <p className="hr-error" role="alert">{updateError}</p>}
-                    {data.leaves.length ? <ul className="hr-leave-list">{data.leaves.map(leave => (
+                    {data.leaves.length ? <ul className="hr-leave-list workspace-scroll-list">{data.leaves.map(leave => (
                         <li key={leave._id}>
                             <div><strong>{fullName(leave.employeeId)}</strong>
                                 <time dateTime={leave.startDate}>{shortDate.format(new Date(leave.startDate))}{leave.endDate !== leave.startDate ? ` – ${shortDate.format(new Date(leave.endDate || leave.startDate))}` : ''}</time>
@@ -132,8 +132,9 @@ export default function HRWorkspace({ onSummaryChange, onViewLeaves, onViewAtten
                     <h2 id="hr-month-title">{monthName.format(new Date(`${month}-01T00:00:00Z`))} attendance</h2>
                     <ul className="hr-legend">{['Present', 'Late', 'Half day', 'Leave / absent', 'Off / no record'].map(status => <li key={status}><i data-status={status} />{status}</li>)}</ul>
                 </header>
-                {data.staff.length ? <div className="hr-month-scroll">
+                {data.staff.length ? <div className="hr-month-scroll workspace-table-scroll" role="region" aria-labelledby="hr-month-title" tabIndex={0}>
                     <table>
+                        <colgroup><col className="hr-month-employee" /><col span={days.length} /><col className="hr-month-rate" /></colgroup>
                         <thead className="sr-only"><tr><th scope="col">Employee</th>{days.map((date, index) => <th key={date} scope="col">{index + 1}</th>)}<th scope="col">Attendance rate</th></tr></thead>
                         <tbody>{data.staff.map(employee => {
                             const records = byEmployee.get(employee._id);

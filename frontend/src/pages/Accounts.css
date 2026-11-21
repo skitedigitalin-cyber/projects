@@ -25,7 +25,7 @@
 .accounts-chart li > div span { font-size: 12px; color: #6b6b6b; white-space: nowrap; }
 .accounts-chart li i { display: block; width: 100%; height: max(2px, calc(var(--account-bar) * .8)); border-radius: 16px; background: #111; transform-origin: bottom; animation: accounts-rise 230ms ease-out both; animation-delay: var(--account-delay); }
 .accounts-chart li[data-current='true'] i { background: #ff6a3d; }
-.accounts-chart li[data-loss='true'] i { background: #b42318; }
+.accounts-chart li[data-loss='true'] i { background: var(--workspace-danger); }
 .accounts-expenses { display: grid; gap: 14px; padding-top: 8px; }
 .accounts-expenses li > div:first-child { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
 .accounts-expenses li > div:last-child { height: 8px; background: #ededea; border-radius: 999px; }
@@ -43,3 +43,30 @@
     .accounts-chart ul { overflow-x: auto; grid-template-columns: repeat(var(--account-months), minmax(56px, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { .accounts-chart li i { animation: none; } }
+.accounts-ledger-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 18px; }
+.accounts-ledger-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; min-width: 0; padding: 16px; background: var(--workspace-canvas); border-bottom: 1px solid var(--workspace-line); }
+.accounts-ledger-heading[data-flow='income'] { background: var(--workspace-ink); color: var(--workspace-surface); }
+.accounts-ledger-heading h3 { overflow-wrap: anywhere; }
+.accounts-ledger-direction { flex: none; padding: 8px; border-radius: 12px; color: var(--workspace-success); background: var(--workspace-success-surface); }
+.accounts-ledger-heading[data-flow='expense'] .accounts-ledger-direction { color: var(--workspace-danger); background: var(--workspace-danger-surface); }
+.accounts-ledger-entry { container-type: inline-size; padding: 12px; border: 1px solid var(--workspace-line); border-radius: 16px; background: var(--workspace-canvas); }
+.accounts-ledger-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: center; }
+.accounts-ledger-fields input { min-height: 38px; }
+.accounts-ledger-add { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 6px 10px; border-radius: 12px; background: var(--workspace-ink); color: var(--workspace-surface); cursor: pointer; }
+.accounts-ledger-add:hover:not(:disabled) { background: #303030; }
+.accounts-ledger-add:disabled { opacity: .55; cursor: default; }
+.accounts-ledger-inflow { color: var(--workspace-success); }
+.accounts-ledger-outflow { color: var(--workspace-danger); }
+.accounts-date-range { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; max-width: 100%; }
+.accounts-date-range label { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; }
+.accounts-date-range input { min-width: 0; max-width: 100%; }
+.accounts-ledger-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; overflow-wrap: anywhere; }
+.accounts-ledger-row > div:first-child { flex: 1 1 135px; min-width: 0; }
+.accounts-ledger-row > div:first-child > :last-child { min-width: 0; }
+.accounts-ledger-row > div:last-child { margin-inline-start: auto; white-space: nowrap; }
+@container (min-width: 330px) {
+    .accounts-ledger-fields { grid-template-columns: minmax(112px, 1fr) minmax(0, 1.5fr) minmax(80px, .8fr) auto; }
+}
+@media (max-width: 900px) {
+    .accounts-ledger-columns { grid-template-columns: minmax(0, 1fr); }
+}

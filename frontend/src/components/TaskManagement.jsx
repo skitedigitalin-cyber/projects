@@ -108,10 +108,10 @@ export default function TaskManagement() {
             <section className="hr-view-panel hr-task-list" aria-label="Task list">
                 <h2>Task list <small>{tasks.filter(task => task.status === 'Pending').length} pending</small></h2>
             {/* Top Toolbar & Filters */}
-            <div className="bg-white p-5 rounded-[1.75rem] border border-slate-200/80 shadow-xs space-y-4">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="hr-task-toolbar space-y-4">
+                <div className="hr-task-toolbar-top">
                     {/* Search */}
-                    <div className="relative flex-1 max-w-md">
+                    <div className="relative min-w-0 flex-1">
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input 
                             type="text" 
@@ -125,7 +125,7 @@ export default function TaskManagement() {
                     {/* Action button */}
                     <button 
                         onClick={() => navigate('/hr/assign-task')}
-                        className="bg-[#111111] hover:bg-[#303030] text-white px-5 py-2.5 rounded-full font-medium flex items-center transition-colors cursor-pointer text-xs"
+                        className="hr-task-create"
                     >
                         <Plus size={16} className="mr-1.5" /> Assign Task
                     </button>
@@ -134,8 +134,8 @@ export default function TaskManagement() {
                 {/* Filter Controls Row matching old CRM */}
                 <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100 text-xs">
                     {/* Employee Filter */}
-                    <div className="min-w-[180px]">
-                        <select
+                    <div className="min-w-0 max-w-full">
+                        <select aria-label="Filter tasks by employee"
                             value={selectedEmployee}
                             onChange={(e) => setSelectedEmployee(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-700 focus:bg-white focus:border-blue-500 transition-colors"
@@ -163,7 +163,7 @@ export default function TaskManagement() {
                     </div>
 
                     {/* Date Filters */}
-                    <div className="flex items-center gap-2">
+                    <div className="hr-task-date-filters">
                         <div className="flex items-center px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
                             <Calendar size={14} className="text-slate-400 mr-2" />
                             <span className="text-[10px] font-bold text-slate-400 mr-1.5">FROM</span>
@@ -200,7 +200,7 @@ export default function TaskManagement() {
             </div>
 
             {/* Task Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="hr-task-cards">
                 {filteredTasks.length === 0 ? (
                     <div className="col-span-full py-16 text-center text-slate-500 bg-white rounded-2xl border border-slate-100 shadow-xs">
                         <CheckSquare size={48} className="mx-auto text-slate-300 mb-4" />
@@ -216,16 +216,16 @@ export default function TaskManagement() {
                         )}
                     </div>
                 ) : paginatedTasks.map(task => (
-                    <div key={task._id} className="bg-white border border-slate-200/90 rounded-[1.5rem] p-6 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+                    <div key={task._id} className="hr-task-card">
                         <div>
-                            <div className="flex justify-between items-start mb-3 gap-2">
+                            <div className="hr-task-card-heading">
                                 <h3 className={`font-bold text-base ${task.status === 'Completed' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
                                     {task.title}
                                 </h3>
-                                <span className={`px-2.5 py-0.5 text-[11px] font-bold rounded-full whitespace-nowrap ${
+                                <span className={`workspace-status px-2.5 py-0.5 text-xs rounded-full whitespace-nowrap ${
                                     task.status === 'Completed' 
-                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                                        : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                        ? 'workspace-status-success'
+                                        : 'workspace-status-pending'
                                 }`}>
                                     {task.status}
                                 </span>
@@ -234,25 +234,25 @@ export default function TaskManagement() {
                                 {task.description || 'No additional details'}
                             </p>
                             
-                            <div className="space-y-2 mb-4 bg-slate-50/70 p-3 rounded-xl border border-slate-100">
-                                <div className="flex items-center text-xs text-slate-600">
+                            <div className="hr-task-card-meta">
+                                <div className="hr-task-card-detail">
                                     <Users size={14} className="mr-2 text-slate-400 shrink-0" /> 
                                     <span className="text-slate-400 mr-1">Assignee:</span>
                                     <span className="font-bold text-slate-800">
                                         {task.employeeId ? `${task.employeeId.firstName} ${task.employeeId.lastName || ''}`.trim() : 'Unassigned'}
                                     </span>
                                 </div>
-                                <div className="flex items-center text-xs text-slate-600">
-                                    <AlertCircle size={14} className={`mr-2 shrink-0 ${task.priority === 'High' ? 'text-red-500' : task.priority === 'Low' ? 'text-emerald-500' : 'text-amber-500'}`} /> 
+                                <div className="hr-task-card-detail">
+                                    <AlertCircle size={14} className={`mr-2 shrink-0 ${task.priority === 'High' ? 'text-[var(--workspace-danger)]' : task.priority === 'Low' ? 'text-[var(--workspace-muted)]' : 'text-[var(--workspace-pending)]'}`} />
                                     <span className="text-slate-400 mr-1">Priority:</span>
-                                    <span className={`font-bold ${task.priority === 'High' ? 'text-red-600' : task.priority === 'Low' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                    <span className={`font-bold ${task.priority === 'High' ? 'text-[var(--workspace-danger)]' : task.priority === 'Low' ? 'text-[var(--workspace-muted)]' : 'text-[var(--workspace-pending)]'}`}>
                                         {task.priority || 'Normal'}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                        <div className="hr-task-card-dates">
                             <span>Assigned: <strong className="text-slate-600 font-semibold">{formatDate(task.createdAt)}</strong></span>
                             <span>Due: <strong className="text-slate-600 font-semibold">{formatDate(task.dueDate)}</strong></span>
                         </div>
@@ -262,7 +262,7 @@ export default function TaskManagement() {
 
             {/* Pagination Controls */}
             {filteredTasks.length > PAGE_SIZE && (
-                <div className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-xs">
+                <div className="flex flex-wrap gap-3 items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl">
                     <span className="text-xs font-semibold text-slate-500">
                         Showing <strong className="text-slate-800">{(validPage - 1) * PAGE_SIZE + 1}</strong> to <strong className="text-slate-800">{Math.min(validPage * PAGE_SIZE, filteredTasks.length)}</strong> of <strong className="text-slate-800">{filteredTasks.length}</strong> tasks
                     </span>

@@ -93,7 +93,7 @@
     letter-spacing: -.045em;
 }
 .dashboard-number-note { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
-.dashboard-number-overdue { color: #b42318; }
+.dashboard-number-overdue { color: var(--workspace-danger); }
 .dashboard-number-change {
     border-radius: 999px;
     padding: 4px 10px;

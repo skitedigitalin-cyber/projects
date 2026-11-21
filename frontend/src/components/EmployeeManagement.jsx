@@ -130,8 +130,8 @@ export default function EmployeeManagement() {
 
     return (
         <div className="hr-views-stack">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="relative w-full sm:w-96">
+            <div className="hr-employee-toolbar">
+                <div className="relative hr-employee-search">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                     <input 
                         type="text" 
@@ -141,20 +141,20 @@ export default function EmployeeManagement() {
                         className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#111111] focus:ring-4 focus:ring-[#f0f0ee] transition-all font-medium text-gray-700"
                     />
                 </div>
-                <div className="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
-                    <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-                        <span className="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 border border-green-200/80 font-bold">
+                <div className="hr-employee-toolbar-actions">
+                    <div className="hr-employee-counts" aria-label="Staff counts">
+                        <span className="workspace-status workspace-status-success">
                             {activeCount} Active
                         </span>
                         {inactiveCount > 0 && (
-                            <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200/80 font-bold">
+                            <span className="workspace-status">
                                 {inactiveCount} Deactivated
                             </span>
                         )}
                     </div>
                     <button 
                         onClick={() => navigate('/hr/employee/add')}
-                        className="bg-[#111111] hover:bg-[#303030] text-white px-5 py-2.5 rounded-xl font-bold flex items-center shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
+                        className="hr-employee-add"
                     >
                         <Plus size={18} className="mr-2" /> Add Employee
                     </button>
@@ -190,7 +190,7 @@ export default function EmployeeManagement() {
                         >
                             <div>
                                 {/* Card Top Row: Avatar + Name & Quick Actions */}
-                                <div className="flex items-start justify-between gap-2 mb-3.5">
+                                <div className="hr-employee-card-header">
                                     <div className="flex items-center space-x-3 min-w-0 flex-1">
                                         <div className={`w-11 h-11 rounded-full flex items-center justify-center text-base font-black shadow-inner shrink-0 overflow-hidden ${
                                             isInactive 
@@ -205,7 +205,7 @@ export default function EmployeeManagement() {
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-1.5">
-                                                <h3 className={`font-bold text-base leading-tight truncate ${isInactive ? 'text-slate-600' : 'text-gray-900'}`} title={`${emp.firstName} ${emp.lastName}`}>
+                                                <h3 className={`font-semibold text-sm leading-tight ${isInactive ? 'text-slate-600' : 'text-gray-900'}`} title={`${emp.firstName} ${emp.lastName}`}>
                                                     {emp.firstName} {emp.lastName}
                                                 </h3>
                                             </div>

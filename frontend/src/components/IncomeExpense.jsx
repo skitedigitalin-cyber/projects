@@ -274,7 +274,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
     };
 
     return (
-        <div className="space-y-6 text-slate-800">
+        <div className="accounts-ledger space-y-6">
             {/* TOP HEADER & SUMMARY CARD */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-2xl border border-[#e6e6e3] shadow-xs">
                 <div>
@@ -284,42 +284,44 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="px-5 py-3 rounded-2xl bg-sky-50 border border-sky-200 text-right">
-                        <span className="text-[11px] font-bold text-sky-600 uppercase tracking-wider block">Total Revenue</span>
-                        <h4 className="text-xl font-black text-sky-950 font-mono">₹{totalIncome.toLocaleString('en-IN')}</h4>
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="px-5 py-3 rounded-2xl bg-[#f5f5f3] border border-[#e6e6e3] text-right">
+                        <span className="text-[11px] font-bold text-[#595959] uppercase tracking-wider block">Total Revenue</span>
+                        <h4 className="text-xl font-black text-[#111111] font-mono">₹{totalIncome.toLocaleString('en-IN')}</h4>
                     </div>
-                    <div className="px-5 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-right">
-                        <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wider block">Total Expense</span>
-                        <h4 className="text-xl font-black text-rose-950 font-mono">₹{totalExpense.toLocaleString('en-IN')}</h4>
+                    <div className="px-5 py-3 rounded-2xl bg-[#f5f5f3] border border-[#e6e6e3] text-right">
+                        <span className="text-[11px] font-bold text-[#595959] uppercase tracking-wider block">Total Expense</span>
+                        <h4 className="text-xl font-black text-[#111111] font-mono">₹{totalExpense.toLocaleString('en-IN')}</h4>
                     </div>
                 </div>
             </div>
 
             {/* FILTER BAR */}
-            <div className="p-4 bg-white rounded-2xl border border-[#e6e6e3] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="p-4 bg-white rounded-2xl border border-[#e6e6e3] flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
                         <Filter size={16} className="text-[#3f3f3f]" />
                         <span>Filter by Date:</span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs">
-                        <label className="text-slate-400 font-medium text-[11px]">From:</label>
-                        <input 
-                            type="date" 
-                            value={dateFilter.from} 
-                            onChange={(e) => setDateFilter({ ...dateFilter, from: e.target.value })}
-                            className="px-2.5 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl font-bold text-slate-800 outline-none focus:border-[#111111]"
-                        />
+                    <div className="accounts-date-range text-xs">
+                        <label className="text-slate-600 font-medium"><span>From:</span>
+                            <input
+                                type="date"
+                                value={dateFilter.from}
+                                onChange={(e) => setDateFilter({ ...dateFilter, from: e.target.value })}
+                                className="px-2.5 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl font-bold text-slate-800 outline-none focus:border-[#111111]"
+                            />
 
-                        <label className="text-slate-400 font-medium text-[11px] ml-1">To:</label>
-                        <input 
-                            type="date" 
-                            value={dateFilter.to} 
-                            onChange={(e) => setDateFilter({ ...dateFilter, to: e.target.value })}
-                            className="px-2.5 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl font-bold text-slate-800 outline-none focus:border-[#111111]"
-                        />
+                        </label>
+                        <label className="text-slate-600 font-medium"><span>To:</span>
+                            <input
+                                type="date"
+                                value={dateFilter.to}
+                                onChange={(e) => setDateFilter({ ...dateFilter, to: e.target.value })}
+                                className="px-2.5 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl font-bold text-slate-800 outline-none focus:border-[#111111]"
+                            />
+                        </label>
                     </div>
                 </div>
 
@@ -355,44 +357,44 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
             </div>
 
             {/* TWO-COLUMN GRID: LEFT INCOME | RIGHT EXPENSE */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div className="accounts-ledger-columns">
 
                 {/* ========================================================
                    LEFT COLUMN: INCOME (GREEN)
                 ======================================================== */}
                 <div className="bg-white rounded-3xl border border-[#e6e6e3] shadow-xs overflow-hidden flex flex-col">
                     {/* Header */}
-                    <div className="p-4 bg-emerald-600 text-white flex items-center justify-between">
+                    <div className="accounts-ledger-heading" data-flow="income">
                         <div className="flex items-center gap-2.5">
-                            <div className="p-2 bg-white/20 rounded-xl">
+                            <div className="accounts-ledger-direction">
                                 <TrendingUp size={20} />
                             </div>
                             <div>
                                 <h3 className="text-sm font-black tracking-tight">
                                     Cash in Hand: ₹{netBalance.toLocaleString('en-IN')}
                                 </h3>
-                                <span className="text-[11px] text-emerald-100 font-medium">(Income - Expense)</span>
+                                <span className="text-[11px] text-[#d4d4d4] font-medium">(Income - Expense)</span>
                             </div>
                         </div>
                         <div className="text-right">
-                            <span className="text-[10px] text-emerald-200 block uppercase font-bold tracking-wider">Total Income</span>
+                            <span className="text-[10px] text-[#d4d4d4] block uppercase font-bold tracking-wider">Total Income</span>
                             <span className="font-mono font-black text-sm">₹{totalIncome.toLocaleString('en-IN')}</span>
                         </div>
                     </div>
 
                     <div className="p-4 space-y-4">
                         {/* Quick Add Income Form */}
-                        <form onSubmit={handleAddIncome} className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-2">
-                            <span className="text-[10px] font-black uppercase text-emerald-800 tracking-wider block">
+                        <form onSubmit={handleAddIncome} className="accounts-ledger-entry space-y-2">
+                            <span className="text-[10px] font-black uppercase text-[#595959] tracking-wider block">
                                 + Log Direct / Other Income
                             </span>
-                            <div className="flex flex-col sm:flex-row items-center gap-2">
+                            <div className="accounts-ledger-fields">
                                 <input 
                                     type="date" 
                                     required
                                     value={incomeForm.date} 
                                     onChange={(e) => setIncomeForm({ ...incomeForm, date: e.target.value })}
-                                    className="w-full sm:w-32 px-3 py-2 bg-white border border-emerald-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-emerald-500"
+                                    className="w-full min-w-0 px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-[#111111]"
                                 />
                                 <input 
                                     type="text" 
@@ -400,7 +402,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                     placeholder="Income Description (e.g. Consulting, Freelance)"
                                     value={incomeForm.description}
                                     onChange={(e) => setIncomeForm({ ...incomeForm, description: e.target.value })}
-                                    className="w-full sm:flex-1 px-3 py-2 bg-white border border-emerald-200 rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                    className="w-full min-w-0 px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-[#111111]"
                                 />
                                 <input 
                                     type="number" 
@@ -409,12 +411,12 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                     placeholder="Amount (₹)"
                                     value={incomeForm.amount}
                                     onChange={(e) => setIncomeForm({ ...incomeForm, amount: e.target.value })}
-                                    className="w-full sm:w-28 px-3 py-2 bg-white border border-emerald-200 rounded-xl text-xs font-bold font-mono text-[#111111] outline-none focus:border-emerald-500"
+                                    className="w-full min-w-0 px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-bold font-mono text-[#111111] outline-none focus:border-[#111111]"
                                 />
                                 <button 
                                     type="submit" 
                                     disabled={submittingIncome}
-                                    className="w-full sm:w-auto p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-colors cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center shrink-0"
+                                    className="accounts-ledger-add"
                                     title="Add Income"
                                 >
                                     <Plus size={18} />
@@ -431,7 +433,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                 <span className="text-[11px] text-slate-400 font-medium">Auto Invoices + Manual Incomes</span>
                             </div>
 
-                            <div className="max-h-[520px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                            <div className="workspace-scroll-list max-h-[520px] overflow-y-auto space-y-2">
                                 {loading ? (
                                     <div className="py-12 text-center text-xs text-slate-400 font-medium">Loading income streams...</div>
                                 ) : allIncomeRows.length === 0 ? (
@@ -443,13 +445,13 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                         if (item.rowType === 'invoice') {
                                             const row = item;
                                             return (
-                                                <div key={row.key} className="p-3 bg-emerald-50/30 hover:bg-emerald-50/60 border border-emerald-100 rounded-2xl flex items-center justify-between transition-colors">
+                                                <div key={row.key} className="accounts-ledger-row p-3 bg-white hover:bg-[#f5f5f3] border border-[#e6e6e3] rounded-2xl transition-colors">
                                                     <div className="flex items-center gap-2.5">
-                                                        <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                                        <div className="w-8 h-8 rounded-xl workspace-status-success flex items-center justify-center shrink-0">
                                                             <FileText size={16} />
                                                         </div>
                                                         <div>
-                                                            <div className="font-bold text-xs text-[#111111] flex items-center gap-1.5">
+                                                            <div className="font-bold text-xs text-[#111111] flex flex-wrap items-center gap-1.5">
                                                                 <span>{row.clientName}</span>
                                                                 {row.invoiceNumber && (
                                                                     <span className="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-100/70 px-1.5 py-0.2 rounded">
@@ -508,7 +510,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                                     </div>
 
                                                     <div className="flex items-center gap-2">
-                                                        <span className="font-mono font-black text-sm text-emerald-600">
+                                                        <span className="font-mono font-semibold text-sm accounts-ledger-inflow">
                                                             + ₹{row.amount.toLocaleString('en-IN')}
                                                         </span>
 
@@ -530,7 +532,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                         // 2. Manual Incomes
                                         const inc = item.rawItem || item;
                                         return (
-                                            <div key={inc._id} className="p-3 bg-white hover:bg-[#f5f5f3] border border-[#e6e6e3] rounded-2xl flex items-center justify-between transition-colors">
+                                            <div key={inc._id} className="accounts-ledger-row p-3 bg-white hover:bg-[#f5f5f3] border border-[#e6e6e3] rounded-2xl transition-colors">
                                                 <div className="flex items-center gap-2.5">
                                                     <div className="w-8 h-8 rounded-xl bg-[#e6e6e3] text-[#111111] flex items-center justify-center shrink-0">
                                                         <CheckCircle size={16} />
@@ -584,7 +586,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                                 </div>
 
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-mono font-black text-sm text-emerald-600">
+                                                    <span className="font-mono font-semibold text-sm accounts-ledger-inflow">
                                                         + ₹{Number(inc.amount || 0).toLocaleString('en-IN')}
                                                     </span>
                                                     <button 
@@ -639,37 +641,37 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                 ======================================================== */}
                 <div className="bg-white rounded-3xl border border-[#e6e6e3] shadow-xs overflow-hidden flex flex-col">
                     {/* Header */}
-                    <div className="p-4 bg-rose-600 text-white flex items-center justify-between">
+                    <div className="accounts-ledger-heading" data-flow="expense">
                         <div className="flex items-center gap-2.5">
-                            <div className="p-2 bg-white/20 rounded-xl">
+                            <div className="accounts-ledger-direction">
                                 <TrendingDown size={20} />
                             </div>
                             <div>
                                 <h3 className="text-sm font-black tracking-tight">
                                     Total Expense: ₹{totalExpense.toLocaleString('en-IN')}
                                 </h3>
-                                <span className="text-[11px] text-rose-100 font-medium">Recorded Operational Outflows</span>
+                                <span className="text-[11px] text-[#595959] font-medium">Recorded Operational Outflows</span>
                             </div>
                         </div>
                         <div className="text-right">
-                            <span className="text-[10px] text-rose-200 block uppercase font-bold tracking-wider">Entries Count</span>
+                            <span className="text-[10px] text-[#595959] block uppercase font-bold tracking-wider">Entries Count</span>
                             <span className="font-mono font-black text-sm">{filteredExpenses.length} Records</span>
                         </div>
                     </div>
 
                     <div className="p-4 space-y-4">
                         {/* Quick Add Expense Form */}
-                        <form onSubmit={handleAddExpense} className="p-3 bg-rose-50/70 border border-rose-200 rounded-2xl space-y-2">
-                            <span className="text-[10px] font-black uppercase text-rose-800 tracking-wider block">
+                        <form onSubmit={handleAddExpense} className="accounts-ledger-entry space-y-2">
+                            <span className="text-[10px] font-black uppercase text-[#595959] tracking-wider block">
                                 - Log Operational Expense
                             </span>
-                            <div className="flex flex-col sm:flex-row items-center gap-2">
+                            <div className="accounts-ledger-fields">
                                 <input 
                                     type="date" 
                                     required
                                     value={expenseForm.date} 
                                     onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })}
-                                    className="w-full sm:w-32 px-3 py-2 bg-white border border-rose-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-rose-500"
+                                    className="w-full min-w-0 px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-[#111111]"
                                 />
                                 <input 
                                     type="text" 
@@ -677,7 +679,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                     placeholder="Expense Description (e.g. Office Rent, Electricity)"
                                     value={expenseForm.description}
                                     onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
-                                    className="w-full sm:flex-1 px-3 py-2 bg-white border border-rose-200 rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-rose-500"
+                                    className="w-full min-w-0 px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-[#111111]"
                                 />
                                 <input 
                                     type="number" 
@@ -686,12 +688,12 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                     placeholder="Amount (₹)"
                                     value={expenseForm.amount}
                                     onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
-                                    className="w-full sm:w-28 px-3 py-2 bg-white border border-rose-200 rounded-xl text-xs font-bold font-mono text-[#111111] outline-none focus:border-rose-500"
+                                    className="w-full min-w-0 px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-bold font-mono text-[#111111] outline-none focus:border-[#111111]"
                                 />
                                 <button 
                                     type="submit" 
                                     disabled={submittingExpense}
-                                    className="w-full sm:w-auto p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl transition-colors cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center shrink-0"
+                                    className="accounts-ledger-add"
                                     title="Add Expense"
                                 >
                                     <Plus size={18} />
@@ -708,7 +710,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                 <span className="text-[11px] text-slate-400 font-medium">All recorded outward payouts</span>
                             </div>
 
-                            <div className="max-h-[520px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                            <div className="workspace-scroll-list max-h-[520px] overflow-y-auto space-y-2">
                                 {loading ? (
                                     <div className="py-12 text-center text-xs text-slate-400 font-medium">Loading expenses...</div>
                                 ) : sortedExpenses.length === 0 ? (
@@ -717,9 +719,9 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                     </div>
                                 ) : (
                                     paginatedExpenses.map(exp => (
-                                        <div key={exp._id} className="p-3 bg-white hover:bg-[#f5f5f3] border border-[#e6e6e3] rounded-2xl flex items-center justify-between transition-colors">
+                                        <div key={exp._id} className="accounts-ledger-row p-3 bg-white hover:bg-[#f5f5f3] border border-[#e6e6e3] rounded-2xl transition-colors">
                                             <div className="flex items-center gap-2.5">
-                                                <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+                                                <div className="w-8 h-8 rounded-xl workspace-status-danger flex items-center justify-center shrink-0">
                                                     <TrendingDown size={16} />
                                                 </div>
                                                 <div>
@@ -773,7 +775,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                             </div>
 
                                             <div className="flex items-center gap-2">
-                                                <span className="font-mono font-black text-sm text-rose-600">
+                                                <span className="font-mono font-semibold text-sm accounts-ledger-outflow">
                                                     - ₹{Number(exp.amount || 0).toLocaleString('en-IN')}
                                                 </span>
                                                 <button 

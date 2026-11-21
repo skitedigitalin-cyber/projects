@@ -37,7 +37,7 @@ export default function InvoiceWorkspace({ invoices, company, loading, failed, d
                 <header><h2 id="invoice-workspace-title">Invoices</h2><span>{overdue} overdue</span></header>
                 {loading ? <p role="status">Loading invoices…</p> : failed ? <p role="alert">Invoices could not be loaded.</p>
                     : invoices.length ? (
-                        <ul>
+                        <ul className="workspace-scroll-list">
                             {invoices.map(invoice => {
                                 const badge = status(invoice, today);
                                 return (

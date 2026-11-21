@@ -67,7 +67,7 @@
     .employee-home-kpis progress { width: 100%; height: 4px; border: 0; border-radius: 999px; overflow: hidden; accent-color: #111; }
     .employee-home-kpis progress::-webkit-progress-bar { background: #ededea; }
     .employee-home-kpis progress::-webkit-progress-value { background: #111; }
-    .employee-mobile-home .employee-overdue { color: #b42318; }
+    .employee-mobile-home .employee-overdue { color: var(--workspace-danger); }
     .employee-followups { padding: 20px 18px 10px; border-radius: 26px; background: #fff; }
     .employee-followups h2 { margin-bottom: 5px; font-size: 16px; font-weight: 500; }
     .employee-followups li { display: grid; grid-template-columns: 54px minmax(0, 1fr) 44px; align-items: center; gap: 10px; padding-block: 12px; border-top: 1px solid #ededea; }

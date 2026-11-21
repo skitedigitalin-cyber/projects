@@ -355,7 +355,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
                                             Fixed Services ({template.items?.length || 0})
                                         </span>
-                                        <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
+                                        <div className="workspace-scroll-list space-y-1 max-h-32">
                                             {(template.items || []).map((item, i) => (
                                                 <div 
                                                     key={i} 

@@ -281,7 +281,7 @@ export default function StudentTasks() {
 
                 <button 
                     onClick={openAddModal}
-                    className="flex items-center justify-center gap-2 px-5 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-600/20 active:scale-95 cursor-pointer"
+                    className="flex items-center justify-center gap-2 px-5 py-3 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
                 >
                     <Plus size={16} />
                     <span>Assign New Task</span>
@@ -411,7 +411,7 @@ export default function StudentTasks() {
                         </p>
                         <button 
                             onClick={openAddModal}
-                            className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+                            className="px-4 py-2.5 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5"
                         >
                             <Plus size={15} />
                             <span>Assign First Task</span>
@@ -652,7 +652,7 @@ export default function StudentTasks() {
                                 <button 
                                     type="submit" 
                                     disabled={saving}
-                                    className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-teal-600/20 disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                                    className="px-5 py-2.5 bg-[#111111] hover:bg-[#303030] text-white text-xs font-bold rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
                                     {saving && <Loader2 size={14} className="animate-spin" />}
                                     <span>{saving ? 'Assigning...' : 'Assign Task'}</span>
@@ -767,7 +767,7 @@ export default function StudentTasks() {
                                 <button 
                                     type="submit" 
                                     disabled={saving}
-                                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-blue-600/20 disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                                    className="px-5 py-2.5 bg-[#111111] hover:bg-[#303030] text-white text-xs font-bold rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
                                     {saving && <Loader2 size={14} className="animate-spin" />}
                                     <span>{saving ? 'Saving...' : 'Save Changes'}</span>

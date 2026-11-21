@@ -1108,7 +1108,7 @@ export default function Settings() {
 
                                             {/* Custom Hex Color Picker Bar */}
                                             <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex flex-wrap items-center gap-3">
                                                     <div className="relative flex items-center gap-2">
                                                         <label className="text-xs font-bold text-slate-700">Custom Color Picker:</label>
                                                         <div className="flex items-center border border-[#e6e6e3] rounded-xl p-1 bg-[#f5f5f3] hover:border-slate-300 transition-colors">
@@ -1217,7 +1217,7 @@ export default function Settings() {
                                                             onClick={() => handleSelectTemplate(tpl.id)}
                                                             className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                                                                 isSelected 
-                                                                    ? 'bg-emerald-600 text-white shadow-sm hover:bg-emerald-700' 
+                                                                    ? 'bg-[#111111] text-white shadow-sm hover:bg-[#303030]'
                                                                     : 'bg-[#111111] text-white hover:bg-[#303030] shadow-sm'
                                                             }`}
                                                         >
@@ -1300,7 +1300,7 @@ export default function Settings() {
                                                     type="button"
                                                     onClick={handleSaveQuotationBranding}
                                                     disabled={savingQuotationBranding}
-                                                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50"
+                                                    className="px-5 py-2.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-medium text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all disabled:opacity-50"
                                                 >
                                                     <Check size={16} strokeWidth={2.5} />
                                                     <span>{savingQuotationBranding ? 'Saving...' : 'Save Letterhead Settings'}</span>
@@ -1579,7 +1579,7 @@ export default function Settings() {
                                                         type="button"
                                                         onClick={handleSaveQuotationBranding}
                                                         disabled={savingQuotationBranding}
-                                                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-600/20"
+                                                        className="px-5 py-2.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-medium text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
                                                     >
                                                         <Check size={16} strokeWidth={2.5} />
                                                         <span>{savingQuotationBranding ? 'Saving...' : 'Save Letterhead Settings'}</span>
@@ -1883,7 +1883,7 @@ export default function Settings() {
                                             handleSelectTemplate(previewModalTemplate.id);
                                             setPreviewModalTemplate(null);
                                         }}
-                                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer"
+                                        className="px-5 py-2.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-medium text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
                                     >
                                         <Check size={14} strokeWidth={3} />
                                         <span>Set as Active Template</span>

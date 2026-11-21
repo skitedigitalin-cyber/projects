@@ -34,7 +34,7 @@
 }
 .workspace-accent-options button[aria-pressed='true'] { background: #fff; box-shadow: inset 0 0 0 2px #111; }
 .workspace-accent-options button span { width: 22px; height: 22px; border-radius: 50%; }
-.workspace-settings-card p.workspace-settings-error { margin-block: 9px; color: #b42318; }
+.workspace-settings-card p.workspace-settings-error { margin-block: 9px; color: var(--workspace-danger); }
 .workspace-settings-profile { display: grid; gap: 10px; margin-bottom: 18px; }
 .workspace-settings-profile dd { overflow-wrap: anywhere; }
 .workspace-settings-links { display: flex; flex-wrap: wrap; gap: 10px; }

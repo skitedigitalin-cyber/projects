@@ -25,8 +25,8 @@
 .finance-ledger-table th { color: var(--workspace-muted); font-size: 12px; font-weight: 400; }
 .finance-ledger-table td:nth-child(4), .finance-ledger-table th:last-child { text-align: right; }
 .finance-ledger-status { display: inline-block; padding: 3px 8px; border-radius: 999px; background: var(--workspace-soft); font-size: 12px; }
-.finance-ledger-status[data-status='Paid'] { background: #edf6ee; color: #176638; }
-.finance-ledger-status[data-status='Unpaid'] { background: #fdecea; color: var(--workspace-danger); }
+.finance-ledger-status[data-status='Paid'] { background: var(--workspace-success-surface); color: var(--workspace-success); }
+.finance-ledger-status[data-status='Unpaid'] { background: var(--workspace-danger-surface); color: var(--workspace-danger); }
 .finance-ledger-editor form { display: grid; gap: 14px; margin-top: 12px; }
 .finance-ledger-editor fieldset { display: grid; min-width: 0; gap: 12px; padding-top: 8px; }
 .finance-ledger-editor legend { color: var(--workspace-muted); font: 12px 'Skite Dashboard Mono', monospace; text-transform: uppercase; }
