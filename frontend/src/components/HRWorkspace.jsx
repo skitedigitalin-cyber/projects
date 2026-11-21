@@ -17,12 +17,12 @@ function chartStatus(record) {
     return 'Off / no record';
 }
 
-export function HRWorkspaceHeading({ summary }) {
+export function HRWorkspaceHeading({ summary, title }) {
     return (
         <header className="hr-workspace-heading">
             <div>
                 <p>Attendance &amp; HR</p>
-                <h1>{summary ? <>{summary.present} of {summary.staff} in today <span>· {summary.pending} leave {summary.pending === 1 ? 'request' : 'requests'}</span></> : 'Attendance & HR'}</h1>
+                <h1>{title || (summary ? <>{summary.present} of {summary.staff} in today <span>· {summary.pending} leave {summary.pending === 1 ? 'request' : 'requests'}</span></> : 'Attendance & HR')}</h1>
             </div>
             <div className="hr-workspace-actions">
                 <Link to="/hr/assign-task">Assign task</Link>

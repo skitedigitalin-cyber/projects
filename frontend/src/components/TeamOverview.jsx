@@ -9,7 +9,7 @@ const projectName = record => record.businessName || record.clientName || 'Proje
 const done = record => (record.projectStatus || record.status) === 'Completed';
 const deadline = value => value && Number.isFinite(Date.parse(value)) ? new Date(value) : null;
 
-function associatedProject(task, projects) {
+export function associatedProject(task, projects) {
     const description = task.description || '';
     const explicit = /^(?:Business Name|Project):\s*(.+)$/m.exec(description)?.[1]?.trim();
     const title = task.title || '';
@@ -33,7 +33,7 @@ function taskStage(task, project) {
     return 'To do';
 }
 
-export default function TeamOverview({ groups, tasks, loading, onOpenProject, onOpenTasks, onCreate }) {
+export default function TeamOverview({ groups, tasks, loading, navigation, onOpenProject, onOpenTasks, onCreate }) {
     const now = day.format(new Date());
     const projects = categories.flatMap(([category]) => groups[category].map(project => ({ project, category })));
     const overdue = projects.filter(({ project }) => {
@@ -65,6 +65,7 @@ export default function TeamOverview({ groups, tasks, loading, onOpenProject, on
                     }}>{label}</button>)}</div>
                 </details>
             </header>
+            {navigation}
             <section className="team-reference-metrics" aria-label="Projects by department" aria-busy={loading}>
                 {metrics.map(([id, label, count, completed]) => (
                     <button key={id} type="button" data-all={id === 'overview'} onClick={() => onOpenProject(id)}>

@@ -201,62 +201,50 @@ export default function CalendarView() {
 
             {/* Add Event Modal */}
             {isModalOpen && (
-                <dialog className="calendar-event-dialog bg-white rounded-3xl w-full shadow-2xl"
+                <dialog className="calendar-event-dialog"
                     ref={dialog => { if (dialog && !dialog.open) dialog.showModal(); }}
                     onCancel={() => setIsModalOpen(false)} aria-labelledby="calendar-event-title">
-                        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                        <header className="calendar-dialog-heading">
                             <div>
-                                <h3 id="calendar-event-title" className="text-lg font-medium tracking-tight">New event</h3>
-                                <p className="text-xs text-slate-500 font-medium">
+                                <h3 id="calendar-event-title">New event</h3>
+                                <p>
                                     {selectedDate?.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                                 </p>
                             </div>
-                            <button type="button" aria-label="Close event dialog" onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full border border-slate-200 hover:bg-slate-100 transition-colors">
-                                <X size={18} className="text-slate-500" />
+                            <button type="button" aria-label="Close event dialog" onClick={() => setIsModalOpen(false)}>
+                                <X size={18} />
                             </button>
-                        </div>
-                        <form onSubmit={handleSubmit} className="p-6">
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Event Title</label>
+                        </header>
+                        <form onSubmit={handleSubmit} className="calendar-dialog-form">
+                                <label>Event title
                                     <input 
                                         autoFocus
                                         type="text" 
                                         required 
                                         value={formData.title}
                                         onChange={e => setFormData({...formData, title: e.target.value})}
-                                        className="w-full px-4 py-3 bg-[var(--app-bg)] border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-sm font-medium"
                                         placeholder="E.g., Diwali, Team Offsite, Personal Reminder"
                                     />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Event Type</label>
+                                </label>
+                                <label>Event type
                                     <select 
                                         value={formData.type}
                                         onChange={e => setFormData({...formData, type: e.target.value})}
-                                        className="w-full px-4 py-3 bg-[var(--app-bg)] border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-sm font-medium"
                                     >
                                         <option value="Note">Personal Note</option>
                                         <option value="Holiday">Public Holiday</option>
                                         <option value="Meeting">Meeting / Event</option>
                                     </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Details (Optional)</label>
+                                </label>
+                                <label>Details (optional)
                                     <textarea 
                                         rows="3"
                                         value={formData.description}
                                         onChange={e => setFormData({...formData, description: e.target.value})}
-                                        className="w-full px-4 py-3 bg-[var(--app-bg)] border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-sm font-medium resize-none"
                                         placeholder="Add any extra information here..."
                                     />
-                                </div>
-                            </div>
-                            <div className="mt-8">
-                                <button type="submit" className="w-full bg-[#111] hover:bg-[#333] text-white font-medium py-3.5 px-4 rounded-full">
-                                    Save to Calendar
-                                </button>
-                            </div>
+                                </label>
+                                <button type="submit">Save to Calendar</button>
                         </form>
                 </dialog>
             )}

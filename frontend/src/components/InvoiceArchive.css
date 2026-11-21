@@ -1,0 +1,23 @@
+.invoice-archive { display: grid; gap: 16px; min-width: 0; }
+.invoice-archive-actions { display: flex; justify-content: flex-end; }
+.invoice-archive-actions :is(button, select) { min-height: 34px; }
+.invoice-archive-actions :is(button, .invoice-archive-template) { border-radius: 999px; }
+.invoice-archive .invoice-archive-export:not(:disabled) { background: var(--workspace-ink); color: var(--workspace-surface); }
+.invoice-archive .invoice-archive-export:hover:not(:disabled) { background: #303030; }
+.invoice-archive-summary > div { min-width: 0; padding: 18px 20px; border: 0; border-radius: 22px; background: var(--workspace-surface); }
+.invoice-archive-summary > div > span { color: var(--workspace-muted); font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.invoice-archive-summary > div > div { flex-wrap: wrap; gap: 4px; }
+.invoice-archive-summary > div > div > span:first-child { color: var(--workspace-ink); font-size: clamp(21px, 2.4vw, 32px); font-weight: 500; letter-spacing: -.04em; overflow-wrap: anywhere; }
+.invoice-archive-summary > div > div > span:last-child { color: var(--workspace-muted); }
+.invoice-archive-filters, .invoice-archive-table { min-width: 0; padding: 18px; border-radius: var(--workspace-card-radius); background: var(--workspace-surface); }
+.invoice-archive-filters :is(button, select, input) { min-height: 30px; }
+.invoice-archive-filters input::placeholder { color: var(--workspace-muted); }
+.invoice-archive :is(button, select, input):focus-visible { outline: 2px solid var(--workspace-ink); outline-offset: 2px; }
+.invoice-archive-table table { min-width: 680px; }
+.invoice-archive-table th { background: var(--workspace-surface); color: var(--workspace-muted); font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.invoice-archive-table :is(td, th):first-child { padding-left: 10px; }
+.invoice-archive-table :is(td, th):last-child { padding-right: 10px; }
+@media (max-width: 600px) {
+    .invoice-archive-summary > div { padding: 15px; }
+    .invoice-archive-filters, .invoice-archive-table { padding: 14px; border-radius: 20px; }
+}

@@ -131,7 +131,7 @@ export function renderInvoicePage(doc, invoice, company = {}, assets = {}, custo
         company?.name?.toLowerCase().includes('robotriq') ||
         company?.email?.toLowerCase().includes('robotriq') ||
         rawUser.toLowerCase().includes('robotriq') ||
-        (invoices[0]?.invoiceNumber && invoices[0].invoiceNumber.startsWith('ROB'))
+        invoice.invoiceNumber?.startsWith('ROB')
     );
     const isSkite = !isRobotriq && (company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite'));
 
@@ -410,7 +410,7 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
         company?.name?.toLowerCase().includes('robotriq') ||
         company?.email?.toLowerCase().includes('robotriq') ||
         rawUser.toLowerCase().includes('robotriq') ||
-        (invoices[0]?.invoiceNumber && invoices[0].invoiceNumber.startsWith('ROB'))
+        invoice.invoiceNumber?.startsWith('ROB')
     );
     const isSkite = !isRobotriq && (company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite'));
 

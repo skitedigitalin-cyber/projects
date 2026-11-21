@@ -2,13 +2,14 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { 
-    History, Search, Download, FileText, Calendar, Filter, Eye, 
+    Search, Download, FileText, Calendar, Filter, Eye,
     Printer, ArrowUpDown, RefreshCw, Loader2, Sparkles, Plus, 
     ArrowLeft, Layers, Check, X, Building2, ChevronLeft, ChevronRight,
     FileX, Trash2
 } from 'lucide-react';
 import InvoiceRenderer from './invoiceTemplates/InvoiceRenderer';
 import InvoiceWorkspace from './InvoiceWorkspace';
+import './InvoiceArchive.css';
 import { INVOICE_TEMPLATES } from './invoiceTemplates/templateConfigs';
 import { generateSingleInvoicePdf, generateNativeInvoicePdf, generateBatchInvoicesPdf } from '../utils/invoicePdfGenerator';
 
@@ -359,30 +360,15 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
     }
 
     return (
-        <div className="space-y-6">
-            
-            {/* Page Header (Clean, spacious, uncrowded) */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1">
-                <div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
-                            <History size={20} />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Invoice History</h1>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                                Search archives, filter by date & status, and download combined PDFs.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
+        <div className="invoice-archive">
+            <div className="invoice-archive-actions">
                 <div className="flex flex-wrap items-center gap-2.5">
                     {/* Active Template Selector */}
-                    <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+                    <div className="invoice-archive-template flex items-center gap-1.5 px-3 py-2 bg-slate-50 border border-slate-200">
                         <Sparkles size={14} className="text-emerald-600" />
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Template:</span>
                         <select 
+                            aria-label="Invoice PDF template"
                             value={activeTemplate}
                             onChange={(e) => handleSetAsDefaultTemplate(e.target.value)}
                             className="bg-transparent font-bold text-xs text-slate-700 cursor-pointer outline-none border-none py-0.5"
@@ -397,7 +383,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                     <button
                         onClick={handleBatchDownloadAll}
                         disabled={isBatchDownloading || filteredInvoices.length === 0}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs shadow-xs transition-all cursor-pointer ${
+                        className={`invoice-archive-export flex items-center gap-2 px-4 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
                             filteredInvoices.length === 0
                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                                 : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/20'
@@ -435,7 +421,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
             </div>
 
             {/* Compact, Clean KPI Strip */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="invoice-archive-summary grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Matching Invoices</span>
                     <div className="flex items-baseline justify-between">
@@ -526,7 +512,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
             </div>
 
             {/* Clean, Unified Single-Bar Filter Controls */}
-            <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3">
+            <div className="invoice-archive-filters space-y-3">
                 <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
                     
                     {/* Search */}
@@ -534,7 +520,8 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input 
                             type="text" 
-                            placeholder="Search Client, Inv No or GST..." 
+                            aria-label="Search invoices"
+                            placeholder="Search invoices"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-9 pr-7 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:bg-white text-xs font-medium"
@@ -569,6 +556,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                         <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
                             <Building2 size={13} className="text-slate-400 shrink-0" />
                             <select
+                                aria-label="Client"
                                 value={selectedClient}
                                 onChange={(e) => setSelectedClient(e.target.value)}
                                 className="bg-transparent border-none outline-none font-semibold text-xs text-slate-800 cursor-pointer max-w-[150px] truncate"
@@ -586,6 +574,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                             <span className="text-slate-500 font-semibold text-[11px]">From:</span>
                             <input 
                                 type="date" 
+                                aria-label="From date"
                                 value={fromDate} 
                                 onChange={(e) => setFromDate(e.target.value)}
                                 className="bg-transparent border-none outline-none font-semibold text-xs text-slate-700 cursor-pointer"
@@ -597,6 +586,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                             <span className="text-slate-500 font-semibold text-[11px]">To:</span>
                             <input 
                                 type="date" 
+                                aria-label="To date"
                                 value={toDate} 
                                 onChange={(e) => setToDate(e.target.value)}
                                 className="bg-transparent border-none outline-none font-semibold text-xs text-slate-700 cursor-pointer"
@@ -607,6 +597,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                         <div className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
                             <ArrowUpDown size={13} className="text-slate-400 mr-0.5" />
                             <select
+                                aria-label="Sort invoices"
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                                 className="bg-transparent border-none outline-none font-bold text-xs text-slate-800 cursor-pointer"
@@ -634,9 +625,9 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
             </div>
 
             {/* History Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+            <div className="invoice-archive-table">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full text-left border-collapse" aria-label="Invoices">
                         <thead>
                             <tr className="bg-slate-50 border-b border-slate-200 text-[11px] uppercase text-slate-400 font-bold tracking-wider">
                                 <th className="py-3.5 px-5">Invoice No</th>

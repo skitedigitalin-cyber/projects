@@ -48,13 +48,13 @@ export default function HR() {
     return (
         <Layout workspace compactTools>
             <div className="hr-workspace">
-                <HRWorkspaceHeading summary={summary} />
-                {activeTab === 'overview' && <HRWorkspace onSummaryChange={setSummary}
-                    onViewLeaves={() => setActiveTab('leaves')} onViewAttendance={() => setActiveTab('attendance')} />}
+                <HRWorkspaceHeading summary={summary} title={activeTab === 'dashboard' ? 'Workforce today' : activeTab === 'overview' ? undefined : views.find(([id]) => id === activeTab)?.[1]} />
                 <nav className="hr-workspace-tabs" aria-label="HR views">
                     {views.map(([id, label]) => <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => setActiveTab(id)}>{label}</button>)}
                 </nav>
-                {activeTab !== 'overview' && <div className="hr-workspace-card">{renderTabContent()}</div>}
+                {activeTab === 'overview' && <HRWorkspace onSummaryChange={setSummary}
+                    onViewLeaves={() => setActiveTab('leaves')} onViewAttendance={() => setActiveTab('attendance')} />}
+                {activeTab !== 'overview' && <div>{renderTabContent()}</div>}
             </div>
         </Layout>
     );

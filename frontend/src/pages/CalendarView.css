@@ -42,8 +42,27 @@
 .calendar-month-summary p, .calendar-month-summary small { color: #d4d4d4; font-size: 13px; }
 .calendar-month-summary strong { font-size: 40px; line-height: 1.15; font-weight: 500; letter-spacing: -.04em; }
 .calendar-month-summary strong span { color: #a2a2a2; font-size: 18px; }
-.calendar-event-dialog { margin: auto; max-width: min(448px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; animation: calendar-appear 180ms ease-out; }
+.calendar-event-dialog {
+    width: min(448px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    overflow: auto;
+    border-radius: var(--workspace-card-radius);
+    background: var(--workspace-surface);
+    color: var(--workspace-ink);
+    animation: calendar-appear 180ms ease-out;
+}
 .calendar-event-dialog::backdrop { background: rgb(17 17 17 / 42%); }
+.calendar-dialog-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 24px; border-bottom: 1px solid var(--workspace-line); }
+.calendar-dialog-heading h3 { font-size: 19px; font-weight: 500; letter-spacing: -.02em; }
+.calendar-dialog-heading p { color: var(--workspace-muted); font-size: 12px; }
+.calendar-dialog-heading button { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; background: var(--workspace-soft); cursor: pointer; }
+.calendar-dialog-form { display: grid; gap: 15px; padding: 22px 24px; }
+.calendar-dialog-form label { display: grid; gap: 6px; font-size: 13px; font-weight: 500; }
+.calendar-dialog-form :is(input, select, textarea) { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--workspace-line); border-radius: 12px; background: var(--workspace-canvas); font-weight: 400; }
+.calendar-dialog-form textarea { resize: vertical; }
+.calendar-event-dialog :is(input, select, textarea, button):focus-visible { outline: 2px solid var(--workspace-ink); outline-offset: 2px; }
+.calendar-dialog-form > button { min-height: 44px; padding: 8px 20px; border-radius: 999px; background: var(--workspace-ink); color: var(--workspace-surface); cursor: pointer; }
 @keyframes calendar-appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
 @media (max-width: 940px) {
     .calendar-page-grid { grid-template-columns: minmax(0, 1fr); }

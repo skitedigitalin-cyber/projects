@@ -354,7 +354,7 @@ export default function StudentManagement() {
             {/* Page Header */}
             <div className="student-directory-top flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                    <h1 className="text-2xl font-black text-[#111111] tracking-tight flex items-center gap-2.5">
                         <GraduationCap size={28} className="text-teal-600" />
                         <span>Directory &amp; admissions</span>
                     </h1>
@@ -374,27 +374,27 @@ export default function StudentManagement() {
 
             {/* KPI Summary Cards */}
             <div className="student-directory-kpis grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
                         <GraduationCap size={24} />
                     </div>
                     <div>
                         <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Students</span>
-                        <h3 className="text-2xl font-black text-slate-900">{summary.totalStudents}</h3>
+                        <h3 className="text-2xl font-black text-[#111111]">{summary.totalStudents}</h3>
                     </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-[#f0f0ee] text-[#3f3f3f] flex items-center justify-center shrink-0">
                         <IndianRupee size={24} />
                     </div>
                     <div>
                         <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Course Fees</span>
-                        <h3 className="text-2xl font-black text-slate-900">₹{summary.totalFees.toLocaleString('en-IN')}</h3>
+                        <h3 className="text-2xl font-black text-[#111111]">₹{summary.totalFees.toLocaleString('en-IN')}</h3>
                     </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                         <CheckCircle size={24} />
                     </div>
@@ -404,7 +404,7 @@ export default function StudentManagement() {
                     </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
                         <Clock size={24} />
                     </div>
@@ -424,7 +424,7 @@ export default function StudentManagement() {
                         aria-label="Search students" placeholder="Search student ID, name, mobile, or order ID..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:bg-white transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:bg-white transition-all"
                     />
                 </div>
 
@@ -434,7 +434,7 @@ export default function StudentManagement() {
                         <select
                             aria-label="Filter by course" value={selectedCourse}
                             onChange={(e) => setSelectedCourse(e.target.value)}
-                            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-teal-500 cursor-pointer max-w-xs truncate"
+                            className="px-3 py-2 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-teal-500 cursor-pointer max-w-xs truncate"
                         >
                             <option value="All">All Courses ({courses.length})</option>
                             {courses.map((c, i) => (
@@ -444,13 +444,13 @@ export default function StudentManagement() {
                     </div>
 
                     {/* Status Filter */}
-                    <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+                    <div className="flex items-center bg-[#f0f0ee] p-1 rounded-xl">
                         {['All', 'Enrolled', 'Completed'].map(s => (
                             <button
                                 key={s}
                                 onClick={() => setSelectedStatus(s)}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                    selectedStatus === s ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                                    selectedStatus === s ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-500 hover:text-[#111111]'
                                 }`}
                             >
                                 {s}
@@ -465,7 +465,7 @@ export default function StudentManagement() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase text-slate-500 tracking-wider">
+                            <tr className="bg-[#f5f5f3]/80 border-b border-[#e6e6e3] text-[11px] font-black uppercase text-slate-500 tracking-wider">
                                 <th className="p-4 pl-6">Student</th>
                                 <th className="p-4">Contact & Location</th>
                                 <th className="p-4">Course Enrolled</th>
@@ -501,7 +501,7 @@ export default function StudentManagement() {
                                             {/* Student Details with Photo */}
                                             <td className="p-4 pl-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-teal-500 flex items-center justify-center overflow-hidden shrink-0">
+                                                    <div className="w-10 h-10 rounded-full bg-[#f0f0ee] border-2 border-teal-500 flex items-center justify-center overflow-hidden shrink-0">
                                                         {stu.photo ? (
                                                             <img src={stu.photo} alt={stu.fullName} className="w-full h-full object-cover" />
                                                         ) : (
@@ -511,7 +511,7 @@ export default function StudentManagement() {
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-slate-900 text-sm">{stu.fullName}</div>
+                                                        <div className="font-bold text-[#111111] text-sm">{stu.fullName}</div>
                                                         <div className="font-mono text-[11px] text-teal-700 font-bold">
                                                             {stu.studentId}
                                                             {stu.orderId && (
@@ -561,7 +561,7 @@ export default function StudentManagement() {
                                             </td>
 
                                             {/* Total Fees */}
-                                            <td className="p-4 font-black text-slate-900 text-sm">
+                                            <td className="p-4 font-black text-[#111111] text-sm">
                                                 ₹{fees.toLocaleString('en-IN')}
                                             </td>
 
@@ -614,7 +614,7 @@ export default function StudentManagement() {
                                                     <button 
                                                         type="button"
                                                         onClick={() => handleOpenEdit(stu)}
-                                                        className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-teal-600 hover:bg-teal-50 transition-colors cursor-pointer"
+                                                        className="p-1.5 rounded-lg border border-[#e6e6e3] text-slate-600 hover:text-teal-600 hover:bg-teal-50 transition-colors cursor-pointer"
                                                         title="Edit Student"
                                                     >
                                                         <Edit size={15} />
@@ -622,7 +622,7 @@ export default function StudentManagement() {
                                                     <button 
                                                         type="button"
                                                         onClick={() => handleDeleteStudent(stu._id)}
-                                                        className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                                        className="p-1.5 rounded-lg border border-[#e6e6e3] text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                                                         title="Delete Student"
                                                     >
                                                         <Trash2 size={15} />
@@ -641,7 +641,7 @@ export default function StudentManagement() {
             {/* ADD / EDIT STUDENT MODAL (Mirrors Robotriq AddStudent) */}
             {(isAddModalOpen || isEditModalOpen) && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in overflow-y-auto">
-                    <div className="bg-slate-900 text-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-800 my-8">
+                    <div className="bg-[#111111] text-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-800 my-8">
                         {/* Header Banner */}
                         <div className="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-5 flex items-center justify-between text-white relative">
                             <div>
@@ -662,7 +662,7 @@ export default function StudentManagement() {
                         </div>
 
                         {/* Modal Body */}
-                        <form onSubmit={handleSaveStudent} className="p-6 md:p-8 space-y-6 text-xs max-h-[82vh] overflow-y-auto bg-slate-900">
+                        <form onSubmit={handleSaveStudent} className="p-6 md:p-8 space-y-6 text-xs max-h-[82vh] overflow-y-auto bg-[#111111]">
                             {/* Photo Upload Section */}
                             <div className="flex flex-col items-center justify-center pb-2">
                                 <input 
@@ -673,7 +673,7 @@ export default function StudentManagement() {
                                     style={{ display: 'none' }} 
                                 />
                                 <div 
-                                    className="w-24 h-24 rounded-full bg-slate-800 border-4 border-teal-500 flex items-center justify-center overflow-hidden cursor-pointer shadow-lg mb-3 hover:opacity-90 transition-opacity"
+                                    className="w-24 h-24 rounded-full bg-[#303030] border-4 border-teal-500 flex items-center justify-center overflow-hidden cursor-pointer shadow-lg mb-3 hover:opacity-90 transition-opacity"
                                     onClick={() => fileInputRef.current?.click()}
                                 >
                                     {photoPreview ? (
@@ -695,7 +695,7 @@ export default function StudentManagement() {
                             {/* Section 1: Personal Information */}
                             <div>
                                 <div className="text-center border-b border-slate-800 leading-[0.1em] my-4">
-                                    <span className="bg-slate-900 px-3 text-[11px] font-bold text-teal-400 uppercase tracking-wider">
+                                    <span className="bg-[#111111] px-3 text-[11px] font-bold text-teal-400 uppercase tracking-wider">
                                         Personal Information
                                     </span>
                                 </div>
@@ -711,7 +711,7 @@ export default function StudentManagement() {
                                             value={formData.fullName} 
                                             onChange={e => setFormData({ ...formData, fullName: e.target.value })} 
                                             placeholder="John Doe" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white font-medium outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white font-medium outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -724,7 +724,7 @@ export default function StudentManagement() {
                                             value={formData.studentId} 
                                             onChange={e => setFormData({ ...formData, studentId: e.target.value })} 
                                             placeholder="RQ/26/014" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl font-mono text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -737,7 +737,7 @@ export default function StudentManagement() {
                                             value={formData.orderId} 
                                             onChange={e => setFormData({ ...formData, orderId: e.target.value })} 
                                             placeholder="ORD-1001" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl font-mono text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -750,7 +750,7 @@ export default function StudentManagement() {
                                             value={formData.password} 
                                             onChange={e => setFormData({ ...formData, password: e.target.value })} 
                                             placeholder="••••••••" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -762,7 +762,7 @@ export default function StudentManagement() {
                                             value={formData.phone} 
                                             onChange={e => setFormData({ ...formData, phone: e.target.value })} 
                                             placeholder="Mobile Number" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -774,7 +774,7 @@ export default function StudentManagement() {
                                             value={formData.email} 
                                             onChange={e => setFormData({ ...formData, email: e.target.value })} 
                                             placeholder="Optional (auto-fills if empty)" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -785,7 +785,7 @@ export default function StudentManagement() {
                                             type="date" 
                                             value={formData.dob} 
                                             onChange={e => setFormData({ ...formData, dob: e.target.value })} 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -797,7 +797,7 @@ export default function StudentManagement() {
                                             value={formData.address} 
                                             onChange={e => setFormData({ ...formData, address: e.target.value })} 
                                             placeholder="Full Address" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                 </div>
@@ -806,7 +806,7 @@ export default function StudentManagement() {
                             {/* Section 2: Academic Details */}
                             <div>
                                 <div className="text-center border-b border-slate-800 leading-[0.1em] my-4">
-                                    <span className="bg-slate-900 px-3 text-[11px] font-bold text-teal-400 uppercase tracking-wider">
+                                    <span className="bg-[#111111] px-3 text-[11px] font-bold text-teal-400 uppercase tracking-wider">
                                         Academic Details
                                     </span>
                                 </div>
@@ -821,7 +821,7 @@ export default function StudentManagement() {
                                                 required
                                                 value={formData.level} 
                                                 onChange={e => handleLevelChange(e.target.value)}
-                                                className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500 cursor-pointer font-bold"
+                                                className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500 cursor-pointer font-bold"
                                             >
                                                 <option value="Beginner">Beginner (1 Course)</option>
                                                 <option value="Intermediate">Intermediate (2 Courses)</option>
@@ -837,7 +837,7 @@ export default function StudentManagement() {
                                             <select 
                                                 value={formData.preferredType} 
                                                 onChange={e => setFormData({ ...formData, preferredType: e.target.value })}
-                                                className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500 cursor-pointer"
+                                                className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500 cursor-pointer"
                                             >
                                                 <option value="Offline">Offline</option>
                                                 <option value="Online">Online</option>
@@ -865,7 +865,7 @@ export default function StudentManagement() {
                                                     setShowCourseDropdown(!showCourseDropdown);
                                                 }
                                             }}
-                                            className={`w-full px-3.5 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white flex items-center justify-between cursor-pointer hover:border-teal-500 transition-colors ${
+                                            className={`w-full px-3.5 py-3 bg-[#303030] border border-slate-700 rounded-xl text-white flex items-center justify-between cursor-pointer hover:border-teal-500 transition-colors ${
                                                 formData.level === 'Certified Process Automation' ? 'opacity-80 cursor-not-allowed' : ''
                                             }`}
                                         >
@@ -878,7 +878,7 @@ export default function StudentManagement() {
                                         </div>
 
                                         {showCourseDropdown && (
-                                            <div className="absolute left-0 right-0 top-full mt-1.5 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-20 max-h-56 overflow-y-auto divide-y divide-slate-700/60">
+                                            <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#303030] border border-slate-700 rounded-xl shadow-2xl z-20 max-h-56 overflow-y-auto divide-y divide-slate-700/60">
                                                 {COURSE_OPTIONS.map((c, i) => {
                                                     const isChecked = formData.selectedCourses.includes(c);
                                                     return (
@@ -911,7 +911,7 @@ export default function StudentManagement() {
                                             value={formData.collegeOrCompany} 
                                             onChange={e => setFormData({ ...formData, collegeOrCompany: e.target.value })} 
                                             placeholder="Institution or Company Name" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                 </div>
@@ -920,7 +920,7 @@ export default function StudentManagement() {
                             {/* Section 3: Finance & Duration */}
                             <div>
                                 <div className="text-center border-b border-slate-800 leading-[0.1em] my-4">
-                                    <span className="bg-slate-900 px-3 text-[11px] font-bold text-teal-400 uppercase tracking-wider">
+                                    <span className="bg-[#111111] px-3 text-[11px] font-bold text-teal-400 uppercase tracking-wider">
                                         Finance & Duration
                                     </span>
                                 </div>
@@ -934,7 +934,7 @@ export default function StudentManagement() {
                                             type="date" 
                                             value={formData.joiningDate} 
                                             onChange={e => setFormData({ ...formData, joiningDate: e.target.value })} 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -945,7 +945,7 @@ export default function StudentManagement() {
                                             type="date" 
                                             value={formData.endingDate} 
                                             onChange={e => setFormData({ ...formData, endingDate: e.target.value })} 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                                         />
                                     </div>
                                     <div>
@@ -958,7 +958,7 @@ export default function StudentManagement() {
                                             value={formData.fees} 
                                             onChange={e => setFormData({ ...formData, fees: e.target.value })} 
                                             placeholder="₹ 0.00" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-teal-500/80 rounded-xl font-mono text-white text-sm font-bold outline-none focus:border-teal-400" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-teal-500/80 rounded-xl font-mono text-white text-sm font-bold outline-none focus:border-teal-400"
                                         />
                                     </div>
                                     <div>
@@ -970,13 +970,13 @@ export default function StudentManagement() {
                                             value={formData.paidAmount} 
                                             onChange={e => setFormData({ ...formData, paidAmount: e.target.value })} 
                                             placeholder="₹ 0.00" 
-                                            className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-emerald-400 text-sm font-bold outline-none focus:border-emerald-500" 
+                                            className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl font-mono text-emerald-400 text-sm font-bold outline-none focus:border-emerald-500"
                                         />
                                     </div>
                                 </div>
 
                                 {/* Live Pending Balance pill */}
-                                <div className="mt-3 p-3 bg-slate-800/80 rounded-xl border border-slate-700 flex justify-between items-center text-xs">
+                                <div className="mt-3 p-3 bg-[#303030]/80 rounded-xl border border-slate-700 flex justify-between items-center text-xs">
                                     <span className="text-slate-400 font-bold">Auto Pending Balance:</span>
                                     <span className={`font-mono font-black text-sm ${calculatedPending > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
                                         ₹{calculatedPending.toLocaleString('en-IN')}
@@ -1012,9 +1012,9 @@ export default function StudentManagement() {
             {/* RECORD FEE PAYMENT MODAL */}
             {isPaymentModalOpen && selectedStudent && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
-                        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                            <h3 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-[#e6e6e3]">
+                        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#f5f5f3]/50">
+                            <h3 className="text-base font-black text-[#111111] tracking-tight flex items-center gap-2">
                                 <CreditCard size={20} className="text-emerald-600" />
                                 <span>Record Fee Payment</span>
                             </h3>
@@ -1024,10 +1024,10 @@ export default function StudentManagement() {
                         </div>
 
                         <form onSubmit={handleRecordPayment} className="p-6 space-y-4 text-xs">
-                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                                <div className="font-bold text-slate-900">{selectedStudent.fullName}</div>
+                            <div className="p-3 bg-[#f5f5f3] rounded-xl border border-[#e6e6e3] space-y-1">
+                                <div className="font-bold text-[#111111]">{selectedStudent.fullName}</div>
                                 <div className="text-[11px] text-slate-500">ID: {selectedStudent.studentId} • Course: {selectedStudent.course}</div>
-                                <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-200">
+                                <div className="flex justify-between items-center text-xs pt-2 border-t border-[#e6e6e3]">
                                     <span className="text-slate-500">Current Pending:</span>
                                     <span className="font-bold text-rose-600 font-mono">₹{(selectedStudent.pendingAmount || 0).toLocaleString('en-IN')}</span>
                                 </div>
@@ -1044,7 +1044,7 @@ export default function StudentManagement() {
                                     value={paymentAmount} 
                                     onChange={e => setPaymentAmount(e.target.value)} 
                                     placeholder={`Up to ₹${selectedStudent.pendingAmount}`}
-                                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl font-mono font-black text-slate-900 text-sm focus:outline-none focus:border-emerald-500" 
+                                    className="w-full px-3 py-2.5 border border-[#e6e6e3] rounded-xl font-mono font-black text-[#111111] text-sm focus:outline-none focus:border-emerald-500"
                                 />
                             </div>
 
@@ -1055,7 +1055,7 @@ export default function StudentManagement() {
                                     value={paymentNotes} 
                                     onChange={e => setPaymentNotes(e.target.value)} 
                                     placeholder="e.g. GPay / Cash / Installment 2" 
-                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-teal-500" 
+                                    className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-teal-500"
                                 />
                             </div>
 
@@ -1063,7 +1063,7 @@ export default function StudentManagement() {
                                 <button 
                                     type="button" 
                                     onClick={() => setIsPaymentModalOpen(false)} 
-                                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer"
+                                    className="px-4 py-2 bg-[#f0f0ee] hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer"
                                 >
                                     Cancel
                                 </button>

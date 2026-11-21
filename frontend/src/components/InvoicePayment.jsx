@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-    ArrowLeft, Search, CheckCircle, Clock, X, Filter, Calendar, Edit2, Check,
-    ChevronLeft, ChevronRight, IndianRupee, AlertTriangle, FileText, CheckCircle2,
-    DollarSign, CreditCard, Banknote
-} from 'lucide-react';
+import { ArrowLeft, Search, CheckCircle, Clock, X, Filter, Calendar, Edit2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { invoicePaymentRows } from '../utils/accountSummary';
+import './FinanceLedger.css';
+import './AccountsAnalysis.css';
 
 export default function InvoicePayment({ onBack, initialInvoice = null }) {
     const [invoices, setInvoices] = useState([]);
@@ -194,52 +193,17 @@ export default function InvoicePayment({ onBack, initialInvoice = null }) {
     const paginatedInvoices = filteredInvoices.slice((validPage - 1) * PAGE_SIZE, validPage * PAGE_SIZE);
 
     return (
-        <div className="space-y-6 animate-fade-in text-slate-800">
-
-            {/* Header: Exact replica of the user's CRM page */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
-                <div className="flex items-center gap-4">
-                    <button 
-                        type="button"
-                        onClick={onBack || (() => window.history.back())}
-                        className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold bg-white text-slate-700 border border-slate-200 rounded-full hover:border-blue-500 hover:text-blue-600 transition-all shadow-xs cursor-pointer"
-                    >
-                        <ArrowLeft size={18} />
-                        <span>Back</span>
-                    </button>
-                    <div>
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-                            <CreditCard size={28} className="text-blue-600" />
-                            <span>Invoice Payments</span>
-                        </h2>
-                        <p className="text-xs text-slate-400 font-medium mt-0.5">
-                            Track client payments, partial balances, and settlement history.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Top Stat Badges (Exact colors & format from the user's screenshot) */}
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="bg-[#dcfce7] border border-[#bbf7d0] text-[#166534] px-5 py-3 rounded-2xl shadow-xs min-w-[170px]">
-                        <span className="text-[11px] font-black uppercase tracking-wider block opacity-90">
-                            Filtered Grand Total
-                        </span>
-                        <h3 className="text-xl font-black mt-0.5">
-                            ₹ {totalGrandAmount.toLocaleString('en-IN')}
-                        </h3>
-                    </div>
-
-                    <div className="bg-[#fef2f2] border border-[#fecaca] text-[#b91c1c] px-5 py-3 rounded-2xl shadow-xs min-w-[170px]">
-                        <span className="text-[11px] font-black uppercase tracking-wider block opacity-90">
-                            Filtered Total Due
-                        </span>
-                        <h3 className="text-xl font-black mt-0.5">
-                            ₹ {totalDueAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-
+        <div className="accounts-analysis">
+            <header className="accounts-analysis-heading">
+                <h2>{loading ? 'Invoice payments' : <>₹{totalDueAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })} <span>still to collect</span></>}</h2>
+                <button type="button" onClick={onBack || (() => window.history.back())} className="accounts-payment-back"><ArrowLeft size={16} /> Back</button>
+            </header>
+            <div className="finance-ledger" data-editor-open={Boolean(isModalOpen && selectedInvoice)}>
+                <section className="finance-ledger-list accounts-payment-list" aria-labelledby="invoice-payments-title">
+                    <header className="finance-ledger-heading">
+                        <h2 id="invoice-payments-title">Invoice payments</h2>
+                        <p>₹{totalGrandAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })} invoiced</p>
+                    </header>
             {/* SEARCH & FILTERS TOOLBAR (Matching user's screenshot) */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
                 
@@ -248,7 +212,7 @@ export default function InvoicePayment({ onBack, initialInvoice = null }) {
                     <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 
                         type="text" 
-                        placeholder="Search by Client or Invoice No..." 
+                        aria-label="Search invoice payments" placeholder="Search invoices"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition-all"
@@ -312,7 +276,7 @@ export default function InvoicePayment({ onBack, initialInvoice = null }) {
             </div>
 
             {/* TABLE: Exact replica of the user's screenshot */}
-            <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+            <div className="accounts-payment-table">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[950px]">
                         <thead>
@@ -479,7 +443,7 @@ export default function InvoicePayment({ onBack, initialInvoice = null }) {
                                                     <button 
                                                         type="button"
                                                         onClick={() => openPaymentModal(inv)}
-                                                        className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
+                                                        className="finance-ledger-primary whitespace-nowrap"
                                                     >
                                                         Add Payment
                                                     </button>
@@ -530,152 +494,49 @@ export default function InvoicePayment({ onBack, initialInvoice = null }) {
                 )}
             </div>
 
-            {/* ========================================================
-                RECORD PAYMENT MODAL (Exact match with user's old CRM)
-                ======================================================== */}
-            {isModalOpen && selectedInvoice && (() => {
-                const curPaid = Number(selectedInvoice.paidAmount) || 0;
-                const remBal = Math.max(0, (Number(selectedInvoice.grandTotal) || 0) - curPaid);
-                const invNum = selectedInvoice.invoiceNumber || selectedInvoice.invoiceNo || 'INV';
-                const clName = selectedInvoice.customerId?.customerName || selectedInvoice.customerId?.companyName || selectedInvoice.clientDetails?.name || 'Client';
-
-                return (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
-                            
-                            {/* Modal Header */}
-                            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                <h3 className="text-base font-black text-slate-900 tracking-tight">Record Payment</h3>
-                                <button onClick={closeModal} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 transition-colors cursor-pointer">
-                                    <X size={18} />
-                                </button>
-                            </div>
-
-                            {/* Modal Body */}
-                            <div className="p-6 space-y-4 text-xs">
-                                <div>
-                                    <p className="text-slate-600 mb-1">
-                                        <strong className="text-slate-900 font-bold">Invoice:</strong> <span className="font-mono text-blue-600 font-bold">{invNum}</span>
-                                    </p>
-                                    <p className="text-slate-600">
-                                        <strong className="text-slate-900 font-bold">Client:</strong> <span className="text-slate-800 font-semibold">{clName}</span>
-                                    </p>
+                </section>
+                {isModalOpen && selectedInvoice && (() => {
+                    const paid = Number(selectedInvoice.paidAmount) || 0;
+                    const balance = Math.max(0, (Number(selectedInvoice.grandTotal) || 0) - paid);
+                    const name = selectedInvoice.customerId?.customerName || selectedInvoice.customerId?.companyName || selectedInvoice.clientDetails?.name || 'Client';
+                    const records = invoicePaymentRows(selectedInvoice);
+                    return (
+                        <section className="finance-ledger-editor accounts-payment-editor" data-tone="dark" aria-labelledby="invoice-payment-editor">
+                            <header className="finance-ledger-heading">
+                                <div><h2 id="invoice-payment-editor">{name}</h2><p>{selectedInvoice.invoiceNumber || selectedInvoice.invoiceNo}</p></div>
+                                <button type="button" onClick={closeModal} aria-label="Close record payment"><X size={17} /></button>
+                            </header>
+                            <dl className="finance-purchase-totals"><div><dt>Pending balance</dt><dd>₹{balance.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</dd></div></dl>
+                            {records.length > 0 && <ul className="accounts-payment-history" aria-label="Recorded payments">
+                                {records.map(row => <li key={row.key}><span>{row.date ? new Date(row.date).toLocaleDateString('en-IN') : '—'}</span><strong>₹{row.amount.toLocaleString('en-IN')}</strong></li>)}
+                            </ul>}
+                            <form onSubmit={event => { event.preventDefault(); handleConfirmPayment(); }}>
+                                <h3>Record payment</h3>
+                                <label>Amount received (₹)
+                                    <input name="paymentAmount" type="number" step="any" autoFocus value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)} />
+                                </label>
+                                <div className="accounts-analysis-pills">
+                                    <button type="button" onClick={() => setPaymentAmount(String(balance))}>Full balance</button>
+                                    {balance > 1000 && <button type="button" onClick={() => setPaymentAmount(String(Math.round(balance / 2)))}>50%</button>}
                                 </div>
-
-                                {/* Pending Balance Box (Exact red box from user's old CRM) */}
-                                <div className="bg-[#fef2f2] border border-[#fecaca] p-4 rounded-xl text-center">
-                                    <span className="text-xs font-bold text-[#b91c1c] uppercase tracking-wider block">
-                                        Pending Balance
-                                    </span>
-                                    <h2 className="text-2xl font-black text-[#b91c1c] mt-1">
-                                        ₹ {remBal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                                    </h2>
+                                <div className="finance-ledger-fields">
+                                    <label>Payment date<input type="date" value={paymentDate} onChange={e => setPaymentDate(e.target.value)} /></label>
+                                    <label>Payment mode<select value={paymentMode} onChange={e => setPaymentMode(e.target.value)}>
+                                        <option value="Bank Transfer">Bank transfer / NEFT / IMPS</option>
+                                        <option value="UPI / GPay / PhonePe">UPI / GPay / PhonePe</option>
+                                        <option value="Cash">Cash</option><option value="Cheque">Cheque</option>
+                                    </select></label>
                                 </div>
-
-                                {/* Amount Received Input */}
-                                <div>
-                                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                                        Enter Amount Received (₹) *
-                                    </label>
-                                    <input 
-                                        type="number"
-                                        autoFocus
-                                        value={paymentAmount}
-                                        onChange={(e) => setPaymentAmount(e.target.value)}
-                                        placeholder={`e.g. ${remBal}`}
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl text-base font-bold text-slate-900 outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/10 transition-all font-mono"
-                                    />
-                                    {/* Quick Amount Button */}
-                                    <div className="flex gap-2 mt-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setPaymentAmount(remBal.toString())}
-                                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
-                                        >
-                                            Full Balance (₹{remBal.toLocaleString('en-IN')})
-                                        </button>
-                                        {remBal > 1000 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => setPaymentAmount(Math.round(remBal / 2).toString())}
-                                                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
-                                            >
-                                                50% (₹{Math.round(remBal / 2).toLocaleString('en-IN')})
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Payment Date & Mode */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
-                                            Payment Date
-                                        </label>
-                                        <input 
-                                            type="date"
-                                            value={paymentDate}
-                                            onChange={(e) => setPaymentDate(e.target.value)}
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-[#10b981]"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
-                                            Payment Mode
-                                        </label>
-                                        <select
-                                            value={paymentMode}
-                                            onChange={(e) => setPaymentMode(e.target.value)}
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-[#10b981] bg-white cursor-pointer"
-                                        >
-                                            <option value="Bank Transfer">Bank Transfer / NEFT / IMPS</option>
-                                            <option value="UPI / GPay / PhonePe">UPI / GPay / PhonePe</option>
-                                            <option value="Cash">Cash</option>
-                                            <option value="Cheque">Cheque</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {/* Optional Notes */}
-                                <div>
-                                    <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
-                                        Notes (Optional)
-                                    </label>
-                                    <input 
-                                        type="text"
-                                        value={paymentNotes}
-                                        onChange={(e) => setPaymentNotes(e.target.value)}
-                                        placeholder="e.g. Transaction Ref # or Remarks"
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#10b981]"
-                                    />
-                                </div>
-
-                            </div>
-
-                            {/* Modal Footer */}
-                            <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
-                                <button 
-                                    type="button" 
-                                    onClick={closeModal}
-                                    className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    type="button" 
-                                    onClick={handleConfirmPayment}
-                                    disabled={submittingPayment}
-                                    className="flex-1 py-2.5 bg-[#10b981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
-                                >
-                                    {submittingPayment ? 'Processing...' : 'Confirm Payment'}
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
-                );
-            })()}
-
+                                <label>Notes<input value={paymentNotes} onChange={e => setPaymentNotes(e.target.value)} placeholder="Transaction reference or remarks" /></label>
+                                <footer>
+                                    <button type="button" onClick={closeModal}>Cancel</button>
+                                    <button type="submit" className="finance-ledger-primary" disabled={submittingPayment}>{submittingPayment ? 'Processing…' : 'Confirm payment'}</button>
+                                </footer>
+                            </form>
+                        </section>
+                    );
+                })()}
+            </div>
         </div>
     );
 }

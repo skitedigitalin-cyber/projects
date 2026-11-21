@@ -51,13 +51,6 @@
 .sales-list-panel td.sales-overdue { color: #b42318; }
 .sales-list-empty { padding-block: 32px; color: #6b6b6b; }
 .sales-list-panel footer { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-top: 16px; }
-.sales-target-panel { max-width: 620px; }
-.sales-target-panel > p { margin-top: 8px; color: #6b6b6b; }
-.sales-target-panel form { display: grid; gap: 14px; margin-top: 20px; }
-.sales-target-panel label { display: grid; gap: 6px; }
-.sales-target-panel input { min-height: 44px; width: 100%; padding: 0 16px; border: 1px solid #e2e2df; border-radius: 15px; }
-.sales-target-panel button { justify-self: start; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #111; color: white; cursor: pointer; }
-.sales-target-panel [role='alert'] { color: #b42318; }
 @keyframes sales-reference-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @media (max-width: 900px) { .sales-status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 410px) {

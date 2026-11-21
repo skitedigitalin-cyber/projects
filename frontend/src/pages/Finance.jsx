@@ -142,6 +142,10 @@ export default function Finance() {
         ...(!isRobotriq ? [['dashboard', 'Dashboard'], ['invoice-history', 'Invoice history']] : []),
     ];
     const invoiceContext = ['workspace', 'invoices', 'record-payment'].includes(activeTab);
+    const viewTitle = {
+        dashboard: 'Financial overview', 'invoice-history': 'Invoice history', vendors: 'Vendors', purchases: 'Purchase bills',
+        receipts: 'Payment receipts', customers: 'Customers', quotations: 'Quotations', 'fixed-templates': 'Fixed client templates',
+    }[activeTab];
 
     return (
         <Layout workspace compactTools>
@@ -149,9 +153,9 @@ export default function Finance() {
                 <header className="finance-workspace-heading">
                     <div>
                         <p>{isRobotriq ? 'Quotations & Finance' : 'Finance & Invoicing'}</p>
-                        <h1>{!isRobotriq && monthTotal != null
+                        <h1>{viewTitle || (!isRobotriq && monthTotal != null
                             ? <>{amount.format(monthTotal)} <span>invoiced in {monthName.format(now)}</span></>
-                            : isRobotriq ? 'Quotations & finance' : 'Finance & invoicing'}</h1>
+                            : isRobotriq ? 'Quotations & finance' : 'Finance & invoicing')}</h1>
                     </div>
                     {!isRobotriq && <button type="button" onClick={() => setActiveTab('invoices')}><Plus size={15} /> New invoice</button>}
                 </header>
@@ -161,7 +165,7 @@ export default function Finance() {
                             onClick={() => setActiveTab(id)}>{label}</button>
                     ))}
                 </nav>
-                <div className={activeTab === 'workspace' && !isRobotriq ? undefined : 'finance-workspace-module'}>{renderContent()}</div>
+                <div className={viewTitle || (activeTab === 'workspace' && !isRobotriq) ? undefined : 'finance-workspace-module'}>{renderContent()}</div>
             </div>
         </Layout>
     );

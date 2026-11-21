@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { 
-    Plus, Search, CreditCard, ArrowDownLeft, X, Building, User, 
-    Download, Eye, Trash2, Receipt, CheckCircle2, TrendingUp, IndianRupee, 
-    Calendar, Share2, Sparkles, Filter, FileText
-} from 'lucide-react';
+import { Plus, Search, User, Download, Eye, Trash2, Receipt, CheckCircle2, FileText } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import PaymentReceiptModal from './PaymentReceiptModal';
+import './FinanceLedger.css';
 import { generatePaymentReceiptPdf } from '../utils/paymentReceiptPdfGenerator';
 
 export default function PaymentManagement() {
@@ -14,7 +11,7 @@ export default function PaymentManagement() {
     const [receipts, setReceipts] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [customerInvoices, setCustomerInvoices] = useState([]);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [editorOpen, setEditorOpen] = useState(true);
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [modeFilter, setModeFilter] = useState('All');
@@ -148,7 +145,7 @@ export default function PaymentManagement() {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             
-            setIsAddModalOpen(false);
+            setEditorOpen(false);
             resetForm();
             await fetchReceipts();
 
@@ -227,135 +224,41 @@ export default function PaymentManagement() {
 
     const inr = (val) => Number(val || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
 
+
+    const showEditor = () => {
+        resetForm();
+        setEditorOpen(true);
+        requestAnimationFrame(() => document.getElementById('receipt-editor-title')?.focus());
+    };
+
     return (
-        <div className="space-y-6 text-left">
-            {/* Top Stat Bento Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Receipts */}
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
-                    <div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                            Receipts Issued
-                        </span>
-                        <h4 className="text-2xl font-black text-slate-900 mt-1">
-                            {receipts.length}
-                        </h4>
-                        <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-1">
-                            <CheckCircle2 size={12} /> Official Client Receipts
-                        </span>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100">
-                        <Receipt size={24} />
-                    </div>
+        <div className="finance-receipts">
+            <dl className="finance-receipt-summary">
+                <div><dt>Receipts issued</dt><dd>{receipts.length}</dd></div>
+                <div><dt>Total payment received</dt><dd>₹{inr(totalCollected)}</dd></div>
+                <div><dt>Received this month</dt><dd>₹{inr(thisMonthCollected)}</dd></div>
+                <div>
+                    <dt>Receipt colour</dt>
+                    <dd><i aria-hidden="true" style={{ backgroundColor: company.invoiceColor }} />{company.invoiceColor.toUpperCase()}</dd>
+                    <small>Applied to every receipt PDF</small>
                 </div>
-
-                {/* Total Inward Amount */}
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
-                    <div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                            Total Payment Received
-                        </span>
-                        <h4 className="text-2xl font-black text-emerald-600 mt-1">
-                            ₹ {inr(totalCollected)}
-                        </h4>
-                        <span className="text-xs text-slate-500 font-medium mt-1 block">
-                            Verified Client Payments
-                        </span>
+            </dl>
+            <div className="finance-ledger" data-editor-open={editorOpen}>
+                <section className="finance-ledger-list" aria-labelledby="receipt-list-title">
+                    <header className="finance-ledger-heading">
+                        <h2 id="receipt-list-title">Receipts</h2>
+                        <button type="button" className="finance-ledger-primary" onClick={showEditor}><Plus size={15} /> Issue receipt</button>
+                    </header>
+                    <div className="finance-receipt-filters">
+                        <label className="finance-ledger-search"><Search size={16} aria-hidden="true" />
+                            <input type="search" aria-label="Search receipts" placeholder="Search receipts" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                        </label>
+                        <select aria-label="Payment mode filter" value={modeFilter} onChange={e => setModeFilter(e.target.value)}>
+                            {['All','Bank Transfer','UPI','Cash','Cheque'].map(mode => <option key={mode} value={mode}>{mode === 'All' ? 'All modes' : mode}</option>)}
+                        </select>
                     </div>
-                    <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100">
-                        <TrendingUp size={24} />
-                    </div>
-                </div>
-
-                {/* This Month Receipts */}
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
-                    <div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                            This Month Received
-                        </span>
-                        <h4 className="text-2xl font-black text-slate-900 mt-1">
-                            ₹ {inr(thisMonthCollected)}
-                        </h4>
-                        <span className="text-xs text-slate-400 font-medium mt-1 block">
-                            {thisMonthReceipts.length} Receipts in {new Date().toLocaleString('en-IN', { month: 'short' })}
-                        </span>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100">
-                        <Calendar size={24} />
-                    </div>
-                </div>
-
-                {/* Active Brand Theme */}
-                <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                    <div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                            Receipt Theme Color
-                        </span>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span 
-                                className="w-5 h-5 rounded-lg border border-white/20 shadow-xs" 
-                                style={{ backgroundColor: company.invoiceColor }} 
-                            />
-                            <h4 className="text-lg font-black text-white font-mono">
-                                {company.invoiceColor.toUpperCase()}
-                            </h4>
-                        </div>
-                        <span className="text-xs text-slate-400 font-medium mt-1 block">
-                            Auto-branded on all receipts
-                        </span>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-slate-800 text-amber-400 border border-slate-700">
-                        <Sparkles size={24} />
-                    </div>
-                </div>
-            </div>
-
-            {/* Filter & Action Toolbar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3 flex-1 max-w-lg">
-                    {/* Search */}
-                    <div className="relative flex-1">
-                        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input 
-                            type="text" 
-                            placeholder="Search by Receipt No (RCP-...), Client, UTR, Invoice..." 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm outline-none focus:border-blue-500 shadow-xs"
-                        />
-                    </div>
-
-                    {/* Mode Filter */}
-                    <select
-                        value={modeFilter}
-                        onChange={(e) => setModeFilter(e.target.value)}
-                        className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 shadow-xs cursor-pointer"
-                    >
-                        <option value="All">All Modes</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                        <option value="UPI">UPI</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Cheque">Cheque</option>
-                    </select>
-                </div>
-
-                {/* Create Receipt Button */}
-                <button 
-                    onClick={() => {
-                        resetForm();
-                        setIsAddModalOpen(true);
-                    }}
-                    className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer self-start sm:self-auto"
-                >
-                    <Plus size={16} />
-                    <span>Create Receipt</span>
-                </button>
-            </div>
-
-            {/* Receipts Table */}
-            <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs">
+                    <div className="finance-ledger-table finance-receipt-table">
+                    <table aria-label="Receipts">
                         <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-100 text-[10px] uppercase text-slate-500 font-extrabold tracking-wider">
                                 <th className="p-4">Receipt No</th>
@@ -383,7 +286,7 @@ export default function PaymentManagement() {
                                                 type="button"
                                                 onClick={() => {
                                                     resetForm();
-                                                    setIsAddModalOpen(true);
+                                                    setEditorOpen(true);
                                                 }}
                                                 className="mt-4 px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs hover:bg-slate-800"
                                             >
@@ -495,168 +398,47 @@ export default function PaymentManagement() {
                             })}
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            {/* Modal: Create Client Payment Receipt */}
-            {isAddModalOpen && (
-                <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden text-left animate-scale-in">
-                        {/* Modal Header */}
-                        <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50/50">
-                            <div className="flex items-center gap-3">
-                                <span className="p-2.5 rounded-2xl bg-slate-900 text-white">
-                                    <Receipt size={20} />
-                                </span>
-                                <div>
-                                    <h2 className="text-lg font-black text-slate-900">Issue Payment Receipt</h2>
-                                    <p className="text-xs text-slate-500 mt-0.5">Generate official receipt for received client payment</p>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => setIsAddModalOpen(false)} 
-                                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-                        
-                        {/* Modal Body */}
-                        <div className="flex-1 overflow-y-auto p-6 bg-white space-y-4">
-                            <form id="createReceiptForm" onSubmit={handleCreateReceipt} className="space-y-4">
-                                {/* Customer Selector */}
-                                <div>
-                                    <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                                        Select Client / Customer *
-                                    </label>
-                                    <select 
-                                        required 
-                                        value={customerId} 
-                                        onChange={(e) => setCustomerId(e.target.value)} 
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-xs font-semibold"
-                                    >
-                                        <option value="">-- Choose Client --</option>
-                                        {customers.map(c => (
-                                            <option key={c._id} value={c._id}>
-                                                {c.companyName ? `${c.companyName} (${c.customerName})` : c.customerName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                {/* Linked Invoice Selector */}
-                                {customerInvoices.length > 0 && (
-                                    <div>
-                                        <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                                            Link to Invoice (Optional)
-                                        </label>
-                                        <select 
-                                            value={invoiceId} 
-                                            onChange={(e) => setInvoiceId(e.target.value)} 
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-xs font-semibold"
-                                        >
-                                            <option value="">-- Direct Payment / On Account --</option>
-                                            {customerInvoices.map(inv => (
-                                                <option key={inv._id} value={inv._id}>
-                                                    {inv.invoiceNumber} • ₹ {inr(inv.grandTotal || inv.totalAmount)} ({new Date(inv.invoiceDate || inv.date).toLocaleDateString('en-IN')})
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
-
-                                {/* Amount & Date */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-xs font-bold text-slate-700 block mb-1.5">Amount (₹) *</label>
-                                        <input 
-                                            required 
-                                            type="number" 
-                                            min="1" 
-                                            value={amount} 
-                                            onChange={(e) => setAmount(e.target.value)} 
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 font-black text-sm" 
-                                            placeholder="50000" 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-bold text-slate-700 block mb-1.5">Receipt Date *</label>
-                                        <input 
-                                            required 
-                                            type="date" 
-                                            value={receiptDate} 
-                                            onChange={(e) => setReceiptDate(e.target.value)} 
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-xs font-semibold" 
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Payment Mode & UTR / Txn ID */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-xs font-bold text-slate-700 block mb-1.5">Payment Mode *</label>
-                                        <select 
-                                            required 
-                                            value={paymentMode} 
-                                            onChange={(e) => setPaymentMode(e.target.value)} 
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-xs font-semibold"
-                                        >
-                                            <option value="Bank Transfer">Bank Transfer (NEFT/RTGS/IMPS)</option>
-                                            <option value="UPI">UPI (GPay / PhonePe / QR)</option>
-                                            <option value="Cash">Cash</option>
-                                            <option value="Cheque">Cheque</option>
-                                            <option value="Other">Other Mode</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                                            Transaction / UTR Reference
-                                        </label>
-                                        <input 
-                                            type="text" 
-                                            value={transactionId} 
-                                            onChange={(e) => setTransactionId(e.target.value)} 
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-xs font-mono" 
-                                            placeholder="e.g. UTR29184918239" 
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Notes */}
-                                <div>
-                                    <label className="text-xs font-bold text-slate-700 block mb-1.5">Remarks / Notes (Optional)</label>
-                                    <textarea 
-                                        rows="2" 
-                                        value={notes} 
-                                        onChange={(e) => setNotes(e.target.value)} 
-                                        className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-xs" 
-                                        placeholder="e.g. Advance payment for Social Media Marketing & Branding..." 
-                                    />
-                                </div>
-                            </form>
-                        </div>
-                        
-                        {/* Modal Footer */}
-                        <div className="p-5 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-                            <button 
-                                type="button"
-                                onClick={() => setIsAddModalOpen(false)} 
-                                className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                type="submit" 
-                                form="createReceiptForm" 
-                                disabled={submitting}
-                                className="px-6 py-2.5 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
-                            >
-                                {submitting ? 'Generating Receipt...' : 'Save & Generate Receipt'}
-                            </button>
-                        </div>
                     </div>
-                </div>
-            )}
+                </section>
+
+                {editorOpen && <section className="finance-ledger-editor" data-tone="dark" aria-labelledby="receipt-editor-title">
+                    <h2 id="receipt-editor-title" tabIndex={-1}>Issue a receipt</h2>
+                    <p>For money already received from a client.</p>
+                    <form id="createReceiptForm" onSubmit={handleCreateReceipt}>
+                        <label>Client
+                            <select name="customer" required value={customerId} onChange={e => setCustomerId(e.target.value)}>
+                                <option value="">Choose client</option>
+                                {customers.map(customer => <option key={customer._id} value={customer._id}>{customer.companyName ? `${customer.companyName} (${customer.customerName})` : customer.customerName}</option>)}
+                            </select>
+                        </label>
+                        {customerInvoices.length > 0 && <label>Link to invoice (optional)
+                            <select name="invoice" value={invoiceId} onChange={e => setInvoiceId(e.target.value)}>
+                                <option value="">Direct payment / on account</option>
+                                {customerInvoices.map(invoice => <option key={invoice._id} value={invoice._id}>{invoice.invoiceNumber} · ₹{inr(invoice.grandTotal || invoice.totalAmount)} ({new Date(invoice.invoiceDate || invoice.date).toLocaleDateString('en-IN')})</option>)}
+                            </select>
+                        </label>}
+                        <div className="finance-ledger-fields">
+                            <label>Amount (₹)<input name="amount" type="number" min="1" required value={amount} onChange={e => setAmount(e.target.value)} /></label>
+                            <label>Date<input name="date" type="date" required value={receiptDate} onChange={e => setReceiptDate(e.target.value)} /></label>
+                        </div>
+                        <label>Mode
+                            <select name="mode" required value={paymentMode} onChange={e => setPaymentMode(e.target.value)}>
+                                <option value="Bank Transfer">Bank transfer (NEFT/RTGS/IMPS)</option>
+                                <option value="UPI">UPI (GPay / PhonePe / QR)</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="Other">Other mode</option>
+                            </select>
+                        </label>
+                        <label>Transaction / UTR reference<input name="reference" value={transactionId} onChange={e => setTransactionId(e.target.value)} /></label>
+                        <label>Notes (optional)<textarea rows={2} value={notes} onChange={e => setNotes(e.target.value)} /></label>
+                        <footer>
+                            <button type="button" onClick={() => setEditorOpen(false)}>Cancel</button>
+                            <button type="submit" className="finance-ledger-primary" disabled={submitting}>{submitting ? 'Generating receipt…' : 'Save & generate receipt'}</button>
+                        </footer>
+                    </form>
+                </section>}
+            </div>
 
             {/* Modal: View / Print / PDF Official Payment Receipt */}
             {selectedReceipt && (

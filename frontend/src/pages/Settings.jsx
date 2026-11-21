@@ -658,22 +658,22 @@ export default function Settings() {
                                     </div>
                                 )}
                                 {brandingSuccessMsg && (
-                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-3 text-blue-800 text-xs font-bold animate-fade-in shadow-sm">
-                                        <CheckCircle2 size={18} className="text-blue-600 shrink-0" />
+                                    <div className="p-4 bg-[#f0f0ee] border border-[#e6e6e3] rounded-2xl flex items-center gap-3 text-[#111111] text-xs font-bold animate-fade-in shadow-sm">
+                                        <CheckCircle2 size={18} className="text-[#3f3f3f] shrink-0" />
                                         <span>{brandingSuccessMsg}</span>
                                     </div>
                                 )}
 
                                 {/* Overview Banner */}
-                                <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100">
+                                <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-slate-100">
                                     <div className="bg-white rounded-[1.5rem] p-7 shadow-sm">
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                             <div>
-                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
-                                                    <Sparkles size={13} className="text-blue-600" />
+                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#f0f0ee] text-[#111111] border border-[#e6e6e3] mb-2">
+                                                    <Sparkles size={13} className="text-[#3f3f3f]" />
                                                     <span>Active Template Format</span>
                                                 </div>
-                                                <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                                                <h2 className="text-xl font-black text-[#111111] tracking-tight">
                                                     Current Active: {currentTemplateObj.name}
                                                 </h2>
                                                 <p className="text-xs text-slate-500 mt-1 max-w-lg leading-relaxed">
@@ -684,7 +684,7 @@ export default function Settings() {
                                             <button
                                                 type="button"
                                                 onClick={() => setPreviewModalTemplate(currentTemplateObj)}
-                                                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-2 self-start sm:self-auto cursor-pointer shadow-sm transition-all"
+                                                className="px-4 py-2.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-2 self-start sm:self-auto cursor-pointer shadow-sm transition-all"
                                             >
                                                 <Eye size={15} />
                                                 <span>Preview Active Template</span>
@@ -696,16 +696,16 @@ export default function Settings() {
                                 {/* ========================================================
                                     INVOICE BRANDING & ASSETS (LOGO & SIGNATURE UPLOAD)
                                     ======================================================== */}
-                                <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-200 shadow-xs">
+                                <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-[#e6e6e3] shadow-xs">
                                     <div className="bg-white rounded-[1.5rem] p-7 shadow-sm">
                                         {/* Section Header */}
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
                                             <div>
-                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
-                                                    <Building2 size={13} className="text-blue-600" />
+                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#f0f0ee] text-[#111111] border border-[#e6e6e3] mb-2">
+                                                    <Building2 size={13} className="text-[#3f3f3f]" />
                                                     <span>Brand Assets & Customization</span>
                                                 </div>
-                                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Invoice Logo, Seal & Authorised Signature</h3>
+                                                <h3 className="text-xl font-black text-[#111111] tracking-tight">Invoice Logo, Seal & Authorised Signature</h3>
                                                 <p className="text-xs text-slate-500 mt-1 max-w-xl">
                                                     Upload your company logo for the header, official company seal/stamp for the footer, and authorised signature. These automatically apply to all templates and PDF exports.
                                                 </p>
@@ -715,7 +715,7 @@ export default function Settings() {
                                                 type="button"
                                                 onClick={handleSaveBranding}
                                                 disabled={savingBranding}
-                                                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md shadow-blue-500/20 transition-all disabled:opacity-50 self-start sm:self-auto shrink-0"
+                                                className="px-5 py-2.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md shadow-blue-500/20 transition-all disabled:opacity-50 self-start sm:self-auto shrink-0"
                                             >
                                                 <Check size={16} strokeWidth={2.5} />
                                                 <span>{savingBranding ? 'Saving...' : 'Save Branding & Details'}</span>
@@ -726,15 +726,15 @@ export default function Settings() {
                                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6">
                                             
                                             {/* Card 1: Company Logo (Top Left of Invoice) */}
-                                            <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
+                                            <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3] flex flex-col justify-between">
                                                 <div>
                                                     <div className="flex items-center justify-between mb-3">
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                                                            <div className="w-8 h-8 rounded-lg bg-[#e6e6e3] text-[#111111] flex items-center justify-center">
                                                                 <ImageIcon size={18} />
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-sm font-black text-slate-900">Company Logo</h4>
+                                                                <h4 className="text-sm font-black text-[#111111]">Company Logo</h4>
                                                                 <span className="text-[10px] font-bold text-slate-500">Invoice Header (Top-Left)</span>
                                                             </div>
                                                         </div>
@@ -746,7 +746,7 @@ export default function Settings() {
                                                     </div>
 
                                                     {/* Logo Preview Box */}
-                                                    <div className="h-32 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-4 mb-4 relative overflow-hidden shadow-inner">
+                                                    <div className="h-32 rounded-xl bg-white border border-[#e6e6e3] flex items-center justify-center p-4 mb-4 relative overflow-hidden shadow-inner">
                                                         {logoPreview ? (
                                                             <img src={logoPreview} alt="Uploaded Logo" className="max-h-24 max-w-full object-contain" />
                                                         ) : (
@@ -771,7 +771,7 @@ export default function Settings() {
                                                     <button
                                                         type="button"
                                                         onClick={() => logoInputRef.current?.click()}
-                                                        className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all"
+                                                        className="flex-1 py-2 px-3 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all"
                                                     >
                                                         <Upload size={14} />
                                                         <span>{logoPreview ? 'Change Logo Image' : 'Upload Logo Image'}</span>
@@ -790,15 +790,15 @@ export default function Settings() {
                                             </div>
 
                                             {/* Card 2: Company Official Seal / Stamp (Invoice Footer Center) */}
-                                            <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
+                                            <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3] flex flex-col justify-between">
                                                 <div>
                                                     <div className="flex items-center justify-between mb-3">
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                                                            <div className="w-8 h-8 rounded-lg bg-[#e6e6e3] text-[#111111] flex items-center justify-center">
                                                                 <Stamp size={18} />
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-sm font-black text-slate-900">Company Seal / Stamp</h4>
+                                                                <h4 className="text-sm font-black text-[#111111]">Company Seal / Stamp</h4>
                                                                 <span className="text-[10px] font-bold text-slate-500">Official Stamp (Invoice Footer)</span>
                                                             </div>
                                                         </div>
@@ -810,7 +810,7 @@ export default function Settings() {
                                                     </div>
 
                                                     {/* Seal Preview Box */}
-                                                    <div className="h-32 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-4 mb-4 relative overflow-hidden shadow-inner">
+                                                    <div className="h-32 rounded-xl bg-white border border-[#e6e6e3] flex items-center justify-center p-4 mb-4 relative overflow-hidden shadow-inner">
                                                         {sealPreview ? (
                                                             <img src={sealPreview} alt="Uploaded Seal" className="max-h-24 max-w-full object-contain" />
                                                         ) : (
@@ -835,7 +835,7 @@ export default function Settings() {
                                                     <button
                                                         type="button"
                                                         onClick={() => sealInputRef.current?.click()}
-                                                        className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all"
+                                                        className="flex-1 py-2 px-3 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all"
                                                     >
                                                         <Upload size={14} />
                                                         <span>{sealPreview ? 'Change Seal Image' : 'Upload Seal Image'}</span>
@@ -854,15 +854,15 @@ export default function Settings() {
                                             </div>
 
                                             {/* Card 3: Authorised Signature (Bottom Right of Invoice) */}
-                                            <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
+                                            <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3] flex flex-col justify-between">
                                                 <div>
                                                     <div className="flex items-center justify-between mb-3">
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                                                            <div className="w-8 h-8 rounded-lg bg-[#e6e6e3] text-[#111111] flex items-center justify-center">
                                                                 <FileSignature size={18} />
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-sm font-black text-slate-900">Authorised Signature</h4>
+                                                                <h4 className="text-sm font-black text-[#111111]">Authorised Signature</h4>
                                                                 <span className="text-[10px] font-bold text-slate-500">Invoice Authorization (Bottom-Right)</span>
                                                             </div>
                                                         </div>
@@ -874,7 +874,7 @@ export default function Settings() {
                                                     </div>
 
                                                     {/* Signature Preview Box */}
-                                                    <div className="h-32 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-4 mb-4 relative overflow-hidden shadow-inner">
+                                                    <div className="h-32 rounded-xl bg-white border border-[#e6e6e3] flex items-center justify-center p-4 mb-4 relative overflow-hidden shadow-inner">
                                                         {signPreview ? (
                                                             <img src={signPreview} alt="Uploaded Signature" className="max-h-24 max-w-full object-contain" />
                                                         ) : (
@@ -899,7 +899,7 @@ export default function Settings() {
                                                     <button
                                                         type="button"
                                                         onClick={() => signInputRef.current?.click()}
-                                                        className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all"
+                                                        className="flex-1 py-2 px-3 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all"
                                                     >
                                                         <Upload size={14} />
                                                         <span>{signPreview ? 'Change Signature Image' : 'Upload Signature Image'}</span>
@@ -923,10 +923,10 @@ export default function Settings() {
             <button
                 type="button"
                 onClick={() => setShowDetailsForm(!showDetailsForm)}
-                className="w-full flex items-center justify-between text-left text-xs font-bold text-slate-700 hover:text-slate-900 cursor-pointer py-1"
+                className="w-full flex items-center justify-between text-left text-xs font-bold text-slate-700 hover:text-[#111111] cursor-pointer py-1"
             >
                 <span className="flex items-center gap-2">
-                    <CreditCard size={15} className="text-blue-600" />
+                    <CreditCard size={15} className="text-[#3f3f3f]" />
                     <span>Edit Company & Bank Payment Details (Header & PAY TO info)</span>
                 </span>
                 {showDetailsForm ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -940,7 +940,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.name}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, name: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div className="sm:col-span-2">
@@ -949,7 +949,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.address}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, address: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -958,7 +958,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.gstNumber}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, gstNumber: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -967,7 +967,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.phone}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, phone: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -976,7 +976,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.email}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, email: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -985,7 +985,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.bankName}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, bankName: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -994,7 +994,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.accountName}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, accountName: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -1003,7 +1003,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.accountNumber}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, accountNumber: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -1012,7 +1012,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.ifscCode}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, ifscCode: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -1021,7 +1021,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.branch}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, branch: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                     <div>
@@ -1030,7 +1030,7 @@ export default function Settings() {
                             type="text"
                             value={companyDetails.website}
                             onChange={(e) => setCompanyDetails({ ...companyDetails, website: e.target.value })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-slate-800 focus:outline-none focus:border-[#111111]"
                         />
                     </div>
                 </div>
@@ -1042,7 +1042,7 @@ export default function Settings() {
                                 {/* ========================================================
                                     TEMPLATE ACCENT COLOR CUSTOMIZATION (PRESET SWATCHES & PICKER)
                                     ======================================================== */}
-                                <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-200 shadow-xs mb-6">
+                                <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-[#e6e6e3] shadow-xs mb-6">
                                     <div className="bg-white rounded-[1.5rem] p-6 shadow-sm">
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                                             <div>
@@ -1050,14 +1050,14 @@ export default function Settings() {
                                                     <Palette size={13} className="text-amber-600" />
                                                     <span>Template Color Theme</span>
                                                 </div>
-                                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Invoice Template Accent Colors</h3>
+                                                <h3 className="text-xl font-black text-[#111111] tracking-tight">Invoice Template Accent Colors</h3>
                                                 <p className="text-xs text-slate-500 mt-1 max-w-xl">
                                                     Customize the accent color of your invoices. The selected color applies dynamically across template headers, borders, totals, and exported PDF documents.
                                                 </p>
                                             </div>
 
                                             {/* Current Active Color Badge */}
-                                            <div className="flex items-center gap-2.5 px-4 py-2 bg-slate-50 rounded-2xl border border-slate-200 self-start sm:self-auto">
+                                            <div className="flex items-center gap-2.5 px-4 py-2 bg-[#f5f5f3] rounded-2xl border border-[#e6e6e3] self-start sm:self-auto">
                                                 <span 
                                                     className="w-6 h-6 rounded-xl border border-slate-300 shadow-xs shrink-0" 
                                                     style={{ backgroundColor: selectedColor }} 
@@ -1085,8 +1085,8 @@ export default function Settings() {
                                                                 onClick={() => handleSelectColor(preset.color)}
                                                                 className={`group flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                                                                     isCurrent 
-                                                                        ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900/20 scale-105' 
-                                                                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                                                        ? 'bg-[#111111] text-white border-slate-900 shadow-md ring-2 ring-slate-900/20 scale-105'
+                                                                        : 'bg-white text-slate-700 border-[#e6e6e3] hover:border-slate-300 hover:bg-[#f5f5f3]'
                                                                 }`}
                                                                 title={`${preset.name} (${preset.color})`}
                                                             >
@@ -1111,7 +1111,7 @@ export default function Settings() {
                                                 <div className="flex items-center gap-3">
                                                     <div className="relative flex items-center gap-2">
                                                         <label className="text-xs font-bold text-slate-700">Custom Color Picker:</label>
-                                                        <div className="flex items-center border border-slate-200 rounded-xl p-1 bg-slate-50 hover:border-slate-300 transition-colors">
+                                                        <div className="flex items-center border border-[#e6e6e3] rounded-xl p-1 bg-[#f5f5f3] hover:border-slate-300 transition-colors">
                                                             <input
                                                                 type="color"
                                                                 value={selectedColor}
@@ -1132,13 +1132,13 @@ export default function Settings() {
                                                             onChange={(e) => setCustomHexInput(e.target.value)}
                                                             placeholder="#FF4500"
                                                             maxLength={7}
-                                                            className="w-24 px-3 py-1.5 text-xs font-mono font-bold border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 uppercase"
+                                                            className="w-24 px-3 py-1.5 text-xs font-mono font-bold border border-[#e6e6e3] rounded-xl focus:outline-none focus:border-[#111111] uppercase"
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={() => handleSelectColor(customHexInput)}
                                                             disabled={savingColor}
-                                                            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs"
+                                                            className="px-3 py-1.5 bg-[#111111] hover:bg-[#303030] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs"
                                                         >
                                                             {savingColor ? 'Saving...' : 'Apply Hex'}
                                                         </button>
@@ -1165,7 +1165,7 @@ export default function Settings() {
                                                 className={`p-2 rounded-[1.75rem] border transition-all duration-300 ${
                                                     isSelected 
                                                         ? 'bg-emerald-50/60 border-emerald-400 ring-2 ring-emerald-400/20 shadow-md' 
-                                                        : 'bg-slate-50/60 border-slate-200 hover:border-slate-300 hover:bg-slate-100/50'
+                                                        : 'bg-[#f5f5f3]/60 border-[#e6e6e3] hover:border-slate-300 hover:bg-[#f0f0ee]/50'
                                                 }`}
                                             >
                                                 <div className="bg-white rounded-[1.25rem] p-5 h-full flex flex-col justify-between shadow-xs">
@@ -1173,10 +1173,10 @@ export default function Settings() {
                                                         {/* Header Pill & Badge */}
                                                         <div className="flex items-center justify-between mb-3">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 text-xs font-black flex items-center justify-center">
+                                                                <span className="w-6 h-6 rounded-lg bg-[#f0f0ee] text-slate-700 text-xs font-black flex items-center justify-center">
                                                                     {idx + 1}
                                                                 </span>
-                                                                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                                                                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#f0f0ee] text-slate-700 border border-[#e6e6e3]">
                                                                     {tpl.badge}
                                                                 </span>
                                                             </div>
@@ -1205,7 +1205,7 @@ export default function Settings() {
                                                         </div>
 
                                                         {/* Template Name & Tagline */}
-                                                        <h3 className="text-base font-extrabold text-slate-900">{tpl.name}</h3>
+                                                        <h3 className="text-base font-extrabold text-[#111111]">{tpl.name}</h3>
                                                         <p className="text-[11px] font-bold text-slate-500 mt-0.5">{tpl.tagline}</p>
                                                         <p className="text-xs text-slate-500 mt-2 leading-relaxed">{tpl.description}</p>
                                                     </div>
@@ -1218,7 +1218,7 @@ export default function Settings() {
                                                             className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                                                                 isSelected 
                                                                     ? 'bg-emerald-600 text-white shadow-sm hover:bg-emerald-700' 
-                                                                    : 'bg-slate-900 text-white hover:bg-slate-800 shadow-sm'
+                                                                    : 'bg-[#111111] text-white hover:bg-[#303030] shadow-sm'
                                                             }`}
                                                         >
                                                             {isSelected ? (
@@ -1234,7 +1234,7 @@ export default function Settings() {
                                                         <button
                                                             type="button"
                                                             onClick={() => setPreviewModalTemplate(tpl)}
-                                                            className="p-2 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                                                            className="p-2 rounded-xl border border-[#e6e6e3] hover:border-slate-300 hover:bg-[#f5f5f3] text-slate-600 hover:text-[#111111] transition-colors cursor-pointer"
                                                             title="Live Preview"
                                                         >
                                                             <Eye size={16} />
@@ -1262,7 +1262,7 @@ export default function Settings() {
                                 )}
 
                                 {/* Overview Banner */}
-                                <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-200 shadow-xs">
+                                <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-[#e6e6e3] shadow-xs">
                                     <div className="bg-white rounded-[1.5rem] p-7 shadow-sm">
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
                                             <div>
@@ -1270,7 +1270,7 @@ export default function Settings() {
                                                     <Sparkles size={13} className="text-emerald-600" />
                                                     <span>Official Letterhead Customization</span>
                                                 </div>
-                                                <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                                                <h3 className="text-xl font-black text-[#111111] tracking-tight">
                                                     Quotation Header & Footer Letterhead
                                                 </h3>
                                                 <p className="text-xs text-slate-500 mt-1 max-w-xl leading-relaxed">
@@ -1282,7 +1282,7 @@ export default function Settings() {
                                                 <button
                                                     type="button"
                                                     onClick={handleResetToRobotriqLetterhead}
-                                                    className="px-3.5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                                                    className="px-3.5 py-2.5 rounded-xl border border-[#e6e6e3] hover:bg-[#f5f5f3] text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                                                     title="Restore default Robotriq high-resolution letterhead assets"
                                                 >
                                                     <RotateCcw size={14} />
@@ -1291,7 +1291,7 @@ export default function Settings() {
                                                 <button
                                                     type="button"
                                                     onClick={handleDownloadQuotationSamplePdf}
-                                                    className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                                                    className="px-4 py-2.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
                                                 >
                                                     <Download size={14} />
                                                     <span>Sample PDF</span>
@@ -1311,14 +1311,14 @@ export default function Settings() {
                                         {/* Header and Footer Upload Banners */}
                                         <div className="grid grid-cols-1 gap-6 pt-6">
                                             {/* Card 1: Header Image (Letterhead Top Banner) */}
-                                            <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200">
+                                            <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3]">
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
                                                             <ImageIcon size={18} />
                                                         </div>
                                                         <div>
-                                                            <h4 className="text-sm font-black text-slate-900">Quotation Header Banner (Letterhead Top)</h4>
+                                                            <h4 className="text-sm font-black text-[#111111]">Quotation Header Banner (Letterhead Top)</h4>
                                                             <span className="text-[10px] font-bold text-slate-500">Edge-to-edge top header on Page 1 & Page 2 (Recommended ~1435x219 px)</span>
                                                         </div>
                                                     </div>
@@ -1333,7 +1333,7 @@ export default function Settings() {
                                                         <button
                                                             type="button"
                                                             onClick={() => quotationHeaderInputRef.current?.click()}
-                                                            className="py-2 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+                                                            className="py-2 px-3.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
                                                         >
                                                             <Upload size={14} />
                                                             <span>Upload New Header Image</span>
@@ -1351,7 +1351,7 @@ export default function Settings() {
                                                     </div>
                                                 </div>
 
-                                                <div className="rounded-xl bg-white border border-slate-200 p-2 overflow-hidden shadow-inner flex items-center justify-center">
+                                                <div className="rounded-xl bg-white border border-[#e6e6e3] p-2 overflow-hidden shadow-inner flex items-center justify-center">
                                                     {quotationHeaderPreview ? (
                                                         <img src={quotationHeaderPreview} alt="Header Preview" className="w-full max-h-28 object-contain rounded-lg" />
                                                     ) : (
@@ -1363,14 +1363,14 @@ export default function Settings() {
                                             </div>
 
                                             {/* Card 2: Footer Image (Letterhead Bottom Banner) */}
-                                            <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200">
+                                            <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3]">
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
                                                             <ImageIcon size={18} />
                                                         </div>
                                                         <div>
-                                                            <h4 className="text-sm font-black text-slate-900">Quotation Footer Banner (Letterhead Bottom)</h4>
+                                                            <h4 className="text-sm font-black text-[#111111]">Quotation Footer Banner (Letterhead Bottom)</h4>
                                                             <span className="text-[10px] font-bold text-slate-500">Edge-to-edge bottom footer on Page 1 & Page 2 (Recommended ~1434x250 px)</span>
                                                         </div>
                                                     </div>
@@ -1385,7 +1385,7 @@ export default function Settings() {
                                                         <button
                                                             type="button"
                                                             onClick={() => quotationFooterInputRef.current?.click()}
-                                                            className="py-2 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+                                                            className="py-2 px-3.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
                                                         >
                                                             <Upload size={14} />
                                                             <span>Upload New Footer Image</span>
@@ -1403,7 +1403,7 @@ export default function Settings() {
                                                     </div>
                                                 </div>
 
-                                                <div className="rounded-xl bg-white border border-slate-200 p-2 overflow-hidden shadow-inner flex items-center justify-center">
+                                                <div className="rounded-xl bg-white border border-[#e6e6e3] p-2 overflow-hidden shadow-inner flex items-center justify-center">
                                                     {quotationFooterPreview ? (
                                                         <img src={quotationFooterPreview} alt="Footer Preview" className="w-full max-h-28 object-contain rounded-lg" />
                                                     ) : (
@@ -1417,7 +1417,7 @@ export default function Settings() {
                                             {/* Cards 3 & 4: Seal & Signature */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 {/* Seal Card */}
-                                                <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
+                                                <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3] flex flex-col justify-between">
                                                     <div>
                                                         <div className="flex items-center justify-between mb-3">
                                                             <div className="flex items-center gap-2">
@@ -1425,7 +1425,7 @@ export default function Settings() {
                                                                     <Stamp size={18} />
                                                                 </div>
                                                                 <div>
-                                                                    <h4 className="text-sm font-black text-slate-900">Official Company Seal</h4>
+                                                                    <h4 className="text-sm font-black text-[#111111]">Official Company Seal</h4>
                                                                     <span className="text-[10px] font-bold text-slate-500">Overlays next to signature</span>
                                                                 </div>
                                                             </div>
@@ -1435,7 +1435,7 @@ export default function Settings() {
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <div className="h-28 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-3 mb-3">
+                                                        <div className="h-28 rounded-xl bg-white border border-[#e6e6e3] flex items-center justify-center p-3 mb-3">
                                                             {quotationSealPreview ? (
                                                                 <img src={quotationSealPreview} alt="Seal" className="max-h-20 object-contain" />
                                                             ) : (
@@ -1448,7 +1448,7 @@ export default function Settings() {
                                                         <button
                                                             type="button"
                                                             onClick={() => quotationSealInputRef.current?.click()}
-                                                            className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                                            className="flex-1 py-2 px-3 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                                                         >
                                                             <Upload size={14} />
                                                             <span>Change Seal</span>
@@ -1462,7 +1462,7 @@ export default function Settings() {
                                                 </div>
 
                                                 {/* Signature Card */}
-                                                <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
+                                                <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3] flex flex-col justify-between">
                                                     <div>
                                                         <div className="flex items-center justify-between mb-3">
                                                             <div className="flex items-center gap-2">
@@ -1470,7 +1470,7 @@ export default function Settings() {
                                                                     <FileSignature size={18} />
                                                                 </div>
                                                                 <div>
-                                                                    <h4 className="text-sm font-black text-slate-900">Authorised Signature</h4>
+                                                                    <h4 className="text-sm font-black text-[#111111]">Authorised Signature</h4>
                                                                     <span className="text-[10px] font-bold text-slate-500">Signatory mark on Quotations</span>
                                                                 </div>
                                                             </div>
@@ -1480,7 +1480,7 @@ export default function Settings() {
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <div className="h-28 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-3 mb-3">
+                                                        <div className="h-28 rounded-xl bg-white border border-[#e6e6e3] flex items-center justify-center p-3 mb-3">
                                                             {quotationSignPreview ? (
                                                                 <img src={quotationSignPreview} alt="Signature" className="max-h-20 object-contain" />
                                                             ) : (
@@ -1493,7 +1493,7 @@ export default function Settings() {
                                                         <button
                                                             type="button"
                                                             onClick={() => quotationSignInputRef.current?.click()}
-                                                            className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                                            className="flex-1 py-2 px-3 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                                                         >
                                                             <Upload size={14} />
                                                             <span>Change Signature</span>
@@ -1508,8 +1508,8 @@ export default function Settings() {
                                             </div>
 
                                             {/* Bank Details & Signatory Info Form */}
-                                            <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200">
-                                                <h4 className="text-sm font-black text-slate-900 mb-1 flex items-center gap-2">
+                                            <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3]">
+                                                <h4 className="text-sm font-black text-[#111111] mb-1 flex items-center gap-2">
                                                     <CreditCard size={18} className="text-emerald-600" />
                                                     <span>Default Quotation Bank Details & Signatory Info</span>
                                                 </h4>
@@ -1524,7 +1524,7 @@ export default function Settings() {
                                                             type="text" 
                                                             value={quotationBankDetails.bankName || ''} 
                                                             onChange={(e) => setQuotationBankDetails(prev => ({ ...prev, bankName: e.target.value }))}
-                                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl focus:outline-none focus:border-emerald-500"
                                                         />
                                                     </div>
                                                     <div>
@@ -1533,7 +1533,7 @@ export default function Settings() {
                                                             type="text" 
                                                             value={quotationBankDetails.branch || ''} 
                                                             onChange={(e) => setQuotationBankDetails(prev => ({ ...prev, branch: e.target.value }))}
-                                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl focus:outline-none focus:border-emerald-500"
                                                         />
                                                     </div>
                                                     <div>
@@ -1542,7 +1542,7 @@ export default function Settings() {
                                                             type="text" 
                                                             value={quotationBankDetails.bobAc || ''} 
                                                             onChange={(e) => setQuotationBankDetails(prev => ({ ...prev, bobAc: e.target.value }))}
-                                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl focus:outline-none focus:border-emerald-500"
                                                         />
                                                     </div>
                                                     <div>
@@ -1551,7 +1551,7 @@ export default function Settings() {
                                                             type="text" 
                                                             value={quotationBankDetails.ifsc || ''} 
                                                             onChange={(e) => setQuotationBankDetails(prev => ({ ...prev, ifsc: e.target.value }))}
-                                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl focus:outline-none focus:border-emerald-500"
                                                         />
                                                     </div>
                                                     <div>
@@ -1560,7 +1560,7 @@ export default function Settings() {
                                                             type="text" 
                                                             value={quotationBankDetails.sigFor || ''} 
                                                             onChange={(e) => setQuotationBankDetails(prev => ({ ...prev, sigFor: e.target.value }))}
-                                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl focus:outline-none focus:border-emerald-500"
                                                         />
                                                     </div>
                                                     <div>
@@ -1569,7 +1569,7 @@ export default function Settings() {
                                                             type="text" 
                                                             value={quotationBankDetails.sigName || ''} 
                                                             onChange={(e) => setQuotationBankDetails(prev => ({ ...prev, sigName: e.target.value }))}
-                                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl focus:outline-none focus:border-emerald-500"
                                                         />
                                                     </div>
                                                 </div>
@@ -1588,16 +1588,16 @@ export default function Settings() {
                                             </div>
 
                                             {/* Live A4 Letterhead Preview Container */}
-                                            <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200">
+                                            <div className="p-5 rounded-2xl bg-[#f5f5f3]/70 border border-[#e6e6e3]">
                                                 <div className="flex items-center justify-between mb-4">
                                                     <div>
-                                                        <h4 className="text-sm font-black text-slate-900">Live Letterhead Layout Preview</h4>
+                                                        <h4 className="text-sm font-black text-[#111111]">Live Letterhead Layout Preview</h4>
                                                         <span className="text-[10px] text-slate-500">How your quotations will render with the active Header, Footer, Seal & Signature</span>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         onClick={handleDownloadQuotationSamplePdf}
-                                                        className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5"
+                                                        className="px-3.5 py-1.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white text-xs font-bold flex items-center gap-1.5"
                                                     >
                                                         <Download size={14} />
                                                         <span>Export Sample PDF</span>
@@ -1663,9 +1663,9 @@ export default function Settings() {
                         {activeTab === 'appearance' && (
                             <>
                                 {/* Workspace Theme */}
-                                <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100">
+                                <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-slate-100">
                                     <div className="bg-white rounded-[1.5rem] p-8 shadow-sm h-full">
-                                        <h2 className="text-xl font-bold text-slate-900 mb-2 flex items-center tracking-tight">
+                                        <h2 className="text-xl font-bold text-[#111111] mb-2 flex items-center tracking-tight">
                                             Workspace Theme
                                         </h2>
                                         <p className="text-slate-500 text-sm font-medium mb-8">
@@ -1680,8 +1680,8 @@ export default function Settings() {
                                         disabled={savingTheme}
                                                     className={`relative flex flex-col items-center justify-center p-6 rounded-[1.25rem] border-2 transition-all duration-300 group overflow-hidden cursor-pointer ${
                                                         theme === t.id 
-                                                        ? 'border-blue-500 bg-blue-50 shadow-md scale-[1.02]' 
-                                                        : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm'
+                                                        ? 'border-[#111111] bg-[#f0f0ee] shadow-md scale-[1.02]'
+                                                        : 'border-slate-100 hover:border-slate-300 hover:bg-[#f5f5f3] hover:shadow-sm'
                                                     }`}
                                                 >
                                                     {t.badge && (
@@ -1694,7 +1694,7 @@ export default function Settings() {
                                                             {theme === t.id ? <CheckCircle2 size={18} /> : t.icon}
                                                         </div>
                                                     </div>
-                                                    <span className={`text-sm font-bold ${theme === t.id ? 'text-slate-900' : 'text-slate-600'}`}>
+                                                    <span className={`text-sm font-bold ${theme === t.id ? 'text-[#111111]' : 'text-slate-600'}`}>
                                                         {t.name}
                                                     </span>
                                                     
@@ -1708,9 +1708,9 @@ export default function Settings() {
                                 </div>
 
                                 {/* Background Style Panel */}
-                                <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100">
+                                <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-slate-100">
                                     <div className="bg-white rounded-[1.5rem] p-8 shadow-sm h-full">
-                                        <h2 className="text-xl font-bold text-slate-900 mb-2 flex items-center tracking-tight">
+                                        <h2 className="text-xl font-bold text-[#111111] mb-2 flex items-center tracking-tight">
                                             Background Style
                                         </h2>
                                         <p className="text-slate-500 text-sm font-medium mb-8">
@@ -1723,15 +1723,15 @@ export default function Settings() {
                                                 onClick={() => setBgStyle('glowing')}
                                                 className={`relative flex flex-col items-center justify-center p-6 rounded-[1.25rem] border-2 transition-all duration-300 group overflow-hidden cursor-pointer ${
                                                     bgStyle === 'glowing' 
-                                                    ? 'border-blue-500 bg-blue-50 shadow-md scale-[1.02]' 
-                                                    : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm'
+                                                    ? 'border-[#111111] bg-[#f0f0ee] shadow-md scale-[1.02]'
+                                                    : 'border-slate-100 hover:border-slate-300 hover:bg-[#f5f5f3] hover:shadow-sm'
                                                 }`}
                                             >
-                                                <div className="w-full h-16 rounded-xl bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 mb-4 flex items-center justify-center relative overflow-hidden">
+                                                <div className="w-full h-16 rounded-xl bg-[#f0f0ee] border border-[#e6e6e3] mb-4 flex items-center justify-center relative overflow-hidden">
                                                     <div className="absolute top-0 left-0 w-8 h-8 bg-blue-300 opacity-50 blur-xl rounded-full"></div>
                                                     <div className="absolute bottom-0 right-0 w-10 h-10 bg-blue-400 opacity-30 blur-xl rounded-full"></div>
                                                 </div>
-                                                <span className={`text-sm font-bold ${bgStyle === 'glowing' ? 'text-slate-900' : 'text-slate-600'}`}>Glowing Glass</span>
+                                                <span className={`text-sm font-bold ${bgStyle === 'glowing' ? 'text-[#111111]' : 'text-slate-600'}`}>Glowing Glass</span>
                                             </button>
 
                                             {/* Minimal */}
@@ -1739,12 +1739,12 @@ export default function Settings() {
                                                 onClick={() => setBgStyle('minimal')}
                                                 className={`relative flex flex-col items-center justify-center p-6 rounded-[1.25rem] border-2 transition-all duration-300 group overflow-hidden cursor-pointer ${
                                                     bgStyle === 'minimal' 
-                                                    ? 'border-blue-500 bg-blue-50 shadow-md scale-[1.02]' 
-                                                    : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm'
+                                                    ? 'border-[#111111] bg-[#f0f0ee] shadow-md scale-[1.02]'
+                                                    : 'border-slate-100 hover:border-slate-300 hover:bg-[#f5f5f3] hover:shadow-sm'
                                                 }`}
                                             >
-                                                <div className="w-full h-16 rounded-xl bg-slate-50 border border-slate-200 mb-4 flex items-center justify-center"></div>
-                                                <span className={`text-sm font-bold ${bgStyle === 'minimal' ? 'text-slate-900' : 'text-slate-600'}`}>Clean Solid</span>
+                                                <div className="w-full h-16 rounded-xl bg-[#f5f5f3] border border-[#e6e6e3] mb-4 flex items-center justify-center"></div>
+                                                <span className={`text-sm font-bold ${bgStyle === 'minimal' ? 'text-[#111111]' : 'text-slate-600'}`}>Clean Solid</span>
                                             </button>
 
                                             {/* Technical Grid */}
@@ -1752,18 +1752,18 @@ export default function Settings() {
                                                 onClick={() => setBgStyle('grid')}
                                                 className={`relative flex flex-col items-center justify-center p-6 rounded-[1.25rem] border-2 transition-all duration-300 group overflow-hidden cursor-pointer ${
                                                     bgStyle === 'grid' 
-                                                    ? 'border-blue-500 bg-blue-50 shadow-md scale-[1.02]' 
-                                                    : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm'
+                                                    ? 'border-[#111111] bg-[#f0f0ee] shadow-md scale-[1.02]'
+                                                    : 'border-slate-100 hover:border-slate-300 hover:bg-[#f5f5f3] hover:shadow-sm'
                                                 }`}
                                             >
                                                 <div 
-                                                    className="w-full h-16 rounded-xl bg-slate-50 border border-slate-200 mb-4 flex items-center justify-center"
+                                                    className="w-full h-16 rounded-xl bg-[#f5f5f3] border border-[#e6e6e3] mb-4 flex items-center justify-center"
                                                     style={{
                                                         backgroundImage: 'linear-gradient(var(--color-slate-200) 1px, transparent 1px), linear-gradient(90deg, var(--color-slate-200) 1px, transparent 1px)',
                                                         backgroundSize: '10px 10px'
                                                     }}
                                                 ></div>
-                                                <span className={`text-sm font-bold ${bgStyle === 'grid' ? 'text-slate-900' : 'text-slate-600'}`}>Technical Grid</span>
+                                                <span className={`text-sm font-bold ${bgStyle === 'grid' ? 'text-[#111111]' : 'text-slate-600'}`}>Technical Grid</span>
                                             </button>
                                         </div>
                                     </div>
@@ -1777,17 +1777,17 @@ export default function Settings() {
             {/* Interactive Full Template Live Preview Modal */}
             {previewModalTemplate && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
-                    <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col overflow-hidden animate-scale-in text-left">
+                    <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-[#e6e6e3] max-h-[92vh] flex flex-col overflow-hidden animate-scale-in text-left">
                         {/* Header Bar */}
-                        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                        <div className="px-6 py-4 bg-[#111111] text-white flex items-center justify-between border-b border-slate-800">
                             <div className="flex items-center gap-3">
-                                <span className="p-2 rounded-xl bg-slate-800 text-emerald-400">
+                                <span className="p-2 rounded-xl bg-[#303030] text-emerald-400">
                                     <FileText size={18} />
                                 </span>
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-extrabold text-base">{previewModalTemplate.name}</h3>
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#303030] text-slate-300 border border-slate-700">
                                             {previewModalTemplate.badge}
                                         </span>
                                     </div>
@@ -1799,7 +1799,7 @@ export default function Settings() {
                                 <button
                                     type="button"
                                     onClick={handleDownloadSamplePdf}
-                                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                                    className="px-3.5 py-1.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
                                 >
                                     <Download size={14} />
                                     <span>Download Sample PDF</span>
@@ -1807,7 +1807,7 @@ export default function Settings() {
                                 <button
                                     type="button"
                                     onClick={() => setPreviewModalTemplate(null)}
-                                    className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#303030] transition-colors cursor-pointer"
                                 >
                                     <X size={18} />
                                 </button>
@@ -1815,7 +1815,7 @@ export default function Settings() {
                         </div>
 
                         {/* Quick Color Picker in Preview Modal */}
-                        <div className="px-6 py-2.5 bg-slate-800 text-white flex items-center justify-between gap-3 text-xs border-b border-slate-700">
+                        <div className="px-6 py-2.5 bg-[#303030] text-white flex items-center justify-between gap-3 text-xs border-b border-slate-700">
                             <div className="flex items-center gap-2">
                                 <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Theme Color:</span>
                                 <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
@@ -1848,7 +1848,7 @@ export default function Settings() {
                         </div>
 
                         {/* Invoice Rendered Preview Body */}
-                        <div className="flex-1 overflow-y-auto p-6 bg-slate-100/60">
+                        <div className="flex-1 overflow-y-auto p-6 bg-[#f0f0ee]/60">
                             <InvoiceRenderer 
                                 innerRef={previewInvoiceRef}
                                 invoice={SAMPLE_INVOICE} 
@@ -1866,7 +1866,7 @@ export default function Settings() {
                         </div>
 
                         {/* Footer Controls */}
-                        <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between">
+                        <div className="p-4 bg-white border-t border-[#e6e6e3] flex items-center justify-between">
                             <span className="text-xs text-slate-500 font-medium">
                                 Sample invoice showing dummy client, line items, GST breakdown and terms.
                             </span>
@@ -1892,7 +1892,7 @@ export default function Settings() {
                                 <button
                                     type="button"
                                     onClick={() => setPreviewModalTemplate(null)}
-                                    className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs cursor-pointer"
+                                    className="px-4 py-2.5 rounded-xl border border-[#e6e6e3] text-slate-600 hover:bg-[#f5f5f3] font-bold text-xs cursor-pointer"
                                 >
                                     Close Preview
                                 </button>

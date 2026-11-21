@@ -1,3 +1,4 @@
+import './HRViews.css';
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { 
@@ -340,7 +341,7 @@ export default function AttendanceManagement() {
         if (attendance.status === 'Present') return <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">Present</span>;
         if (attendance.status === 'Half Day') return <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-amber-100 text-amber-700">Half Day</span>;
         if (attendance.status === 'Absent') return <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-red-100 text-red-700">Absent</span>;
-        return <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-700">{attendance.status}</span>;
+        return <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-[#f0f0ee] text-slate-700">{attendance.status}</span>;
     };
 
     const formatDate = (dateString) => {
@@ -350,7 +351,7 @@ export default function AttendanceManagement() {
     };
 
     return (
-        <div className="space-y-6 animate-fade-up">
+        <div className="hr-views-stack hr-attendance">
             
             {/* Feedback notification toast */}
             {feedbackMsg && (
@@ -366,41 +367,43 @@ export default function AttendanceManagement() {
             )}
 
             {/* Top Sub-Tab Switcher: Daily Attendance Logs vs Permission Requests */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2 bg-slate-100/80 rounded-2xl border border-slate-200/80">
+            <div className="hr-attendance-switch flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <button
                         type="button"
+                        aria-pressed={activeSubTab === 'attendance'}
                         onClick={() => setActiveSubTab('attendance')}
                         className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                             activeSubTab === 'attendance'
-                                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                                ? 'bg-white text-[#111111] shadow-sm border border-[#e6e6e3]/60'
+                                : 'text-slate-600 hover:text-[#111111] hover:bg-white/50'
                         }`}
                     >
-                        <Clock size={16} className={activeSubTab === 'attendance' ? 'text-indigo-600' : 'text-slate-400'} />
-                        <span>Daily Attendance Logs</span>
-                        <span className="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-600 rounded-full font-mono">
+                        <Clock size={16} className={activeSubTab === 'attendance' ? 'text-[#3f3f3f]' : 'text-slate-400'} />
+                        <span>Daily logs</span>
+                        <span className="px-2 py-0.5 text-[10px] bg-[#f0f0ee] text-slate-600 rounded-full font-mono">
                             {filteredRecords.length}
                         </span>
                     </button>
 
                     <button
                         type="button"
+                        aria-pressed={activeSubTab === 'permissions'}
                         onClick={() => setActiveSubTab('permissions')}
                         className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                             activeSubTab === 'permissions'
-                                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                                ? 'bg-white text-[#111111] shadow-sm border border-[#e6e6e3]/60'
+                                : 'text-slate-600 hover:text-[#111111] hover:bg-white/50'
                         }`}
                     >
                         <CalendarDays size={16} className={activeSubTab === 'permissions' ? 'text-amber-600' : 'text-slate-400'} />
-                        <span>Permission Requests</span>
+                        <span>Permission requests</span>
                         {pendingPermissionsCount > 0 ? (
                             <span className="px-2 py-0.5 text-[10px] bg-amber-500 text-white rounded-full font-mono font-bold animate-pulse">
                                 {pendingPermissionsCount} Pending
                             </span>
                         ) : (
-                            <span className="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-600 rounded-full font-mono">
+                            <span className="px-2 py-0.5 text-[10px] bg-[#f0f0ee] text-slate-600 rounded-full font-mono">
                                 {permissions.length}
                             </span>
                         )}
@@ -411,10 +414,10 @@ export default function AttendanceManagement() {
                     <button 
                         type="button"
                         onClick={() => { fetchAttendance(); fetchPermissions(); }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-slate-900 transition-all font-semibold cursor-pointer border border-transparent hover:border-slate-200"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-[#111111] transition-all font-semibold cursor-pointer border border-transparent hover:border-[#e6e6e3]"
                         title="Refresh data"
                     >
-                        <RefreshCw size={14} className={loading || permLoading ? 'animate-spin text-indigo-600' : ''} />
+                        <RefreshCw size={14} className={loading || permLoading ? 'animate-spin text-[#3f3f3f]' : ''} />
                         <span>Refresh</span>
                     </button>
                 </div>
@@ -424,7 +427,7 @@ export default function AttendanceManagement() {
             {activeSubTab === 'attendance' && (
                 <>
             {/* Top Control Bar: Search + Dates + Quick Presets + Delete Filtered */}
-            <div className="p-5 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <div className="p-5 bg-white rounded-3xl border border-[#e6e6e3] shadow-xs space-y-4">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     
                     {/* Search Input */}
@@ -435,7 +438,7 @@ export default function AttendanceManagement() {
                             placeholder="Search employee name, ID, department..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-xs text-slate-900"
+                            className="w-full pl-10 pr-4 py-2.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-xs text-[#111111]"
                         />
                         {searchTerm && (
                             <button 
@@ -448,32 +451,32 @@ export default function AttendanceManagement() {
                     </div>
 
                     {/* Quick Date Presets */}
-                    <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-2xl text-xs font-bold self-start lg:self-auto">
+                    <div className="flex flex-wrap items-center gap-1.5 bg-[#f0f0ee] p-1 rounded-2xl text-xs font-bold self-start lg:self-auto">
                         <button 
                             type="button"
                             onClick={() => setQuickDatePreset('TODAY')}
-                            className="px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-[#111111] transition-colors cursor-pointer"
                         >
                             Today
                         </button>
                         <button 
                             type="button"
                             onClick={() => setQuickDatePreset('YESTERDAY')}
-                            className="px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-[#111111] transition-colors cursor-pointer"
                         >
                             Yesterday
                         </button>
                         <button 
                             type="button"
                             onClick={() => setQuickDatePreset('THIS_MONTH')}
-                            className="px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-[#111111] transition-colors cursor-pointer"
                         >
                             This Month
                         </button>
                         <button 
                             type="button"
                             onClick={() => setQuickDatePreset('ALL')}
-                            className="px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl hover:bg-white text-slate-600 hover:text-[#111111] transition-colors cursor-pointer"
                         >
                             All Time
                         </button>
@@ -484,27 +487,27 @@ export default function AttendanceManagement() {
                 {/* Second Row: FROM - TO Pickers + Actions */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                        <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+                        <div className="flex items-center gap-1.5 bg-[#f5f5f3] px-3 py-2 rounded-xl border border-[#e6e6e3]">
                             <CalendarDays className="text-blue-600" size={14} />
                             <span className="font-bold text-slate-600">FROM:</span>
                             <input 
                                 type="date" 
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="bg-transparent font-bold text-slate-900 outline-none cursor-pointer"
+                                className="bg-transparent font-bold text-[#111111] outline-none cursor-pointer"
                             />
                         </div>
 
                         <span className="text-slate-300 font-bold">-</span>
 
-                        <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+                        <div className="flex items-center gap-1.5 bg-[#f5f5f3] px-3 py-2 rounded-xl border border-[#e6e6e3]">
                             <CalendarDays className="text-blue-600" size={14} />
                             <span className="font-bold text-slate-600">TO:</span>
                             <input 
                                 type="date" 
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="bg-transparent font-bold text-slate-900 outline-none cursor-pointer"
+                                className="bg-transparent font-bold text-[#111111] outline-none cursor-pointer"
                             />
                         </div>
 
@@ -541,7 +544,7 @@ export default function AttendanceManagement() {
 
             {/* Selected Action Strip (When rows are checked) */}
             {selectedIds.length > 0 && (
-                <div className="p-3.5 bg-slate-900 text-white rounded-2xl flex items-center justify-between gap-4 animate-fade-up shadow-md">
+                <div className="p-3.5 bg-[#111111] text-white rounded-2xl flex items-center justify-between gap-4 animate-fade-up shadow-md">
                     <div className="flex items-center gap-2 text-xs font-bold">
                         <CheckSquare size={16} className="text-blue-400" />
                         <span>{selectedIds.length} attendance record{selectedIds.length > 1 ? 's' : ''} selected</span>
@@ -567,11 +570,11 @@ export default function AttendanceManagement() {
             )}
 
             {/* Table Card */}
-            <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden p-2">
-                <div className="bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 overflow-x-auto">
+            <div className="hr-view-panel hr-attendance-table">
+                <div className="bg-[#f5f5f3]/50 rounded-[1.5rem] border border-slate-100/50 overflow-x-auto">
                     <table className="w-full text-left whitespace-nowrap">
                         <thead>
-                            <tr className="border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <tr className="border-b border-[#e6e6e3] text-xs font-bold text-slate-500 uppercase tracking-wider">
                                 {/* Checkbox Column */}
                                 <th className="p-4 w-10 text-center">
                                     <button 
@@ -651,7 +654,7 @@ export default function AttendanceManagement() {
                                                         {record.employee?.firstName?.charAt(0) || 'E'}{record.employee?.lastName?.charAt(0) || ''}
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-slate-900">{empName}</div>
+                                                        <div className="font-bold text-[#111111]">{empName}</div>
                                                         <div className="text-[10px] text-slate-500 font-mono">
                                                             {record.employee?.employeeId} • {record.employee?.department || 'General'}
                                                         </div>
@@ -724,16 +727,16 @@ export default function AttendanceManagement() {
 
                 {/* 15 RECORDS PAGINATION FOOTER */}
                 {filteredRecords.length > PAGE_SIZE && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-slate-200 bg-white">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-[#e6e6e3] bg-white">
                         <span className="text-xs font-semibold text-slate-500">
-                            Showing <strong className="text-slate-900">{(validPage - 1) * PAGE_SIZE + 1}</strong>–<strong className="text-slate-900">{Math.min(validPage * PAGE_SIZE, filteredRecords.length)}</strong> of <strong className="text-slate-900">{filteredRecords.length}</strong> records
+                            Showing <strong className="text-[#111111]">{(validPage - 1) * PAGE_SIZE + 1}</strong>–<strong className="text-[#111111]">{Math.min(validPage * PAGE_SIZE, filteredRecords.length)}</strong> of <strong className="text-[#111111]">{filteredRecords.length}</strong> records
                         </span>
                         <div className="flex items-center space-x-2">
                             <button 
                                 type="button"
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={validPage <= 1}
-                                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                                className="px-3.5 py-1.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                             >
                                 <ChevronLeft size={14} /> Previous
                             </button>
@@ -744,7 +747,7 @@ export default function AttendanceManagement() {
                                 type="button"
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={validPage >= totalPages}
-                                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                                className="px-3.5 py-1.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                             >
                                 Next <ChevronRight size={14} />
                             </button>
@@ -760,12 +763,12 @@ export default function AttendanceManagement() {
                 <div className="space-y-6">
                     {/* Metrics Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="p-5 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center justify-between">
+                        <div className="p-5 bg-white rounded-3xl border border-[#e6e6e3] shadow-xs flex items-center justify-between">
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Requests</p>
-                                <h3 className="text-2xl font-black text-slate-900 mt-1">{permissions.length}</h3>
+                                <h3 className="text-2xl font-black text-[#111111] mt-1">{permissions.length}</h3>
                             </div>
-                            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold">
+                            <div className="w-12 h-12 bg-[#f0f0ee] text-[#3f3f3f] rounded-2xl flex items-center justify-center font-bold">
                                 <CalendarDays size={22} />
                             </div>
                         </div>
@@ -802,7 +805,7 @@ export default function AttendanceManagement() {
                     </div>
 
                     {/* Permission Filter Bar */}
-                    <div className="p-5 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
+                    <div className="p-5 bg-white rounded-3xl border border-[#e6e6e3] shadow-xs space-y-4">
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                             
                             {/* Search Input */}
@@ -813,7 +816,7 @@ export default function AttendanceManagement() {
                                     placeholder="Search employee, ID, reason, type..." 
                                     value={permSearchTerm}
                                     onChange={(e) => setPermSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium text-xs text-slate-900"
+                                    className="w-full pl-10 pr-4 py-2.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl focus:bg-white focus:border-[#111111] focus:ring-4 focus:ring-[#111111]/10 outline-none transition-all font-medium text-xs text-[#111111]"
                                 />
                                 {permSearchTerm && (
                                     <button 
@@ -826,7 +829,7 @@ export default function AttendanceManagement() {
                             </div>
 
                             {/* Status Filters Chips */}
-                            <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-2xl text-xs font-bold self-start lg:self-auto">
+                            <div className="flex flex-wrap items-center gap-1.5 bg-[#f0f0ee] p-1 rounded-2xl text-xs font-bold self-start lg:self-auto">
                                 {[
                                     { id: 'all', label: 'All Requests' },
                                     { id: 'Pending', label: `Pending (${pendingPermissionsCount})` },
@@ -840,7 +843,7 @@ export default function AttendanceManagement() {
                                         className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
                                             permStatusFilter === tab.id
                                                 ? 'bg-white text-indigo-700 shadow-xs font-extrabold'
-                                                : 'text-slate-600 hover:text-slate-900'
+                                                : 'text-slate-600 hover:text-[#111111]'
                                         }`}
                                     >
                                         {tab.label}
@@ -852,25 +855,25 @@ export default function AttendanceManagement() {
                         {/* Date Filter for Permissions */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
                             <div className="flex flex-wrap items-center gap-2 text-xs">
-                                <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                                    <CalendarDays className="text-indigo-600" size={14} />
+                                <div className="flex items-center gap-1.5 bg-[#f5f5f3] px-3 py-2 rounded-xl border border-[#e6e6e3]">
+                                    <CalendarDays className="text-[#3f3f3f]" size={14} />
                                     <span className="font-bold text-slate-600">FROM:</span>
                                     <input 
                                         type="date" 
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                                        className="bg-transparent font-bold text-slate-900 outline-none cursor-pointer"
+                                        className="bg-transparent font-bold text-[#111111] outline-none cursor-pointer"
                                     />
                                 </div>
 
-                                <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                                    <CalendarDays className="text-indigo-600" size={14} />
+                                <div className="flex items-center gap-1.5 bg-[#f5f5f3] px-3 py-2 rounded-xl border border-[#e6e6e3]">
+                                    <CalendarDays className="text-[#3f3f3f]" size={14} />
                                     <span className="font-bold text-slate-600">TO:</span>
                                     <input 
                                         type="date" 
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        className="bg-transparent font-bold text-slate-900 outline-none cursor-pointer"
+                                        className="bg-transparent font-bold text-[#111111] outline-none cursor-pointer"
                                     />
                                 </div>
 
@@ -892,11 +895,11 @@ export default function AttendanceManagement() {
                     </div>
 
                     {/* Permissions List / Table */}
-                    <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+                    <div className="hr-view-panel hr-attendance-table">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-wider text-slate-400 bg-slate-50/50">
+                                    <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-wider text-slate-400 bg-[#f5f5f3]/50">
                                         <th className="p-4">Employee</th>
                                         <th className="p-4">Date</th>
                                         <th className="p-4">Duration & Slot</th>
@@ -910,7 +913,7 @@ export default function AttendanceManagement() {
                                     {permLoading ? (
                                         <tr>
                                             <td colSpan="7" className="p-12 text-center text-slate-400 font-medium">
-                                                <RefreshCw className="animate-spin inline-block mr-2 text-indigo-600" size={16} />
+                                                <RefreshCw className="animate-spin inline-block mr-2 text-[#3f3f3f]" size={16} />
                                                 Loading permission requests...
                                             </td>
                                         </tr>
@@ -928,7 +931,7 @@ export default function AttendanceManagement() {
                                             const isUpdating = permUpdatingId === perm._id;
 
                                             return (
-                                                <tr key={perm._id} className="hover:bg-slate-50/60 transition-colors">
+                                                <tr key={perm._id} className="hover:bg-[#f5f5f3]/60 transition-colors">
                                                     {/* Employee Info */}
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
@@ -936,7 +939,7 @@ export default function AttendanceManagement() {
                                                                 {perm.employeeId?.firstName?.charAt(0) || 'E'}{perm.employeeId?.lastName?.charAt(0) || ''}
                                                             </div>
                                                             <div>
-                                                                <div className="font-bold text-slate-900 text-xs">{empName}</div>
+                                                                <div className="font-bold text-[#111111] text-xs">{empName}</div>
                                                                 <div className="text-[10px] text-slate-500 font-mono">
                                                                     {perm.employeeId?.employeeId || 'ID'} • {perm.employeeId?.department || 'General'}
                                                                 </div>
@@ -946,7 +949,7 @@ export default function AttendanceManagement() {
 
                                                     {/* Permission Date */}
                                                     <td className="p-4 whitespace-nowrap">
-                                                        <div className="font-bold text-slate-900">
+                                                        <div className="font-bold text-[#111111]">
                                                             {new Date(perm.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                                                         </div>
                                                         <div className="text-[10px] text-slate-400 font-medium">
@@ -957,12 +960,12 @@ export default function AttendanceManagement() {
                                                     {/* Duration & Slot */}
                                                     <td className="p-4 whitespace-nowrap">
                                                         <div className="flex flex-col gap-1">
-                                                            <span className="px-2.5 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 font-extrabold text-xs rounded-xl flex items-center gap-1.5 w-fit">
+                                                            <span className="px-2.5 py-1 bg-[#f0f0ee] border border-indigo-200 text-indigo-700 font-extrabold text-xs rounded-xl flex items-center gap-1.5 w-fit">
                                                                 <Clock size={12} />
                                                                 <span>{perm.hours} {perm.hours === 1 ? 'Hour' : 'Hours'}</span>
                                                             </span>
                                                             {perm.timeSlot && (
-                                                                <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md w-fit">
+                                                                <span className="text-[10px] font-semibold text-slate-600 bg-[#f0f0ee] px-2 py-0.5 rounded-md w-fit">
                                                                     {perm.timeSlot}
                                                                 </span>
                                                             )}
@@ -971,14 +974,14 @@ export default function AttendanceManagement() {
 
                                                     {/* Type */}
                                                     <td className="p-4 whitespace-nowrap">
-                                                        <span className="px-2.5 py-1 rounded-xl text-[11px] font-bold border bg-slate-50 text-slate-700 border-slate-200">
+                                                        <span className="px-2.5 py-1 rounded-xl text-[11px] font-bold border bg-[#f5f5f3] text-slate-700 border-[#e6e6e3]">
                                                             {perm.type || 'Personal Work'}
                                                         </span>
                                                     </td>
 
                                                     {/* Reason / Description */}
                                                     <td className="p-4 max-w-xs">
-                                                        <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-700 font-medium leading-relaxed">
+                                                        <div className="p-2.5 bg-[#f5f5f3] border border-[#e6e6e3]/80 rounded-xl text-xs text-slate-700 font-medium leading-relaxed">
                                                             {perm.reason}
                                                         </div>
                                                     </td>
@@ -1035,7 +1038,7 @@ export default function AttendanceManagement() {
                                                                         type="button"
                                                                         disabled={isUpdating}
                                                                         onClick={() => handleUpdatePermissionStatus(perm._id, 'Rejected')}
-                                                                        className="px-2.5 py-1 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer"
+                                                                        className="px-2.5 py-1 bg-[#f0f0ee] hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer"
                                                                         title="Revoke and mark as rejected"
                                                                     >
                                                                         Revoke
@@ -1050,7 +1053,7 @@ export default function AttendanceManagement() {
                                                                         type="button"
                                                                         disabled={isUpdating}
                                                                         onClick={() => handleUpdatePermissionStatus(perm._id, 'Approved')}
-                                                                        className="px-2.5 py-1 bg-slate-100 hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer"
+                                                                        className="px-2.5 py-1 bg-[#f0f0ee] hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer"
                                                                         title="Change to Approved"
                                                                     >
                                                                         Re-Approve
@@ -1079,16 +1082,16 @@ export default function AttendanceManagement() {
 
                         {/* PERMISSION REQUESTS PAGINATION FOOTER */}
                         {filteredPermissions.length > PERM_PAGE_SIZE && (
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-slate-200 bg-white">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-[#e6e6e3] bg-white">
                                 <span className="text-xs font-semibold text-slate-500">
-                                    Showing <strong className="text-slate-900">{(validPermPage - 1) * PERM_PAGE_SIZE + 1}</strong>–<strong className="text-slate-900">{Math.min(validPermPage * PERM_PAGE_SIZE, filteredPermissions.length)}</strong> of <strong className="text-slate-900">{filteredPermissions.length}</strong> permission requests
+                                    Showing <strong className="text-[#111111]">{(validPermPage - 1) * PERM_PAGE_SIZE + 1}</strong>–<strong className="text-[#111111]">{Math.min(validPermPage * PERM_PAGE_SIZE, filteredPermissions.length)}</strong> of <strong className="text-[#111111]">{filteredPermissions.length}</strong> permission requests
                                 </span>
                                 <div className="flex items-center space-x-2">
                                     <button 
                                         type="button"
                                         onClick={() => setPermCurrentPage(p => Math.max(1, p - 1))}
                                         disabled={validPermPage <= 1}
-                                        className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                                        className="px-3.5 py-1.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                                     >
                                         <ChevronLeft size={14} /> Previous
                                     </button>
@@ -1099,7 +1102,7 @@ export default function AttendanceManagement() {
                                         type="button"
                                         onClick={() => setPermCurrentPage(p => Math.min(totalPermPages, p + 1))}
                                         disabled={validPermPage >= totalPermPages}
-                                        className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                                        className="px-3.5 py-1.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                                     >
                                         Next <ChevronRight size={14} />
                                     </button>
@@ -1114,23 +1117,23 @@ export default function AttendanceManagement() {
             {deleteModal.isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div 
-                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
+                        className="fixed inset-0 bg-[#111111]/60 backdrop-blur-sm transition-opacity"
                         onClick={() => !isDeleting && setDeleteModal({ isOpen: false, type: '', targetId: null, targetName: '', targetDate: '', count: 0 })}
                     ></div>
                     
-                    <div className="relative z-10 w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden animate-fade-up">
+                    <div className="relative z-10 w-full max-w-md bg-white border border-[#e6e6e3] rounded-3xl shadow-2xl overflow-hidden animate-fade-up">
                         <div className="p-6 text-center">
                             <div className="w-14 h-14 bg-rose-50 border border-rose-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-rose-600 shadow-xs">
                                 <Trash2 size={26} />
                             </div>
 
-                            <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">
+                            <h3 className="text-lg font-black text-[#111111] tracking-tight mb-2">
                                 {deleteModal.type === 'single' ? 'Delete Attendance Record?' :
                                  deleteModal.type === 'filtered' ? `Delete All ${deleteModal.count} Filtered Records?` :
                                  `Delete ${deleteModal.count} Selected Records?`}
                             </h3>
 
-                            <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl mb-6 text-xs text-slate-600 text-left space-y-1">
+                            <div className="p-3 bg-[#f5f5f3] border border-slate-100 rounded-xl mb-6 text-xs text-slate-600 text-left space-y-1">
                                 {deleteModal.type === 'single' ? (
                                     <>
                                         <p><strong className="text-slate-800">Employee:</strong> {deleteModal.targetName}</p>
@@ -1155,7 +1158,7 @@ export default function AttendanceManagement() {
                                     type="button"
                                     disabled={isDeleting}
                                     onClick={() => setDeleteModal({ isOpen: false, type: '', targetId: null, targetName: '', targetDate: '', count: 0 })}
-                                    className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                                    className="px-5 py-2.5 bg-[#f0f0ee] hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
                                 >
                                     Cancel
                                 </button>
@@ -1178,21 +1181,21 @@ export default function AttendanceManagement() {
             {permDeleteModal.isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div 
-                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
+                        className="fixed inset-0 bg-[#111111]/60 backdrop-blur-sm transition-opacity"
                         onClick={() => setPermDeleteModal({ isOpen: false, perm: null })}
                     ></div>
                     
-                    <div className="relative z-10 w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden animate-fade-up">
+                    <div className="relative z-10 w-full max-w-md bg-white border border-[#e6e6e3] rounded-3xl shadow-2xl overflow-hidden animate-fade-up">
                         <div className="p-6 text-center">
                             <div className="w-14 h-14 bg-rose-50 border border-rose-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-rose-600 shadow-xs">
                                 <Trash2 size={26} />
                             </div>
 
-                            <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">
+                            <h3 className="text-lg font-black text-[#111111] tracking-tight mb-2">
                                 Delete Permission Request?
                             </h3>
 
-                            <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl mb-6 text-xs text-slate-600 text-left space-y-1">
+                            <div className="p-3 bg-[#f5f5f3] border border-slate-100 rounded-xl mb-6 text-xs text-slate-600 text-left space-y-1">
                                 <p>
                                     <strong className="text-slate-800">Employee:</strong> {permDeleteModal.perm?.employeeId?.firstName} {permDeleteModal.perm?.employeeId?.lastName}
                                 </p>
@@ -1211,7 +1214,7 @@ export default function AttendanceManagement() {
                                 <button
                                     type="button"
                                     onClick={() => setPermDeleteModal({ isOpen: false, perm: null })}
-                                    className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                                    className="px-5 py-2.5 bg-[#f0f0ee] hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
                                 >
                                     Cancel
                                 </button>

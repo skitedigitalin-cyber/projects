@@ -1,3 +1,4 @@
+import './FinanceLedger.css';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
@@ -175,87 +176,51 @@ export default function CustomerManagement() {
     }) : [];
 
     return (
-        <div className="space-y-6">
+        <div className="finance-customers">
 
             {/* Header: Exact replica of the user's CRM page */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+            <div className="finance-ledger-heading">
                 <div className="flex items-center gap-4">
                     <button 
                         type="button"
                         onClick={() => window.history.back()}
-                        className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold bg-white text-slate-700 border border-slate-200 rounded-full hover:border-blue-500 hover:text-blue-600 transition-all shadow-xs cursor-pointer"
+                        className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold bg-white text-slate-700 border border-slate-200 rounded-full hover:border-blue-500 hover:text-[#3f3f3f] transition-all shadow-xs cursor-pointer"
                     >
                         <ArrowLeft size={18} />
                         <span>Back</span>
                     </button>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-                        <Users size={28} className="text-blue-600" />
-                        <span>Customers (From Invoices)</span>
-                    </h2>
+                    <h2>{summary.totalClients} {summary.totalClients === 1 ? 'customer' : 'customers'} <span>· ₹{summary.totalPending.toLocaleString('en-IN')} pending</span></h2>
                 </div>
 
                 <button 
                     onClick={() => setIsAddModalOpen(true)}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer self-start sm:self-auto"
+                    className="flex items-center gap-2 bg-[#111111] hover:bg-[#303030] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer self-start sm:self-auto"
                 >
                     <Plus size={16} />
                     <span>Add Customer</span>
                 </button>
             </div>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
-                    <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                        <Users size={22} />
-                    </div>
-                    <div>
-                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Clients</span>
-                        <h3 className="text-xl font-black text-slate-900">{summary.totalClients}</h3>
-                    </div>
-                </div>
+            <dl className="finance-receipt-summary finance-customer-summary">
+                <div><dt>Total clients</dt><dd>{summary.totalClients}</dd></div>
+                <div><dt>Billed</dt><dd>₹{summary.totalInvoiced.toLocaleString('en-IN')}</dd></div>
+                <div><dt>Collected</dt><dd>₹{summary.totalCollected.toLocaleString('en-IN')}</dd></div>
+                <div><dt>Pending</dt><dd>₹{summary.totalPending.toLocaleString('en-IN')}</dd></div>
+            </dl>
 
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
-                    <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                        <IndianRupee size={22} />
-                    </div>
-                    <div>
-                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Billed</span>
-                        <h3 className="text-xl font-black text-slate-900">₹{summary.totalInvoiced.toLocaleString('en-IN')}</h3>
-                    </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
-                    <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                        <TrendingUp size={22} />
-                    </div>
-                    <div>
-                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Collected</span>
-                        <h3 className="text-xl font-black text-emerald-600">₹{summary.totalCollected.toLocaleString('en-IN')}</h3>
-                    </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
-                    <div className="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                        <AlertTriangle size={22} />
-                    </div>
-                    <div>
-                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Pending</span>
-                        <h3 className="text-xl font-black text-rose-600">₹{summary.totalPending.toLocaleString('en-IN')}</h3>
-                    </div>
-                </div>
-            </div>
-
+            <div className="finance-ledger" data-editor-open={Boolean(selectedClient)}>
+                <section className="finance-ledger-list" aria-labelledby="customer-invoices-title">
+                    <header className="finance-ledger-heading"><h2 id="customer-invoices-title">Customers</h2><p>From invoices</p></header>
             {/* Search & Filter Toolbar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
                 <div className="relative flex-1 max-w-md">
                     <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 
                         type="text" 
-                        placeholder="Search client name, GST, or address..." 
+                        aria-label="Search customers" placeholder="Search customers"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 outline-none focus:border-[#111111] focus:bg-white transition-all"
                     />
                 </div>
 
@@ -295,7 +260,7 @@ export default function CustomerManagement() {
             {/* Customers Table (Exact 1:1 match with original CRM layout) */}
             <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[950px]">
+                    <table className="w-full text-left border-collapse min-w-[650px]" aria-label="Customers from invoices">
                         <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase text-slate-500 tracking-wider">
                                 <th className="p-4 pl-6">Client Name</th>
@@ -329,7 +294,7 @@ export default function CustomerManagement() {
                                     const pending = Number(client.pendingAmount) || 0;
 
                                     return (
-                                        <tr key={client._id} className="hover:bg-blue-50/30 transition-colors">
+                                        <tr key={client._id} className="hover:bg-[#f0f0ee]/30 transition-colors">
                                             {/* Client Name */}
                                             <td className="p-4 pl-6 font-bold text-slate-900 text-sm">
                                                 {client.customerName}
@@ -389,7 +354,7 @@ export default function CustomerManagement() {
                                                 <button 
                                                     type="button"
                                                     onClick={() => handleOpenDetails(client)}
-                                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-md text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                                                    className="bg-[#111111] hover:bg-[#303030] text-white px-3.5 py-1.5 rounded-md text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                                                 >
                                                     View Details
                                                 </button>
@@ -433,13 +398,9 @@ export default function CustomerManagement() {
                 )}
             </div>
 
-            {/* ========================================================
-                VIEW DETAILS / EDIT MODAL (Exact match with original CRM)
-                ======================================================== */}
-            {selectedClient && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden relative border border-slate-200">
-                        
+                </section>
+                {selectedClient && (
+                    <section className="finance-ledger-editor finance-customer-details" aria-label="Customer details">
                         {/* Close Icon */}
                         <button 
                             type="button"
@@ -483,7 +444,7 @@ export default function CustomerManagement() {
                                             type="text" 
                                             value={editData.customerName} 
                                             onChange={(e) => setEditData({...editData, customerName: e.target.value})} 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-blue-500" 
+                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-[#111111]"
                                         />
                                     ) : (
                                         <span className="font-black text-slate-900 text-sm">{selectedClient.customerName}</span>
@@ -501,7 +462,7 @@ export default function CustomerManagement() {
                                             value={editData.phone} 
                                             onChange={(e) => setEditData({...editData, phone: e.target.value})} 
                                             placeholder="e.g. 9876543210"
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500" 
+                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-[#111111]"
                                         />
                                     ) : (
                                         <span className="text-slate-700 font-medium">{selectedClient.phone || 'N/A'}</span>
@@ -519,7 +480,7 @@ export default function CustomerManagement() {
                                             value={editData.email} 
                                             onChange={(e) => setEditData({...editData, email: e.target.value})} 
                                             placeholder="e.g. client@example.com"
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500" 
+                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-[#111111]"
                                         />
                                     ) : (
                                         <span className="text-slate-700 font-medium">{selectedClient.email || 'N/A'}</span>
@@ -537,7 +498,7 @@ export default function CustomerManagement() {
                                             value={editData.gstNumber} 
                                             onChange={(e) => setEditData({...editData, gstNumber: e.target.value})} 
                                             placeholder="GST Number"
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 outline-none focus:border-blue-500" 
+                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 outline-none focus:border-[#111111]"
                                         />
                                     ) : (
                                         <span className="font-bold text-emerald-800 font-mono">{selectedClient.gstNumber || 'N/A'}</span>
@@ -555,7 +516,7 @@ export default function CustomerManagement() {
                                             value={editData.billingAddress} 
                                             onChange={(e) => setEditData({...editData, billingAddress: e.target.value})} 
                                             placeholder="Full Billing Address"
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500" 
+                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-[#111111]"
                                         />
                                     ) : (
                                         <span className="text-slate-700 leading-relaxed font-medium">
@@ -579,7 +540,7 @@ export default function CustomerManagement() {
                                         type="button"
                                         onClick={handleSaveClientUpdates} 
                                         disabled={savingClient}
-                                        className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-50"
+                                        className="px-5 py-2 bg-[#111111] hover:bg-[#303030] text-white font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-50"
                                     >
                                         <Save size={15} />
                                         <span>{savingClient ? 'Saving...' : 'Save Changes'}</span>
@@ -615,7 +576,7 @@ export default function CustomerManagement() {
                                     <div className="pt-3 border-t border-slate-100">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className="text-[11px] font-black uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
-                                                <FileText size={14} className="text-blue-600" />
+                                                <FileText size={14} className="text-[#3f3f3f]" />
                                                 <span>Invoices History ({clientInvoices.length})</span>
                                             </span>
                                         </div>
@@ -631,7 +592,7 @@ export default function CustomerManagement() {
                                                     return (
                                                         <div key={inv._id} className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-xs">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="font-mono font-bold text-blue-600">{inv.invoiceNumber}</span>
+                                                                <span className="font-mono font-bold text-[#3f3f3f]">{inv.invoiceNumber}</span>
                                                                 <span className="text-[10px] text-slate-400">
                                                                     {inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                                                                 </span>
@@ -675,9 +636,9 @@ export default function CustomerManagement() {
                             </button>
                         </div>
 
-                    </div>
-                </div>
-            )}
+                    </section>
+                )}
+            </div>
 
             {/* ========================================================
                 ADD NEW CUSTOMER MODAL
@@ -701,7 +662,7 @@ export default function CustomerManagement() {
                                     value={newCustomerForm.customerName} 
                                     onChange={e => setNewCustomerForm({...newCustomerForm, customerName: e.target.value, companyName: e.target.value})} 
                                     placeholder="e.g. Acme Corporation" 
-                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-blue-500" 
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-[#111111]"
                                 />
                             </div>
 
@@ -713,7 +674,7 @@ export default function CustomerManagement() {
                                         value={newCustomerForm.gstNumber} 
                                         onChange={e => setNewCustomerForm({...newCustomerForm, gstNumber: e.target.value})} 
                                         placeholder="e.g. 33AAAAA0000A1Z5" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 outline-none focus:border-blue-500" 
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 outline-none focus:border-[#111111]"
                                     />
                                 </div>
                                 <div>
@@ -723,7 +684,7 @@ export default function CustomerManagement() {
                                         value={newCustomerForm.phone} 
                                         onChange={e => setNewCustomerForm({...newCustomerForm, phone: e.target.value})} 
                                         placeholder="e.g. 9876543210" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500" 
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-[#111111]"
                                     />
                                 </div>
                             </div>
@@ -735,7 +696,7 @@ export default function CustomerManagement() {
                                     value={newCustomerForm.email} 
                                     onChange={e => setNewCustomerForm({...newCustomerForm, email: e.target.value})} 
                                     placeholder="e.g. accounts@acme.com" 
-                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500" 
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-[#111111]"
                                 />
                             </div>
 
@@ -746,7 +707,7 @@ export default function CustomerManagement() {
                                     value={newCustomerForm.billingAddress} 
                                     onChange={e => setNewCustomerForm({...newCustomerForm, billingAddress: e.target.value})} 
                                     placeholder="Street address, city, state, pincode" 
-                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-blue-500" 
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-[#111111]"
                                 />
                             </div>
 
@@ -760,7 +721,7 @@ export default function CustomerManagement() {
                                 </button>
                                 <button 
                                     type="submit" 
-                                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+                                    className="px-5 py-2 bg-[#111111] hover:bg-[#303030] text-white font-bold rounded-xl transition-all shadow-md shadow-blue-500/20 cursor-pointer"
                                 >
                                     Create Customer
                                 </button>

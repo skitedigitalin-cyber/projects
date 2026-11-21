@@ -1,3 +1,4 @@
+import './FinanceDocuments.css';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -1043,37 +1044,34 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     // ========================================================
     if (viewMode === 'editor') {
         return (
-            <div className="space-y-6 animate-fade-in text-slate-800">
+            <div className="finance-document-editor">
                 {/* Top Sticky Header Bar */}
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                <div className="finance-document-toolbar flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <button
                             type="button"
                             onClick={() => setViewMode('list')}
-                            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#e6e6e3] bg-white hover:bg-[#f5f5f3] text-slate-700 font-bold text-xs transition-colors cursor-pointer"
                         >
                             <ArrowLeft size={16} />
                             <span>Back to Quotations</span>
                         </button>
                         <div>
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                            <h2 className="text-xl font-black text-[#111111] tracking-tight">
                                 {editId ? `Edit Quotation #${quoteNo}` : 'Create New Quotation'}
                             </h2>
-                            <p className="text-xs text-slate-400 font-medium">
-                                Two-column split workspace • Real-time live interactive preview
-                            </p>
                         </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2.5">
                         {/* Format Switcher (Only for non-Robotriq tenants) */}
                         {!isRobotriq && (
-                            <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold mr-1">
+                            <div className="flex items-center bg-[#f0f0ee] p-1 rounded-xl text-xs font-bold mr-1">
                                 <button
                                     type="button"
                                     onClick={() => handleSwitchFormat('letterhead')}
                                     className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                                        quoteFormat === 'letterhead' ? 'bg-teal-700 text-white shadow-xs font-black' : 'text-slate-600 hover:text-slate-900'
+                                        quoteFormat === 'letterhead' ? 'bg-[#111111] text-white shadow-xs font-black' : 'text-slate-600 hover:text-[#111111]'
                                     }`}
                                     title="2-Page Robotriq Letterhead Format"
                                 >
@@ -1083,7 +1081,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                     type="button"
                                     onClick={() => handleSwitchFormat('standard')}
                                     className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                                        quoteFormat === 'standard' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-600 hover:text-slate-900'
+                                        quoteFormat === 'standard' ? 'bg-white text-[#111111] shadow-xs font-black' : 'text-slate-600 hover:text-[#111111]'
                                     }`}
                                     title="Standard Agency / GST Quotation Template"
                                 >
@@ -1093,12 +1091,12 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         )}
 
                         {/* View Switcher: Split View / Input Tab / Preview Tab */}
-                        <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold mr-1">
+                        <div className="flex items-center bg-[#f0f0ee] p-1 rounded-xl text-xs font-bold mr-1">
                             <button
                                 type="button"
                                 onClick={() => setEditorTab('split')}
                                 className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                                    editorTab === 'split' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                                    editorTab === 'split' ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                                 }`}
                                 title="Split view: Form on left, live preview on right"
                             >
@@ -1109,7 +1107,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                 type="button"
                                 onClick={() => setEditorTab('input')}
                                 className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                                    editorTab === 'input' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                                    editorTab === 'input' ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                                 }`}
                                 title="Show input form full width"
                             >
@@ -1120,7 +1118,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                 type="button"
                                 onClick={() => setEditorTab('preview')}
                                 className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                                    editorTab === 'preview' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                                    editorTab === 'preview' ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                                 }`}
                                 title="Show live interactive preview full width"
                             >
@@ -1135,7 +1133,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                 <button
                                     type="button"
                                     onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-                                    className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#3f3f3f] border border-[#e6e6e3] rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
                                     title="Pre-fill with recurring monthly client template"
                                 >
                                     <Repeat size={13} />
@@ -1143,7 +1141,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                     <ChevronDown size={13} />
                                 </button>
                                 {showTemplateDropdown && (
-                                    <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl z-50 p-1.5 space-y-1 animate-fade-up">
+                                    <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-2xl border border-[#e6e6e3] shadow-xl z-50 p-1.5 space-y-1 animate-fade-up">
                                         <div className="px-2.5 py-1 text-[10px] font-black uppercase text-slate-400 tracking-wider">
                                             Select Fixed Template ({fixedTemplates.length})
                                         </div>
@@ -1152,10 +1150,10 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 key={tmpl._id}
                                                 type="button"
                                                 onClick={() => loadTemplateIntoQuote(tmpl)}
-                                                className="w-full text-left px-2.5 py-2 hover:bg-blue-50 rounded-xl transition-colors cursor-pointer flex items-center justify-between group"
+                                                className="w-full text-left px-2.5 py-2 hover:bg-[#f0f0ee] rounded-xl transition-colors cursor-pointer flex items-center justify-between group"
                                             >
                                                 <div>
-                                                    <span className="font-bold text-xs text-slate-800 group-hover:text-blue-600 block">
+                                                    <span className="font-bold text-xs text-slate-800 group-hover:text-[#3f3f3f] block">
                                                         {tmpl.name}
                                                     </span>
                                                     <span className="text-[10px] text-slate-400 block truncate max-w-[150px]">
@@ -1178,7 +1176,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         <button
                             type="button"
                             onClick={handleWhatsApp}
-                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#25D366] hover:bg-[#1ebd5a] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#111111] rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
                             title="Share quote summary on WhatsApp"
                         >
                             <MessageCircle size={14} />
@@ -1187,7 +1185,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         <button
                             type="button"
                             onClick={handleEmail}
-                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#1A73E8] hover:bg-[#155fc0] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#111111] rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
                             title="Send quotation email"
                         >
                             <Mail size={14} />
@@ -1197,7 +1195,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             type="button"
                             onClick={handleDownloadEditorPdf}
                             disabled={savingQuote}
-                            className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
                             title="Generate crisp vector PDF (~150KB)"
                         >
                             <Download size={14} />
@@ -1207,7 +1205,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             type="button"
                             onClick={handleSaveQuote}
                             disabled={savingQuote}
-                            className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 py-2 bg-[#111111] hover:bg-[#303030] text-white rounded-full text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
                         >
                             {savingQuote ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                             <span>{editId ? 'Update Quotation' : 'Save Quotation'}</span>
@@ -1232,11 +1230,11 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                     }`}>
                         {/* LEFT COLUMN: Letterhead Form Controls (Visible when editorTab is 'split' or 'input') */}
                         {(editorTab === 'split' || editorTab === 'input') && (
-                            <div className={`space-y-6 ${editorTab === 'split' ? 'lg:col-span-5' : 'max-w-4xl mx-auto w-full'}`}>
+                            <div className={`finance-document-inputs space-y-6 min-w-0 ${editorTab === 'split' ? 'lg:col-span-5' : 'max-w-4xl mx-auto w-full'}`}>
                                 {/* Card 1: Quotation & Client Details */}
-                                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                                <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
                                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                        <h3 className="text-sm font-black text-teal-700 uppercase tracking-wider flex items-center gap-2">
+                                        <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2">
                                             <Building2 size={16} />
                                             <span>Quotation & Client Details</span>
                                         </h3>
@@ -1253,7 +1251,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 value={letterheadData.quotationNo || ''} 
                                                 onChange={(e) => handleLetterheadChange('quotationNo', e.target.value)} 
                                                 placeholder="e.g. RQ/2026/101" 
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold focus:outline-none focus:border-teal-500"
+                                                className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold focus:outline-none focus:border-teal-500"
                                             />
                                         </div>
                                         <div>
@@ -1263,7 +1261,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 value={letterheadData.date || ''} 
                                                 onChange={(e) => handleLetterheadChange('date', e.target.value)} 
                                                 placeholder="DD/MM/YYYY" 
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-teal-500"
+                                                className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-medium text-[#111111] focus:outline-none focus:border-teal-500"
                                             />
                                         </div>
                                         <div>
@@ -1273,7 +1271,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 value={letterheadData.reference || ''} 
                                                 onChange={(e) => handleLetterheadChange('reference', e.target.value)} 
                                                 placeholder="e.g. ATLAS MACHINE TOOLS" 
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-teal-500"
+                                                className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-bold text-[#111111] focus:outline-none focus:border-teal-500"
                                             />
                                         </div>
                                         <div>
@@ -1283,7 +1281,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 value={letterheadData.customerName || ''} 
                                                 onChange={(e) => handleLetterheadChange('customerName', e.target.value)} 
                                                 placeholder="e.g. Mr. Abilash" 
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-teal-500"
+                                                className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-medium text-[#111111] focus:outline-none focus:border-teal-500"
                                             />
                                         </div>
                                         <div>
@@ -1293,7 +1291,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 value={letterheadData.application || ''} 
                                                 onChange={(e) => handleLetterheadChange('application', e.target.value)} 
                                                 placeholder="e.g. DRILLING SPM" 
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-teal-500"
+                                                className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-medium text-[#111111] focus:outline-none focus:border-teal-500"
                                             />
                                         </div>
                                         <div>
@@ -1303,23 +1301,23 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 value={letterheadData.phone || ''} 
                                                 onChange={(e) => handleLetterheadChange('phone', e.target.value)} 
                                                 placeholder="e.g. 9876543210" 
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-teal-500"
+                                                className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-medium text-[#111111] focus:outline-none focus:border-teal-500"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Card 2: Components & Items */}
-                                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                                <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
                                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                        <h3 className="text-sm font-black text-teal-700 uppercase tracking-wider flex items-center gap-2">
+                                        <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2">
                                             <Columns size={16} />
                                             <span>Components Table ({letterheadData.items?.length || 0})</span>
                                         </h3>
                                         <button
                                             type="button"
                                             onClick={handleAddLetterheadItem}
-                                            className="flex items-center gap-1 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                            className="flex items-center gap-1 px-3 py-1.5 bg-teal-600 hover:bg-[#111111] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
                                         >
                                             <Plus size={13} />
                                             <span>Add Component</span>
@@ -1328,7 +1326,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
 
                                     <div className="space-y-3">
                                         {(letterheadData.items || []).map((item, idx) => (
-                                            <div key={idx} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5 relative group">
+                                            <div key={idx} className="p-3.5 bg-[#f5f5f3] rounded-xl border border-[#e6e6e3] space-y-2.5 relative group">
                                                 <div className="flex items-center justify-between">
                                                     <span className="font-bold text-xs text-slate-700">Component #{idx + 1}</span>
                                                     {letterheadData.items.length > 1 && (
@@ -1350,7 +1348,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                         value={item.componentText || ''}
                                                         onChange={(e) => handleLetterheadItemChange(idx, 'componentText', e.target.value)}
                                                         placeholder="DELTA PLC DVP12SE11T - 1NOS..."
-                                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-900 bg-white focus:outline-none focus:border-teal-500"
+                                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-lg text-xs font-medium text-[#111111] bg-white focus:outline-none focus:border-teal-500"
                                                     />
                                                 </div>
 
@@ -1362,7 +1360,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                             value={item.make || ''}
                                                             onChange={(e) => handleLetterheadItemChange(idx, 'make', e.target.value)}
                                                             placeholder="DELTA"
-                                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white focus:outline-none focus:border-teal-500"
+                                                            className="w-full px-2.5 py-1.5 border border-[#e6e6e3] rounded-lg text-xs text-[#111111] bg-white focus:outline-none focus:border-teal-500"
                                                         />
                                                     </div>
                                                     <div>
@@ -1372,7 +1370,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                             value={item.specifics || ''}
                                                             onChange={(e) => handleLetterheadItemChange(idx, 'specifics', e.target.value)}
                                                             placeholder="440VAC"
-                                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white focus:outline-none focus:border-teal-500"
+                                                            className="w-full px-2.5 py-1.5 border border-[#e6e6e3] rounded-lg text-xs text-[#111111] bg-white focus:outline-none focus:border-teal-500"
                                                         />
                                                     </div>
                                                     <div>
@@ -1381,7 +1379,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                             type="number"
                                                             value={item.qty != null ? item.qty : 1}
                                                             onChange={(e) => handleLetterheadItemChange(idx, 'qty', e.target.value)}
-                                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white text-center font-bold focus:outline-none focus:border-teal-500"
+                                                            className="w-full px-2.5 py-1.5 border border-[#e6e6e3] rounded-lg text-xs text-[#111111] bg-white text-center font-bold focus:outline-none focus:border-teal-500"
                                                         />
                                                     </div>
                                                     <div>
@@ -1391,7 +1389,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                             value={item.price || ''}
                                                             onChange={(e) => handleLetterheadItemChange(idx, 'price', e.target.value)}
                                                             placeholder="0.00"
-                                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white text-right font-bold focus:outline-none focus:border-teal-500"
+                                                            className="w-full px-2.5 py-1.5 border border-[#e6e6e3] rounded-lg text-xs text-[#111111] bg-white text-right font-bold focus:outline-none focus:border-teal-500"
                                                         />
                                                     </div>
                                                 </div>
@@ -1401,8 +1399,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                 </div>
 
                                 {/* Card 3: Commercials & Taxes */}
-                                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                                    <h3 className="text-sm font-black text-teal-700 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
+                                    <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                                         <DollarSign size={16} />
                                         <span>Commercials & Taxes</span>
                                     </h3>
@@ -1414,7 +1412,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 type="text"
                                                 value={letterheadData.specNote || ''}
                                                 onChange={(e) => handleLetterheadChange('specNote', e.target.value)}
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold text-red-600 focus:outline-none focus:border-teal-500"
+                                                className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-bold text-red-600 focus:outline-none focus:border-teal-500"
                                             />
                                         </div>
 
@@ -1425,7 +1423,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                     type="text"
                                                     value={letterheadData.transportAmountStr || '0.00'}
                                                     onChange={(e) => handleLetterheadChange('transportAmountStr', e.target.value)}
-                                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold focus:outline-none focus:border-teal-500"
+                                                    className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold focus:outline-none focus:border-teal-500"
                                                 />
                                             </div>
                                             <div>
@@ -1434,7 +1432,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                     type="number"
                                                     value={letterheadData.gstPercent != null ? letterheadData.gstPercent : 18}
                                                     onChange={(e) => handleLetterheadChange('gstPercent', Number(e.target.value))}
-                                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold focus:outline-none focus:border-teal-500"
+                                                    className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold focus:outline-none focus:border-teal-500"
                                                 />
                                             </div>
                                             <div>
@@ -1443,7 +1441,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                     type="text"
                                                     value={letterheadData.validityDays || '15'}
                                                     onChange={(e) => handleLetterheadChange('validityDays', e.target.value)}
-                                                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold text-center focus:outline-none focus:border-teal-500"
+                                                    className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold text-center focus:outline-none focus:border-teal-500"
                                                 />
                                             </div>
                                         </div>
@@ -1452,15 +1450,15 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                         <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-xl space-y-2">
                                             <div className="flex justify-between items-center text-slate-700 font-semibold">
                                                 <span>Components Total:</span>
-                                                <span className="font-mono font-bold text-slate-900">₹{letterheadData.totalAmountStr || '0.00'}</span>
+                                                <span className="font-mono font-bold text-[#111111]">₹{letterheadData.totalAmountStr || '0.00'}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-slate-700 font-semibold">
                                                 <span>Transport:</span>
-                                                <span className="font-mono font-bold text-slate-900">₹{letterheadData.transportAmountStr || '0.00'}</span>
+                                                <span className="font-mono font-bold text-[#111111]">₹{letterheadData.transportAmountStr || '0.00'}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-slate-700 font-semibold">
                                                 <span>GST ({letterheadData.gstPercent || 18}%):</span>
-                                                <span className="font-mono font-bold text-slate-900">₹{letterheadData.gstAmountStr || '0.00'}</span>
+                                                <span className="font-mono font-bold text-[#111111]">₹{letterheadData.gstAmountStr || '0.00'}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-base font-black text-teal-900 pt-2 border-t border-teal-200">
                                                 <span>NET QUOTE AMOUNT:</span>
@@ -1475,7 +1473,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         {/* RIGHT COLUMN: Live Interactive Letterhead Canvas (Visible when editorTab is 'split' or 'preview') */}
                         {(editorTab === 'split' || editorTab === 'preview') && (
                             <div className={`${editorTab === 'split' ? 'lg:col-span-7' : 'max-w-5xl mx-auto w-full'} flex flex-col items-center`}>
-                                <div className="w-full flex items-center justify-between p-3.5 bg-slate-900 text-white rounded-2xl shadow-xs mb-4">
+                                <div className="w-full flex items-center justify-between p-3.5 bg-[#111111] text-white rounded-2xl shadow-xs mb-4">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></div>
                                         <span className="text-xs font-black tracking-wide uppercase">2-Page Interactive Letterhead Canvas</span>
@@ -1509,11 +1507,11 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                     
                     {/* LEFT COLUMN: FORM INPUTS (Visible when editorTab is 'split' or 'input') */}
                     {(editorTab === 'split' || editorTab === 'input') && (
-                        <div className={`space-y-6 ${editorTab === 'input' ? 'max-w-4xl mx-auto w-full' : ''}`}>
+                        <div className={`finance-document-inputs space-y-6 min-w-0 ${editorTab === 'input' ? 'max-w-4xl mx-auto w-full' : ''}`}>
                             
                             {/* Section 1: Quotation Meta */}
-                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                                <h3 className="text-sm font-black text-blue-600 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                            <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
+                                <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                                     <FileText size={16} />
                                     <span>Quotation Details</span>
                                 </h3>
@@ -1526,7 +1524,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             value={quoteNo} 
                                             onChange={(e) => setQuoteNo(e.target.value)} 
                                             placeholder="e.g. QT-001" 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold focus:outline-none focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
                                     <div>
@@ -1536,7 +1534,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             value={refNo} 
                                             onChange={(e) => setRefNo(e.target.value)} 
                                             placeholder="Optional (e.g. R1)" 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-medium text-[#111111] focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
                                     <div>
@@ -1545,7 +1543,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             type="date" 
                                             value={quoteDate} 
                                             onChange={(e) => setQuoteDate(e.target.value)} 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-medium text-[#111111] focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
                                     <div>
@@ -1554,15 +1552,15 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             type="date" 
                                             value={validUntil} 
                                             onChange={(e) => setValidUntil(e.target.value)} 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-medium text-[#111111] focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             {/* Section 2: Quoted To (Client Details) */}
-                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                                <h3 className="text-sm font-black text-blue-600 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                            <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
+                                <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                                     <User size={16} />
                                     <span>Quote To (Client Details)</span>
                                 </h3>
@@ -1582,13 +1580,13 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             }} 
                                             onFocus={() => setShowClientDropdown(true)}
                                             placeholder="Type or select client name..." 
-                                            className="w-full pl-3 pr-10 py-2.5 border border-slate-200 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-500"
+                                            className="w-full pl-3 pr-10 py-2.5 border border-[#e6e6e3] rounded-xl font-bold text-[#111111] focus:outline-none focus:border-[#111111]"
                                         />
                                         <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                     </div>
 
                                     {showClientDropdown && (
-                                        <div className="absolute top-full left-0 right-0 z-30 bg-white border border-slate-200 rounded-xl mt-1 max-h-52 overflow-y-auto shadow-xl">
+                                        <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 max-h-52 overflow-y-auto shadow-xl">
                                             {customers
                                                 .filter(c => (c.customerName || '').toLowerCase().includes(customerName.toLowerCase()) || 
                                                              (c.companyName || '').toLowerCase().includes(customerName.toLowerCase()))
@@ -1596,11 +1594,11 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                     <div 
                                                         key={c._id || i}
                                                         onClick={() => handleSelectCustomer(c)}
-                                                        className="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs transition-colors"
+                                                        className="p-3 hover:bg-[#f0f0ee] cursor-pointer border-b border-slate-100 last:border-0 text-xs transition-colors"
                                                     >
-                                                        <div className="font-bold text-slate-900">{c.customerName || c.companyName}</div>
+                                                        <div className="font-bold text-[#111111]">{c.customerName || c.companyName}</div>
                                                         <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
-                                                            {c.gstNumber && <span className="font-mono text-blue-600">GST: {c.gstNumber}</span>}
+                                                            {c.gstNumber && <span className="font-mono text-[#3f3f3f]">GST: {c.gstNumber}</span>}
                                                             {c.phone && <span>Ph: {c.phone}</span>}
                                                         </div>
                                                     </div>
@@ -1620,7 +1618,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             value={customerGst} 
                                             onChange={(e) => setCustomerGst(e.target.value)} 
                                             placeholder="e.g. 33AAAAA0000A1Z5" 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 uppercase focus:outline-none focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] uppercase focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
                                     <div>
@@ -1630,7 +1628,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             value={customerPhone} 
                                             onChange={(e) => setCustomerPhone(e.target.value)} 
                                             placeholder="e.g. 9876543210" 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
                                     <div>
@@ -1640,7 +1638,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             value={customerEmail} 
                                             onChange={(e) => setCustomerEmail(e.target.value)} 
                                             placeholder="e.g. client@company.com" 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
                                 </div>
@@ -1652,22 +1650,22 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                         value={address} 
                                         onChange={(e) => setAddress(e.target.value)} 
                                         placeholder="Street, Area, City, Pincode" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500 leading-relaxed"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111] leading-relaxed"
                                     />
                                 </div>
                             </div>
 
                             {/* Section 3: Quotation Items & Packages */}
-                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                            <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
                                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                    <h3 className="text-sm font-black text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                                    <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2">
                                         <Sparkles size={16} />
                                         <span>Packages & Services</span>
                                     </h3>
                                     <button 
                                         type="button" 
                                         onClick={handleAddItem}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#3f3f3f] rounded-xl text-xs font-bold transition-all cursor-pointer"
                                     >
                                         <Plus size={14} />
                                         <span>Add Package / Item</span>
@@ -1676,11 +1674,11 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
 
                                 <div className="space-y-4">
                                     {items.map((item, idx) => (
-                                        <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3 relative group">
+                                        <div key={idx} className="p-4 rounded-xl border border-[#e6e6e3] bg-[#f5f5f3]/50 space-y-3 relative group">
                                             {/* Item Header & Quick Service Presets */}
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px]">
+                                                    <span className="w-5 h-5 rounded-full bg-[#e6e6e3] text-[#3f3f3f] flex items-center justify-center font-bold text-[10px]">
                                                         {idx + 1}
                                                     </span>
                                                     <span className="text-xs font-bold text-slate-700">Package / Service #{idx + 1}</span>
@@ -1691,7 +1689,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                     <button
                                                         type="button"
                                                         onClick={() => setActiveServiceDropdownIndex(activeServiceDropdownIndex === idx ? null : idx)}
-                                                        className="flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 hover:border-blue-400 text-slate-700 rounded-lg text-[11px] font-bold shadow-2xs transition-colors cursor-pointer"
+                                                        className="flex items-center gap-1 px-2.5 py-1 bg-white border border-[#e6e6e3] hover:border-blue-400 text-slate-700 rounded-lg text-[11px] font-bold shadow-2xs transition-colors cursor-pointer"
                                                     >
                                                         <Sparkles size={12} className="text-blue-500" />
                                                         <span>Quick Pick Service</span>
@@ -1699,12 +1697,12 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                     </button>
 
                                                     {activeServiceDropdownIndex === idx && (
-                                                        <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-xl z-30 max-h-56 overflow-y-auto text-xs py-1">
+                                                        <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-[#e6e6e3] rounded-xl shadow-xl z-30 max-h-56 overflow-y-auto text-xs py-1">
                                                             {PRESET_SERVICES.map((srv, sIdx) => (
                                                                 <div
                                                                     key={sIdx}
                                                                     onClick={() => handleSelectPresetService(idx, srv)}
-                                                                    className="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
+                                                                    className="px-3 py-2 hover:bg-[#f0f0ee] cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
                                                                 >
                                                                     <div className="font-bold text-slate-800">{srv.name}</div>
                                                                     <div className="text-[10px] text-slate-400 font-mono mt-0.5">HSN: {srv.hsn}</div>
@@ -1726,7 +1724,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                         value={item.description} 
                                                         onChange={(e) => handleItemChange(idx, 'description', e.target.value)} 
                                                         placeholder="e.g. ULTRA FAST WORDPRESS & REACT WEBSITE" 
-                                                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-500"
+                                                        className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl font-bold text-[#111111] focus:outline-none focus:border-[#111111]"
                                                     />
                                                 </div>
                                                 <div className="sm:col-span-4">
@@ -1738,7 +1736,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                         value={item.hsn} 
                                                         onChange={(e) => handleItemChange(idx, 'hsn', e.target.value)} 
                                                         placeholder="998314 or Monthly" 
-                                                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-mono text-slate-700 text-xs focus:outline-none focus:border-blue-500"
+                                                        className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl font-mono text-slate-700 text-xs focus:outline-none focus:border-[#111111]"
                                                     />
                                                 </div>
                                             </div>
@@ -1754,7 +1752,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                     value={item.subDescription} 
                                                     onChange={(e) => handleItemChange(idx, 'subDescription', e.target.value)} 
                                                     placeholder="• 5 Custom Designed Responsive Pages&#10;• Cloudflare CDN & SSL Certificate&#10;• WhatsApp Chat & Contact Form Integration" 
-                                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-medium text-slate-700 text-xs leading-relaxed focus:outline-none focus:border-blue-500"
+                                                    className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl font-medium text-slate-700 text-xs leading-relaxed focus:outline-none focus:border-[#111111]"
                                                 />
                                             </div>
 
@@ -1768,7 +1766,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                         value={item.price} 
                                                         onChange={(e) => handleItemChange(idx, 'price', e.target.value)} 
                                                         placeholder="0" 
-                                                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-500"
+                                                        className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl font-mono font-bold text-[#111111] focus:outline-none focus:border-[#111111]"
                                                     />
                                                 </div>
                                                 <div className="col-span-3">
@@ -1779,12 +1777,12 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                         value={item.qty} 
                                                         onChange={(e) => handleItemChange(idx, 'qty', e.target.value)} 
                                                         placeholder="1" 
-                                                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-mono font-bold text-center text-slate-900 focus:outline-none focus:border-blue-500"
+                                                        className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl font-mono font-bold text-center text-[#111111] focus:outline-none focus:border-[#111111]"
                                                     />
                                                 </div>
                                                 <div className="col-span-4">
                                                     <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Total</label>
-                                                    <div className="w-full px-3 py-2 bg-orange-50/50 border border-orange-100 rounded-xl font-mono font-black text-slate-900 text-xs">
+                                                    <div className="w-full px-3 py-2 bg-orange-50/50 border border-orange-100 rounded-xl font-mono font-black text-[#111111] text-xs">
                                                         ₹{((Number(item.price) || 0) * (Number(item.qty) || 1)).toLocaleString('en-IN')}
                                                     </div>
                                                 </div>
@@ -1806,8 +1804,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             </div>
 
                             {/* Section 4: Summary, Taxes & Terms */}
-                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                                <h3 className="text-sm font-black text-blue-600 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                            <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
+                                <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                                     <DollarSign size={16} />
                                     <span>Taxes & Terms & Conditions</span>
                                 </h3>
@@ -1822,23 +1820,23 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             rows={5} 
                                             value={terms} 
                                             onChange={(e) => setTerms(e.target.value)} 
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs leading-relaxed focus:outline-none focus:border-blue-500"
+                                            className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] font-medium text-xs leading-relaxed focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
 
                                     {/* Calculations Box */}
-                                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3 text-xs">
+                                    <div className="p-4 bg-[#f5f5f3] rounded-2xl border border-[#e6e6e3]/80 space-y-3 text-xs">
                                         <div className="flex justify-between items-center text-slate-600 font-semibold">
                                             <span>Subtotal</span>
-                                            <span className="font-mono text-slate-900 font-bold">₹{totals.subtotal.toLocaleString('en-IN')}</span>
+                                            <span className="font-mono text-[#111111] font-bold">₹{totals.subtotal.toLocaleString('en-IN')}</span>
                                         </div>
 
-                                        <div className="flex justify-between items-center text-slate-600 font-semibold pt-2 border-t border-slate-200">
+                                        <div className="flex justify-between items-center text-slate-600 font-semibold pt-2 border-t border-[#e6e6e3]">
                                             <span>GST Tax Rate</span>
                                             <select 
                                                 value={taxRate} 
                                                 onChange={(e) => setTaxRate(Number(e.target.value))}
-                                                className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 text-xs focus:outline-none focus:border-blue-500"
+                                                className="px-2.5 py-1 bg-white border border-[#e6e6e3] rounded-lg font-bold text-slate-800 text-xs focus:outline-none focus:border-[#111111]"
                                             >
                                                 <option value="18">18% (9% CGST + 9% SGST)</option>
                                                 <option value="12">12% (6% CGST + 6% SGST)</option>
@@ -1860,9 +1858,9 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             </>
                                         )}
 
-                                        <div className="pt-2 border-t border-slate-200 flex justify-between items-center text-sm font-black text-slate-900">
-                                            <span className="text-blue-600">TOTAL QUOTED VALUE</span>
-                                            <span className="text-blue-600 font-mono text-base">₹{totals.grandTotal.toLocaleString('en-IN')}</span>
+                                        <div className="pt-2 border-t border-[#e6e6e3] flex justify-between items-center text-sm font-black text-[#111111]">
+                                            <span className="text-[#3f3f3f]">TOTAL QUOTED VALUE</span>
+                                            <span className="text-[#3f3f3f] font-mono text-base">₹{totals.grandTotal.toLocaleString('en-IN')}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1874,20 +1872,20 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                     {(editorTab === 'split' || editorTab === 'preview') && (
                         <div className={`space-y-4 ${
                             editorTab === 'split' 
-                                ? 'sticky top-6' 
+                                ? 'lg:sticky top-6 min-w-0'
                                 : 'max-w-4xl mx-auto w-full'
                         }`}>
                             {/* Preview Control Header */}
-                            <div className="flex items-center justify-between p-3.5 bg-slate-900 text-white rounded-2xl shadow-xs">
+                            <div className="flex items-center justify-between p-3.5 bg-[#111111] text-white rounded-2xl shadow-xs">
                                 <div className="flex items-center gap-2">
                                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                                    <span className="text-xs font-black tracking-wide uppercase">Live Interactive Preview</span>
+                                    <span className="text-xs font-black tracking-wide uppercase">Live preview · A4</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
                                         type="button"
                                         onClick={handleDownloadEditorPdf}
-                                        className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
+                                        className="px-2.5 py-1 bg-[#111111] hover:bg-[#303030] text-white rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
                                     >
                                         <Download size={12} />
                                         <span>PDF</span>
@@ -1896,7 +1894,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             </div>
 
                             {/* Rendered Card */}
-                            <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm bg-slate-50/50 p-2 sm:p-4">
+                            <div className="rounded-2xl border border-[#e6e6e3] overflow-hidden shadow-sm bg-[#f5f5f3]/50 p-2 sm:p-4">
                                 <QuoteRenderer 
                                     quote={currentPreviewData} 
                                     company={company} 
@@ -1915,71 +1913,35 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     // RENDER: QUOTATIONS LIST TABLE (VIEW MODE = 'LIST')
     // ========================================================
     return (
-        <div className="space-y-6">
-            {/* Top Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
-                    <div>
-                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Quotations</div>
-                        <div className="text-2xl font-black text-slate-900 mt-1">{quotes.length}</div>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-                        <FileCheck size={20} />
-                    </div>
-                </div>
-
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
-                    <div>
-                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Quoted Value</div>
-                        <div className="text-2xl font-black text-slate-900 mt-1">₹{totalRevenue.toLocaleString('en-IN')}</div>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                        <DollarSign size={20} />
-                    </div>
-                </div>
-
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
-                    <div>
-                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">GST Quotes</div>
-                        <div className="text-2xl font-black text-blue-600 mt-1">{gstCount}</div>
-                        <div className="text-[11px] text-slate-500 font-medium">₹{gstRevenue.toLocaleString('en-IN')}</div>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                        <FileText size={20} />
-                    </div>
-                </div>
-
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
-                    <div>
-                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Non-GST Quotes</div>
-                        <div className="text-2xl font-black text-slate-800 mt-1">{nonGstCount}</div>
-                        <div className="text-[11px] text-slate-500 font-medium">₹{nonGstRevenue.toLocaleString('en-IN')}</div>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-bold">
-                        <CheckCircle size={20} />
-                    </div>
-                </div>
-            </div>
-
+        <div className="finance-document-list">
+            <header className="finance-document-heading">
+                <h2>{quotes.length} {quotes.length === 1 ? 'quotation' : 'quotations'} <span>· ₹{totalRevenue.toLocaleString('en-IN')} quoted</span></h2>
+            </header>
+            <dl className="finance-receipt-summary finance-quote-summary">
+                <div><dt>Total quotations</dt><dd>{quotes.length}</dd></div>
+                <div><dt>Quoted value</dt><dd>₹{totalRevenue.toLocaleString('en-IN')}</dd></div>
+                <div><dt>GST</dt><dd>{gstCount}</dd><small>₹{gstRevenue.toLocaleString('en-IN')}</small></div>
+                <div><dt>Non-GST</dt><dd>{nonGstCount}</dd><small>₹{nonGstRevenue.toLocaleString('en-IN')}</small></div>
+            </dl>
             {/* Action Bar */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="bg-white p-4 rounded-2xl border border-[#e6e6e3] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                     <div className="relative w-full sm:w-72">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                         <input 
                             type="text" 
-                            placeholder="Search quote no, client..." 
+                            aria-label="Search quotations" placeholder="Search quotations"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium outline-none focus:bg-white focus:border-blue-500 transition-colors"
+                            className="w-full pl-9 pr-4 py-2 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl text-xs font-medium outline-none focus:bg-white focus:border-[#111111] transition-colors"
                         />
                     </div>
 
-                    <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                    <div className="flex items-center bg-[#f0f0ee] p-1 rounded-xl text-xs font-bold">
                         <button
                             onClick={() => setGstFilter('ALL')}
                             className={`px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                                gstFilter === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                                gstFilter === 'ALL' ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                             }`}
                         >
                             All Quotes ({quotes.length})
@@ -1987,7 +1949,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         <button
                             onClick={() => setGstFilter('GST')}
                             className={`px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer ${
-                                gstFilter === 'GST' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                                gstFilter === 'GST' ? 'bg-[#111111] text-white shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                             }`}
                         >
                             <span>GST Quotes</span>
@@ -2000,7 +1962,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         <button
                             onClick={() => setGstFilter('NONGST')}
                             className={`px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer ${
-                                gstFilter === 'NONGST' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                                gstFilter === 'NONGST' ? 'bg-[#111111] text-white shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                             }`}
                         >
                             <span>Non-GST Quotes</span>
@@ -2020,7 +1982,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             <button
                                 type="button"
                                 onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-                                className="px-3.5 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-2xs"
+                                className="px-3.5 py-2.5 bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#3f3f3f] border border-[#e6e6e3] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-2xs"
                                 title="Instantly create quotation from recurring client template"
                             >
                                 <Repeat size={14} />
@@ -2028,7 +1990,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                 <ChevronDown size={14} />
                             </button>
                             {showTemplateDropdown && (
-                                <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl z-50 p-1.5 space-y-1 animate-fade-up">
+                                <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-2xl border border-[#e6e6e3] shadow-xl z-50 p-1.5 space-y-1 animate-fade-up">
                                     <div className="px-2.5 py-1 text-[10px] font-black uppercase text-slate-400 tracking-wider">
                                         Fixed Monthly Clients ({fixedTemplates.length})
                                     </div>
@@ -2037,10 +1999,10 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             key={tmpl._id}
                                             type="button"
                                             onClick={() => loadTemplateIntoQuote(tmpl)}
-                                            className="w-full text-left px-2.5 py-2 hover:bg-blue-50 rounded-xl transition-colors cursor-pointer flex items-center justify-between group"
+                                            className="w-full text-left px-2.5 py-2 hover:bg-[#f0f0ee] rounded-xl transition-colors cursor-pointer flex items-center justify-between group"
                                         >
                                             <div>
-                                                <span className="font-bold text-xs text-slate-800 group-hover:text-blue-600 block">
+                                                <span className="font-bold text-xs text-slate-800 group-hover:text-[#3f3f3f] block">
                                                     {tmpl.name}
                                                 </span>
                                                 <span className="text-[10px] text-slate-400 block truncate max-w-[150px]">
@@ -2062,7 +2024,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                     {/* Create Quotation Button: Opens Workspace! */}
                     <button 
                         onClick={() => handleOpenCreateEditor(isRobotriq ? 'letterhead' : 'standard')}
-                        className="w-full sm:w-auto px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black flex items-center justify-center transition-all shadow-md shadow-teal-500/20 cursor-pointer"
+                        className="w-full sm:w-auto px-5 py-2.5 bg-[#111111] hover:bg-[#303030] text-white rounded-full text-xs font-medium flex items-center justify-center transition-colors cursor-pointer"
                     >
                         <Plus size={16} className="mr-1.5" /> Create Quotation
                     </button>
@@ -2070,10 +2032,10 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
             </div>
 
             {/* Quotations Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="bg-white rounded-2xl border border-[#e6e6e3] shadow-xs overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs whitespace-nowrap">
-                        <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                        <thead className="bg-[#f5f5f3] text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-[#e6e6e3]">
                             <tr>
                                 <th className="py-3 px-4">Quote No</th>
                                 <th className="py-3 px-4">Client Name</th>
@@ -2100,8 +2062,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                 </tr>
                             ) : (
                                 paginatedQuotes.map(quote => (
-                                    <tr key={quote._id} className="hover:bg-slate-50/60 transition-colors">
-                                        <td className="py-3.5 px-4 font-mono font-bold text-blue-600">
+                                    <tr key={quote._id} className="hover:bg-[#f5f5f3]/60 transition-colors">
+                                        <td className="py-3.5 px-4 font-mono font-bold text-[#3f3f3f]">
                                             {quote.quoteNo}
                                             {quote.refNo && <span className="ml-1 text-[10px] text-slate-400">({quote.refNo})</span>}
                                             {quote.templateType === 'letterhead' && (
@@ -2111,7 +2073,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             )}
                                         </td>
                                         <td className="py-3.5 px-4">
-                                            <div className="font-bold text-slate-900">
+                                            <div className="font-bold text-[#111111]">
                                                 {quote.clientDetails?.name || quote.customData?.reference || quote.customData?.customerName || 'N/A'}
                                             </div>
                                             {quote.customData?.reference && quote.customData?.customerName && (
@@ -2125,7 +2087,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             {quote.date ? new Date(quote.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
                                         </td>
                                         <td className="py-3.5 px-4">
-                                            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px]">
+                                            <span className="px-2 py-0.5 rounded-md bg-[#f0f0ee] text-slate-700 font-bold text-[10px]">
                                                 {quote.items?.length || 0} Items
                                             </span>
                                         </td>
@@ -2135,7 +2097,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                         <td className="py-3.5 px-4 font-medium text-slate-500">
                                             ₹{(quote.taxAmount || 0).toLocaleString('en-IN')}
                                         </td>
-                                        <td className="py-3.5 px-4 font-bold text-slate-900 text-sm">
+                                        <td className="py-3.5 px-4 font-bold text-[#111111] text-sm">
                                             ₹{(quote.grandTotal || 0).toLocaleString('en-IN')}
                                         </td>
                                         <td className="py-3.5 px-4">
@@ -2146,7 +2108,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 {/* View Modal */}
                                                 <button 
                                                     onClick={() => setViewingQuote(quote)}
-                                                    className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                                                    className="p-1.5 rounded-lg border border-[#e6e6e3] text-slate-600 hover:text-[#3f3f3f] hover:bg-[#f0f0ee] transition-colors cursor-pointer"
                                                     title="Quick View Quotation"
                                                 >
                                                     <Eye size={14} />
@@ -2156,7 +2118,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 <button 
                                                     onClick={() => handleDownloadRowPdf(quote)}
                                                     disabled={rowDownloadingId === quote._id}
-                                                    className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-40"
+                                                    className="p-1.5 rounded-lg border border-[#e6e6e3] text-slate-600 hover:text-[#3f3f3f] hover:bg-[#f0f0ee] transition-colors cursor-pointer disabled:opacity-40"
                                                     title="Download Vector PDF"
                                                 >
                                                     {rowDownloadingId === quote._id ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
@@ -2165,7 +2127,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 {/* Edit in Workspace */}
                                                 <button 
                                                     onClick={() => handleOpenEditEditor(quote)}
-                                                    className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                                                    className="p-1.5 rounded-lg border border-[#e6e6e3] text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
                                                     title="Edit in Workspace"
                                                 >
                                                     <Pencil size={14} />
@@ -2174,7 +2136,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 {/* Delete */}
                                                 <button 
                                                     onClick={() => handleDeleteQuote(quote._id)}
-                                                    className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                                    className="p-1.5 rounded-lg border border-[#e6e6e3] text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                                                     title="Delete Quotation"
                                                 >
                                                     <Trash2 size={14} />
@@ -2190,7 +2152,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
 
                 {/* Pagination */}
                 {filteredQuotes.length > PAGE_SIZE && (
-                    <div className="flex items-center justify-between p-4 border-t border-slate-200 bg-white">
+                    <div className="flex items-center justify-between p-4 border-t border-[#e6e6e3] bg-white">
                         <span className="text-xs font-semibold text-slate-500">
                             Showing <strong className="text-slate-800">{(validPage - 1) * PAGE_SIZE + 1}</strong> to <strong className="text-slate-800">{Math.min(validPage * PAGE_SIZE, filteredQuotes.length)}</strong> of <strong className="text-slate-800">{filteredQuotes.length}</strong> quotations
                         </span>
@@ -2198,7 +2160,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             <button 
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={validPage <= 1}
-                                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                                className="px-3.5 py-1.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                             >
                                 <ChevronLeft size={14} /> Previous
                             </button>
@@ -2208,7 +2170,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             <button 
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={validPage >= totalPages}
-                                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                                className="px-3.5 py-1.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                             >
                                 Next <ChevronRight size={14} />
                             </button>
@@ -2221,12 +2183,12 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                QUICK VIEW / PRINT / EXPORT MODAL (PORTAL)
             ========================================================================= */}
             {viewingQuote && typeof document !== 'undefined' && createPortal(
-                <div className="fixed inset-0 z-99999 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
-                    <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 my-8 overflow-hidden flex flex-col max-h-[92vh]">
+                <div className="fixed inset-0 z-99999 flex items-center justify-center p-4 bg-[#111111]/70 backdrop-blur-xs overflow-y-auto">
+                    <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-[#e6e6e3] my-8 overflow-hidden flex flex-col max-h-[92vh]">
                         {/* Modal Header */}
-                        <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                        <div className="p-4 bg-[#111111] text-white flex items-center justify-between border-b border-slate-800">
                             <div className="flex items-center space-x-3">
-                                <div className="p-2 rounded-xl bg-blue-500/20 text-blue-600">
+                                <div className="p-2 rounded-xl bg-blue-500/20 text-[#3f3f3f]">
                                     <FileText size={20} />
                                 </div>
                                 <div>
@@ -2237,7 +2199,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             <div className="flex items-center space-x-2">
                                 <button 
                                     onClick={() => handleDownloadRowPdf(viewingQuote)}
-                                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center transition-colors cursor-pointer shadow-xs"
+                                    className="px-3.5 py-1.5 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold flex items-center transition-colors cursor-pointer shadow-xs"
                                 >
                                     <Download size={14} className="mr-1.5" /> Download PDF
                                 </button>
@@ -2267,8 +2229,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         </div>
 
                         {/* Modal Body: QuoteRenderer / LetterheadQuotationPreview */}
-                        <div className="p-6 overflow-y-auto flex-1 bg-slate-100/60">
-                            <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-xs bg-white">
+                        <div className="p-6 overflow-y-auto flex-1 bg-[#f0f0ee]/60">
+                            <div className="rounded-2xl border border-[#e6e6e3] overflow-hidden shadow-xs bg-white">
                                 {isRobotriq || viewingQuote.templateType === 'letterhead' || (viewingQuote.customData && Object.keys(viewingQuote.customData).length > 0) ? (
                                     <div className="p-4 flex justify-center bg-slate-200/50 overflow-x-auto">
                                         <LetterheadQuotationPreview 
@@ -2290,14 +2252,14 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                        <div className="p-4 bg-[#f5f5f3] border-t border-[#e6e6e3] flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs">
                                 <span className="font-bold text-slate-500">Quotation Category:</span>
                                 {getTaxBadge(viewingQuote)}
                             </div>
                             <button
                                 onClick={() => setViewingQuote(null)}
-                                className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-bold text-white transition-colors cursor-pointer"
+                                className="px-5 py-2 rounded-xl bg-[#111111] hover:bg-slate-800 text-xs font-bold text-white transition-colors cursor-pointer"
                             >
                                 Close
                             </button>

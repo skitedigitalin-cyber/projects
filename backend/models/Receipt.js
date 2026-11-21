@@ -65,13 +65,12 @@ const receiptSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Auto-generate receiptNumber before validation if missing
-receiptSchema.pre('validate', async function (next) {
+receiptSchema.pre('validate', async function () {
     if (!this.receiptNumber && this.tenantId) {
         const year = new Date(this.receiptDate || Date.now()).getFullYear();
         const count = await mongoose.model('Receipt').countDocuments({ tenantId: this.tenantId });
         this.receiptNumber = `RCP-${year}-${(count + 1).toString().padStart(4, '0')}`;
     }
-    next();
 });
 
 module.exports = mongoose.model('Receipt', receiptSchema);

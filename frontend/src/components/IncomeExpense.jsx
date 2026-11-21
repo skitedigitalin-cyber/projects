@@ -276,9 +276,9 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
     return (
         <div className="space-y-6 text-slate-800">
             {/* TOP HEADER & SUMMARY CARD */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-2xl border border-[#e6e6e3] shadow-xs">
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Accounts Overview</h2>
+                    <h2 className="text-xl font-black text-[#111111] tracking-tight">Accounts Overview</h2>
                     <p className="text-xs text-slate-400 font-medium mt-0.5">
                         Live real-time income from invoices & manual entries vs operational expenses
                     </p>
@@ -297,10 +297,10 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
             </div>
 
             {/* FILTER BAR */}
-            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-4 bg-white rounded-2xl border border-[#e6e6e3] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                        <Filter size={16} className="text-blue-600" />
+                        <Filter size={16} className="text-[#3f3f3f]" />
                         <span>Filter by Date:</span>
                     </div>
 
@@ -310,7 +310,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                             type="date" 
                             value={dateFilter.from} 
                             onChange={(e) => setDateFilter({ ...dateFilter, from: e.target.value })}
-                            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 outline-none focus:border-blue-500"
+                            className="px-2.5 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl font-bold text-slate-800 outline-none focus:border-[#111111]"
                         />
 
                         <label className="text-slate-400 font-medium text-[11px] ml-1">To:</label>
@@ -318,17 +318,17 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                             type="date" 
                             value={dateFilter.to} 
                             onChange={(e) => setDateFilter({ ...dateFilter, to: e.target.value })}
-                            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 outline-none focus:border-blue-500"
+                            className="px-2.5 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl font-bold text-slate-800 outline-none focus:border-[#111111]"
                         />
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                <div className="flex items-center gap-1.5 bg-[#f0f0ee] p-1 rounded-xl text-xs font-bold">
                     <button 
                         type="button"
                         onClick={() => setQuickFilter('THIS_MONTH')}
                         className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-                            dateFilter.from === new Date().toISOString().slice(0, 8) + '01' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            dateFilter.from === new Date().toISOString().slice(0, 8) + '01' ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                         }`}
                     >
                         This Month
@@ -337,7 +337,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                         type="button"
                         onClick={() => setQuickFilter('TODAY')}
                         className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-                            dateFilter.from === new Date().toISOString().split('T')[0] && dateFilter.to === new Date().toISOString().split('T')[0] ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            dateFilter.from === new Date().toISOString().split('T')[0] && dateFilter.to === new Date().toISOString().split('T')[0] ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                         }`}
                     >
                         Today
@@ -346,7 +346,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                         type="button"
                         onClick={() => setQuickFilter('ALL')}
                         className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-                            !dateFilter.from && !dateFilter.to ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            !dateFilter.from && !dateFilter.to ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                         }`}
                     >
                         All Time
@@ -360,7 +360,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                 {/* ========================================================
                    LEFT COLUMN: INCOME (GREEN)
                 ======================================================== */}
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+                <div className="bg-white rounded-3xl border border-[#e6e6e3] shadow-xs overflow-hidden flex flex-col">
                     {/* Header */}
                     <div className="p-4 bg-emerald-600 text-white flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -409,7 +409,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                     placeholder="Amount (₹)"
                                     value={incomeForm.amount}
                                     onChange={(e) => setIncomeForm({ ...incomeForm, amount: e.target.value })}
-                                    className="w-full sm:w-28 px-3 py-2 bg-white border border-emerald-200 rounded-xl text-xs font-bold font-mono text-slate-900 outline-none focus:border-emerald-500"
+                                    className="w-full sm:w-28 px-3 py-2 bg-white border border-emerald-200 rounded-xl text-xs font-bold font-mono text-[#111111] outline-none focus:border-emerald-500"
                                 />
                                 <button 
                                     type="submit" 
@@ -449,7 +449,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                                             <FileText size={16} />
                                                         </div>
                                                         <div>
-                                                            <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                                                            <div className="font-bold text-xs text-[#111111] flex items-center gap-1.5">
                                                                 <span>{row.clientName}</span>
                                                                 {row.invoiceNumber && (
                                                                     <span className="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-100/70 px-1.5 py-0.2 rounded">
@@ -530,13 +530,13 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                         // 2. Manual Incomes
                                         const inc = item.rawItem || item;
                                         return (
-                                            <div key={inc._id} className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between transition-colors">
+                                            <div key={inc._id} className="p-3 bg-white hover:bg-[#f5f5f3] border border-[#e6e6e3] rounded-2xl flex items-center justify-between transition-colors">
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                                                    <div className="w-8 h-8 rounded-xl bg-[#e6e6e3] text-[#111111] flex items-center justify-center shrink-0">
                                                         <CheckCircle size={16} />
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-xs text-slate-900">{inc.notes || 'Direct Income'}</div>
+                                                        <div className="font-bold text-xs text-[#111111]">{inc.notes || 'Direct Income'}</div>
                                                         <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                                                             {editingTransaction?.id === inc._id ? (
                                                                 <div className="flex items-center gap-1">
@@ -548,7 +548,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                                                     />
                                                                     <button 
                                                                         onClick={() => handleUpdateTransactionDate(inc._id, editingTransaction.date)}
-                                                                        className="text-blue-600 hover:text-blue-800 p-0.5 cursor-pointer"
+                                                                        className="text-[#3f3f3f] hover:text-[#111111] p-0.5 cursor-pointer"
                                                                         title="Save Date"
                                                                     >
                                                                         <Check size={14} />
@@ -572,7 +572,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                                                             id: inc._id,
                                                                             date: inc.paymentDate ? new Date(inc.paymentDate).toISOString().split('T')[0] : ''
                                                                         })}
-                                                                        className="text-slate-400 hover:text-blue-600 p-0.5 ml-0.5 cursor-pointer"
+                                                                        className="text-slate-400 hover:text-[#3f3f3f] p-0.5 ml-0.5 cursor-pointer"
                                                                         title="Edit Date"
                                                                     >
                                                                         <Edit2 size={11} />
@@ -612,7 +612,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                             type="button"
                                             onClick={() => setIncomePage(p => Math.max(1, p - 1))}
                                             disabled={validIncomePage <= 1}
-                                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                                            className="px-2.5 py-1 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                                         >
                                             <ChevronLeft size={13} /> Prev
                                         </button>
@@ -623,7 +623,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                             type="button"
                                             onClick={() => setIncomePage(p => Math.min(totalIncomePages, p + 1))}
                                             disabled={validIncomePage >= totalIncomePages}
-                                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                                            className="px-2.5 py-1 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                                         >
                                             Next <ChevronRight size={13} />
                                         </button>
@@ -637,7 +637,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                 {/* ========================================================
                    RIGHT COLUMN: EXPENSE (ROSE / RED)
                 ======================================================== */}
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+                <div className="bg-white rounded-3xl border border-[#e6e6e3] shadow-xs overflow-hidden flex flex-col">
                     {/* Header */}
                     <div className="p-4 bg-rose-600 text-white flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -686,7 +686,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                     placeholder="Amount (₹)"
                                     value={expenseForm.amount}
                                     onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
-                                    className="w-full sm:w-28 px-3 py-2 bg-white border border-rose-200 rounded-xl text-xs font-bold font-mono text-slate-900 outline-none focus:border-rose-500"
+                                    className="w-full sm:w-28 px-3 py-2 bg-white border border-rose-200 rounded-xl text-xs font-bold font-mono text-[#111111] outline-none focus:border-rose-500"
                                 />
                                 <button 
                                     type="submit" 
@@ -717,13 +717,13 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                     </div>
                                 ) : (
                                     paginatedExpenses.map(exp => (
-                                        <div key={exp._id} className="p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between transition-colors">
+                                        <div key={exp._id} className="p-3 bg-white hover:bg-[#f5f5f3] border border-[#e6e6e3] rounded-2xl flex items-center justify-between transition-colors">
                                             <div className="flex items-center gap-2.5">
                                                 <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
                                                     <TrendingDown size={16} />
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-xs text-slate-900">
+                                                    <div className="font-bold text-xs text-[#111111]">
                                                         {exp.notes || exp.vendorId?.vendorName || 'Operational Expense'}
                                                     </div>
                                                     <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
@@ -800,7 +800,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                             type="button"
                                             onClick={() => setExpensePage(p => Math.max(1, p - 1))}
                                             disabled={validExpensePage <= 1}
-                                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                                            className="px-2.5 py-1 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                                         >
                                             <ChevronLeft size={13} /> Prev
                                         </button>
@@ -811,7 +811,7 @@ export default function IncomeExpense({ onRecordsChange } = {}) {
                                             type="button"
                                             onClick={() => setExpensePage(p => Math.min(totalExpensePages, p + 1))}
                                             disabled={validExpensePage >= totalExpensePages}
-                                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                                            className="px-2.5 py-1 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                                         >
                                             Next <ChevronRight size={13} />
                                         </button>

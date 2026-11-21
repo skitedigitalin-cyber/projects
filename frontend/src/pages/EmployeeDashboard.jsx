@@ -288,18 +288,6 @@ export default function EmployeeDashboard() {
             case 'project-tasks': return <MyTasks initialTaskType="project" />;
             default: return (
                 <div className="space-y-6">
-                    <style dangerouslySetInnerHTML={{__html: `
-                        @keyframes fadeUp {
-                            from { opacity: 0; transform: translateY(40px); }
-                            to { opacity: 1; transform: translateY(0); }
-                        }
-                        .animate-fade-up {
-                            animation: fadeUp 1.2s ease-out forwards;
-                            opacity: 0;
-                        }
-                        .delay-100 { animation-delay: 100ms; }
-                        .delay-200 { animation-delay: 200ms; }
-                    `}} />
                     
                     {/* ⚠️ HIGH PRIORITY: Unclosed Previous Shift Notification Banner */}
                     {pendingPrevious && (
@@ -332,58 +320,34 @@ export default function EmployeeDashboard() {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-up">
-                        {/* Summary Cards - Double Bezel Bento - Primary (Dark Mode) */}
-                        <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100 group cursor-default">
-                            <div className="bg-slate-900 text-white rounded-[1.5rem] p-6 shadow-sm group-hover:shadow-lg transition-all h-full relative overflow-hidden">
-                                <h3 className="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wider relative z-10">Current Status</h3>
-                                <div className="text-3xl font-medium tracking-tight mb-2 relative z-10 group-hover:scale-110 transition-transform origin-left">
-                                    {pendingPrevious ? 'Pending Action' : isCheckedOut ? 'Completed' : isCheckedIn ? 'Working' : 'Not Started'}
-                                </div>
-                                <p className="text-sm text-slate-400 relative z-10">
-                                    {pendingPrevious ? `Missed check-out from ${new Date(pendingPrevious.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` :
-                                     isCheckedOut ? `Checked out at ${new Date(attendance.checkOutTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : 
-                                     isCheckedIn ? `Checked in at ${new Date(attendance.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : 
-                                     'Please check in to start your shift'}
-                                </p>
-                                <div className={`absolute top-6 right-6 px-3 py-1 text-[10px] uppercase tracking-widest font-bold rounded-full z-10 transition-transform group-hover:rotate-12
-                                    ${pendingPrevious ? 'bg-amber-500/20 text-amber-300' : isCheckedOut ? 'bg-emerald-500/20 text-emerald-300' : isCheckedIn ? 'bg-blue-500/20 text-blue-300' : 'bg-rose-500/20 text-rose-300'}`}>
-                                    {pendingPrevious ? 'Action Req' : isCheckedOut ? 'Done' : isCheckedIn ? 'Active' : 'Pending'}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100 group cursor-default delay-100 animate-fade-up">
-                            <div className="bg-white rounded-[1.5rem] p-6 shadow-sm group-hover:shadow-lg transition-all h-full">
-                                <h3 className="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wider">Pending Leaves</h3>
-                                <div className="text-3xl font-medium text-slate-900 tracking-tight mb-2 group-hover:scale-110 transition-transform origin-left">{leavesCount}</div>
-                                <p className="text-sm text-slate-500">Awaiting HR approval</p>
-                            </div>
-                        </div>
-                        
-                        <div 
-                            onClick={() => setActiveTab('tasks')}
-                            className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100 group cursor-pointer delay-200 animate-fade-up"
-                            title="Click to view all tasks"
-                        >
-                            <div className="bg-white rounded-[1.5rem] p-6 shadow-sm group-hover:shadow-lg transition-all h-full">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Assigned Tasks</h3>
-                                    <span className="text-xs font-bold text-indigo-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">View →</span>
-                                </div>
-                                <div className="text-3xl font-medium text-slate-900 tracking-tight mb-2 group-hover:scale-110 transition-transform origin-left">{tasksCount}</div>
-                                <p className="text-sm text-slate-500">Pending completion</p>
-                            </div>
-                        </div>
+                    <div className="employee-overview-metrics">
+                        <section className="employee-overview-card employee-overview-status">
+                            <h3>Current status</h3>
+                            <strong>{pendingPrevious ? 'Pending action' : isCheckedOut ? 'Completed' : isCheckedIn ? 'Working' : 'Not started'}</strong>
+                            <p>{pendingPrevious ? `Missed check-out from ${new Date(pendingPrevious.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` :
+                                isCheckedOut ? `Checked out at ${new Date(attendance.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` :
+                                isCheckedIn ? `Checked in at ${new Date(attendance.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` :
+                                'Please check in to start your shift'}</p>
+                        </section>
+                        <section className="employee-overview-card">
+                            <h3>Pending leaves</h3>
+                            <strong>{leavesCount}</strong>
+                            <p>Awaiting HR approval</p>
+                        </section>
+                        <button type="button" className="employee-overview-card employee-overview-tasks" onClick={() => setActiveTab('tasks')}>
+                            <span>Assigned tasks <span aria-hidden="true">→</span></span>
+                            <strong>{tasksCount}</strong>
+                            <small>Pending completion</small>
+                        </button>
                     </div>
 
                     {/* 1. TOP QUICK ACTIONS: TIME CLOCK (CHECK IN / OUT) & TIME OFF REQUEST */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 delay-100 animate-fade-up">
                         {/* Quick Actions - Bento Box Style */}
-                        <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100 group">
+                        <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-[#ededea] group">
                             <div className="bg-white rounded-[1.5rem] flex flex-col justify-between shadow-sm group-hover:shadow-lg transition-all h-full overflow-hidden">
-                                <div className="px-6 py-5 border-b border-slate-100/50">
-                                    <h3 className="text-sm font-semibold text-slate-900 flex items-center">
+                                <div className="px-6 py-5 border-b border-[#ededea]/50">
+                                    <h3 className="text-sm font-semibold text-[#111111] flex items-center">
                                         <Clock size={16} strokeWidth={1.5} className="mr-2 text-slate-400 group-hover:rotate-12 transition-transform" /> Time Clock
                                     </h3>
                                 </div>
@@ -393,8 +357,8 @@ export default function EmployeeDashboard() {
                                             <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-3">
                                                 <Clock size={24} strokeWidth={1.5} className="animate-pulse" />
                                             </div>
-                                            <div className="text-base font-bold text-slate-900 mb-1">Previous Shift Not Checked Out</div>
-                                            <p className="text-xs text-slate-500 max-w-sm mb-5 leading-relaxed">
+                                            <div className="text-base font-bold text-[#111111] mb-1">Previous Shift Not Checked Out</div>
+                                            <p className="text-xs text-[#6b6b6b] max-w-sm mb-5 leading-relaxed">
                                                 You did not check out for <span className="font-semibold text-slate-800">{new Date(pendingPrevious.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>. Please complete this check-out to unlock today's shift.
                                             </p>
                                             <button 
@@ -405,10 +369,10 @@ export default function EmployeeDashboard() {
                                             </button>
                                         </div>
                                     ) : isCheckedOut ? (
-                                        <div className="py-4 text-sm text-slate-500 font-medium">Shift completed for today. Great job!</div>
+                                        <div className="py-4 text-sm text-[#6b6b6b] font-medium">Shift completed for today. Great job!</div>
                                     ) : isCheckedIn ? (
                                         <div className="w-full flex flex-col items-center">
-                                            <div className="text-4xl sm:text-5xl font-light tracking-tight text-slate-900 mb-6 tabular-nums relative">
+                                            <div className="text-4xl sm:text-5xl font-light tracking-tight text-[#111111] mb-6 tabular-nums relative">
                                                 {calculateDuration(attendance.checkInTime)}
                                                 <span className="absolute -top-1 -right-3 flex h-3 w-3">
                                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -417,7 +381,7 @@ export default function EmployeeDashboard() {
                                             </div>
                                             <button 
                                                 onClick={() => setIsCheckOutModalOpen(true)} 
-                                                className="w-full flex items-center justify-center px-6 py-4 border-2 border-slate-900 text-sm font-medium rounded-2xl text-slate-900 bg-white hover:bg-slate-900 hover:text-white transition-all active:scale-[0.98] cursor-pointer"
+                                                className="w-full flex items-center justify-center px-6 py-4 border-2 border-[#111111] text-sm font-medium rounded-2xl text-[#111111] bg-white hover:bg-[#111111] hover:text-white transition-all active:scale-[0.98] cursor-pointer"
                                             >
                                                 <StopCircle size={18} strokeWidth={1.5} className="mr-2" /> Log Out of Shift
                                             </button>
@@ -425,7 +389,7 @@ export default function EmployeeDashboard() {
                                     ) : (
                                         <button 
                                             onClick={handleCheckIn}
-                                            className="w-full flex items-center justify-center px-6 py-4 text-sm font-medium rounded-2xl text-white bg-slate-900 hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-[0.98] active:translate-y-0 cursor-pointer"
+                                            className="w-full flex items-center justify-center px-6 py-4 text-sm font-medium rounded-2xl text-white bg-[#111111] hover:bg-[#303030] hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-[0.98] active:translate-y-0 cursor-pointer"
                                         >
                                             <PlayCircle size={18} strokeWidth={1.5} className="mr-2" /> Start Shift
                                         </button>
@@ -435,11 +399,11 @@ export default function EmployeeDashboard() {
                         </div>
 
                         {/* Quick Request: Leave & Permission */}
-                        <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100 group delay-200 animate-fade-up">
+                        <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-[#ededea] group delay-200 animate-fade-up">
                             <div className="bg-white rounded-[1.5rem] flex flex-col justify-between shadow-sm group-hover:shadow-lg transition-all h-full overflow-hidden">
-                                <div className="px-6 py-5 border-b border-slate-100/50 flex items-center justify-between">
-                                    <h3 className="text-sm font-semibold text-slate-900 flex items-center">
-                                        <Calendar size={16} strokeWidth={1.5} className="mr-2 text-indigo-600 group-hover:rotate-12 transition-transform" /> Time Off & Permissions
+                                <div className="px-6 py-5 border-b border-[#ededea]/50 flex items-center justify-between">
+                                    <h3 className="text-sm font-semibold text-[#111111] flex items-center">
+                                        <Calendar size={16} strokeWidth={1.5} className="mr-2 text-[#3f3f3f] group-hover:rotate-12 transition-transform" /> Time Off & Permissions
                                     </h3>
                                     {myPermissions.some(p => p.status === 'Pending') && (
                                         <span className="px-2.5 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 rounded-full animate-pulse">
@@ -448,7 +412,7 @@ export default function EmployeeDashboard() {
                                     )}
                                 </div>
                                 <div className="p-6 flex flex-col justify-between flex-1">
-                                    <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+                                    <p className="text-xs text-[#6b6b6b] mb-4 leading-relaxed">
                                         Apply for full/multi-day leaves or short 1-4 hour permissions directly to HR for instant approval.
                                     </p>
                                     
@@ -456,13 +420,13 @@ export default function EmployeeDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                                         <button 
                                             onClick={() => setIsLeaveModalOpen(true)}
-                                            className="flex items-center justify-center px-4 py-3.5 border-2 border-slate-200 text-xs font-bold rounded-2xl text-slate-800 bg-white hover:border-slate-900 hover:text-slate-900 transition-all active:scale-[0.98] shadow-xs cursor-pointer"
+                                            className="flex items-center justify-center px-4 py-3.5 border-2 border-[#e6e6e3] text-xs font-bold rounded-2xl text-slate-800 bg-white hover:border-[#111111] hover:text-[#111111] transition-all active:scale-[0.98] shadow-xs cursor-pointer"
                                         >
-                                            <Calendar size={16} strokeWidth={1.8} className="mr-2 text-slate-600" /> Request Leave
+                                            <Calendar size={16} strokeWidth={1.8} className="mr-2 text-[#555555]" /> Request Leave
                                         </button>
                                         <button 
                                             onClick={() => setIsPermissionModalOpen(true)}
-                                            className="flex items-center justify-center px-4 py-3.5 border-2 border-indigo-600 text-xs font-bold rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 hover:border-indigo-700 shadow-sm hover:shadow transition-all active:scale-[0.98] cursor-pointer"
+                                            className="flex items-center justify-center px-4 py-3.5 border-2 border-[#111111] text-xs font-bold rounded-2xl text-white bg-[#111111] hover:bg-[#303030] hover:border-[#303030] shadow-sm hover:shadow transition-all active:scale-[0.98] cursor-pointer"
                                         >
                                             <Clock size={16} strokeWidth={1.8} className="mr-2 text-white" /> Request Permission
                                         </button>
@@ -470,7 +434,7 @@ export default function EmployeeDashboard() {
 
                                     {/* Latest Permission Quick Status if any */}
                                     {myPermissions.length > 0 && (
-                                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                                        <div className="pt-3 border-t border-[#ededea] flex items-center justify-between text-[11px] text-[#6b6b6b]">
                                             <span className="flex items-center gap-1.5 font-medium truncate">
                                                 <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block"></span>
                                                 Latest: {myPermissions[0].hours}h ({myPermissions[0].type}) on {new Date(myPermissions[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
@@ -490,17 +454,17 @@ export default function EmployeeDashboard() {
                     </div>
 
                     {/* 2. PENDING TASKS SECTION (PLACED BELOW TIME CLOCK) */}
-                    <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100 group animate-fade-up">
+                    <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-[#ededea] group animate-fade-up">
                         <div className="bg-white rounded-[1.5rem] p-6 shadow-sm group-hover:shadow-md transition-all">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100 mb-5">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#ededea] mb-5">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                                    <div className="p-2 bg-[#f0f0ee] text-[#3f3f3f] rounded-xl">
                                         <CheckSquare size={18} />
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                                        <h3 className="text-sm font-black text-[#111111] flex items-center gap-2">
                                             My Pending Tasks
-                                            <span className="px-2 py-0.5 text-xs font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full">
+                                            <span className="px-2 py-0.5 text-xs font-mono font-bold bg-[#f0f0ee] text-[#111111] border border-[#e6e6e3] rounded-full">
                                                 {pendingTasks.length} Pending
                                             </span>
                                         </h3>
@@ -511,7 +475,7 @@ export default function EmployeeDashboard() {
                                 </div>
                                 <button 
                                     onClick={() => setActiveTab('tasks')}
-                                    className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 self-start sm:self-auto hover:underline cursor-pointer"
+                                    className="text-xs font-bold text-[#3f3f3f] hover:text-indigo-800 flex items-center gap-1 self-start sm:self-auto hover:underline cursor-pointer"
                                 >
                                     <span>Open Full Task Board</span>
                                     <ChevronRight size={14} />
@@ -522,7 +486,7 @@ export default function EmployeeDashboard() {
                             {pendingTasks.length === 0 ? (
                                 <div className="py-8 text-center text-slate-400 text-xs">
                                     <CheckCircle2 size={32} className="mx-auto text-emerald-500 mb-2" />
-                                    <p className="font-bold text-slate-700">All caught up!</p>
+                                    <p className="font-bold text-[#3f3f3f]">All caught up!</p>
                                     <p className="mt-0.5">No pending tasks assigned right now. Great job!</p>
                                 </div>
                             ) : (
@@ -531,14 +495,14 @@ export default function EmployeeDashboard() {
                                         <div 
                                             key={task._id}
                                             onClick={() => setActiveTab(isProjectChecklistTask(task) ? 'project-tasks' : 'tasks')}
-                                            className="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-white hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group/task"
+                                            className="p-4 rounded-2xl border border-[#e6e6e3]/80 bg-[#f5f5f3]/50 hover:bg-white hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group/task"
                                         >
                                             <div>
                                                 <div className="flex items-start justify-between gap-2 mb-2">
                                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide border ${
                                                         task.priority === 'High' ? 'bg-rose-50 text-rose-700 border-rose-200' :
                                                         task.priority === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                                                        'bg-slate-100 text-slate-600 border-slate-200'
+                                                        'bg-[#f0f0ee] text-[#555555] border-[#e6e6e3]'
                                                     }`}>
                                                         {task.priority || 'Normal'} Priority
                                                     </span>
@@ -548,11 +512,11 @@ export default function EmployeeDashboard() {
                                                         </span>
                                                     )}
                                                 </div>
-                                                <h4 className="text-xs font-bold text-slate-900 group-hover/task:text-indigo-600 transition-colors line-clamp-1">
+                                                <h4 className="text-xs font-bold text-[#111111] group-hover/task:text-[#3f3f3f] transition-colors line-clamp-1">
                                                     {task.title}
                                                 </h4>
                                                 {(task.webDevProject?.businessName || task.seoProject?.businessName) && (
-                                                    <p className="text-[11px] text-slate-500 font-medium mt-1 truncate flex items-center gap-1">
+                                                    <p className="text-[11px] text-[#6b6b6b] font-medium mt-1 truncate flex items-center gap-1">
                                                         <span>🏢</span>
                                                         <span>{task.webDevProject?.businessName || task.seoProject?.businessName}</span>
                                                         {task.webDevProject?.websiteType && (
@@ -566,11 +530,11 @@ export default function EmployeeDashboard() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                                                <span className="text-slate-500 font-medium">
+                                            <div className="mt-3 pt-2.5 border-t border-[#ededea] flex items-center justify-between text-[11px]">
+                                                <span className="text-[#6b6b6b] font-medium">
                                                     Status: <strong className="text-amber-600 font-bold">{task.status || 'Pending'}</strong>
                                                 </span>
-                                                <span className="text-indigo-600 font-bold group-hover/task:translate-x-1 transition-transform flex items-center gap-0.5">
+                                                <span className="text-[#3f3f3f] font-bold group-hover/task:translate-x-1 transition-transform flex items-center gap-0.5">
                                                     Open Task <ChevronRight size={12} />
                                                 </span>
                                             </div>
@@ -588,7 +552,7 @@ export default function EmployeeDashboard() {
     if (loading && activeTab === 'dashboard') return <div className="min-h-screen flex items-center justify-center text-[#787774] text-sm bg-[#FBFBFA]">Loading workspace...</div>;
 
     return (
-        <div className="employee-portal flex h-screen bg-[#FBFBFA] font-sans text-[#111111]">
+        <div className="employee-portal flex h-screen">
             {mobileMenuOpen && <button type="button" className="employee-menu-scrim" aria-label="Close employee menu" onClick={() => setMobileMenuOpen(false)} />}
             {/* Sidebar - Minimalist Editorial with smooth collapse */}
             <aside id="employee-portal-menu" data-mobile-open={mobileMenuOpen} className={`employee-portal-sidebar bg-white border-r border-[#EAEAEA] flex flex-col transition-all duration-300 ease-in-out shrink-0 overflow-hidden ${
@@ -603,7 +567,7 @@ export default function EmployeeDashboard() {
                         <button
                             onClick={mobileMenuOpen ? () => setMobileMenuOpen(false) : toggleSidebar}
                             title="Close Sidebar (Ctrl+B)"
-                            className="p-1 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                            className="p-1 rounded text-slate-400 hover:text-slate-800 hover:bg-[#f0f0ee] transition-colors cursor-pointer"
                         >
                             <PanelLeftClose size={16} />
                         </button>
@@ -633,29 +597,29 @@ export default function EmployeeDashboard() {
                     {/* Enabled Modules Assigned to this Employee */}
                     {user?.activeModules && user.activeModules.length > 0 && (
                         <div className="pt-4 border-t border-[#EAEAEA]">
-                            <p className="px-3 text-xs font-semibold text-blue-600 uppercase tracking-wider mb-3 flex items-center">
+                            <p className="px-3 text-xs font-semibold text-[#3f3f3f] uppercase tracking-wider mb-3 flex items-center">
                                 Assigned Modules
                             </p>
                             <nav className="space-y-1">
                                 {user.activeModules.includes('sales') && (
                                     <Link
                                         to="/sales"
-                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-[#3f3f3f] hover:bg-[#f0f0ee] hover:text-[#111111] transition-colors group"
                                     >
                                         <div className="flex items-center">
-                                            <Briefcase size={18} strokeWidth={1.5} className="mr-3 text-blue-600" />
+                                            <Briefcase size={18} strokeWidth={1.5} className="mr-3 text-[#3f3f3f]" />
                                             <span className="font-medium">Sales & Leads</span>
                                         </div>
-                                        <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 text-blue-500" />
+                                        <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 text-[#6b6b6b]" />
                                     </Link>
                                 )}
                                 {user.activeModules.includes('dashboard') && (
                                     <Link
                                         to="/dashboard"
-                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors group"
+                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-[#3f3f3f] hover:bg-[#f0f0ee] hover:text-[#111111] transition-colors group"
                                     >
                                         <div className="flex items-center">
-                                            <LayoutDashboard size={18} strokeWidth={1.5} className="mr-3 text-indigo-600" />
+                                            <LayoutDashboard size={18} strokeWidth={1.5} className="mr-3 text-[#3f3f3f]" />
                                             <span className="font-medium">Overview Stats</span>
                                         </div>
                                         <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 text-indigo-500" />
@@ -664,7 +628,7 @@ export default function EmployeeDashboard() {
                                 {user.activeModules.includes('calendar') && (
                                     <Link
                                         to="/calendar"
-                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors group"
+                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-[#3f3f3f] hover:bg-emerald-50 hover:text-emerald-700 transition-colors group"
                                     >
                                         <div className="flex items-center">
                                             <CalendarDays size={18} strokeWidth={1.5} className="mr-3 text-emerald-600" />
@@ -677,7 +641,7 @@ export default function EmployeeDashboard() {
                                     <>
                                         <Link
                                             to="/finance"
-                                            className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-colors group"
+                                            className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-[#3f3f3f] hover:bg-amber-50 hover:text-amber-700 transition-colors group"
                                         >
                                             <div className="flex items-center">
                                                 <FileText size={18} strokeWidth={1.5} className="mr-3 text-amber-600" />
@@ -687,10 +651,10 @@ export default function EmployeeDashboard() {
                                         </Link>
                                         <Link
                                             to="/accounts"
-                                            className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-slate-700 hover:bg-orange-50 hover:text-orange-700 transition-colors group"
+                                            className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-[#3f3f3f] hover:bg-orange-50 hover:text-orange-700 transition-colors group"
                                         >
                                             <div className="flex items-center">
-                                                <Landmark size={18} strokeWidth={1.5} className="mr-3 text-blue-600" />
+                                                <Landmark size={18} strokeWidth={1.5} className="mr-3 text-[#3f3f3f]" />
                                                 <span className="font-medium">Accounts</span>
                                             </div>
                                             <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 text-orange-500" />
@@ -700,7 +664,7 @@ export default function EmployeeDashboard() {
                                 {user.activeModules.includes('hr') && (
                                     <Link
                                         to="/hr"
-                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition-colors group"
+                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-[#3f3f3f] hover:bg-purple-50 hover:text-purple-700 transition-colors group"
                                     >
                                         <div className="flex items-center">
                                             <CalendarClock size={18} strokeWidth={1.5} className="mr-3 text-purple-600" />
@@ -712,7 +676,7 @@ export default function EmployeeDashboard() {
                                 {user.activeModules.includes('projects') && (
                                     <Link
                                         to="/projects"
-                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 transition-colors group"
+                                        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-[4px] text-[#3f3f3f] hover:bg-cyan-50 hover:text-cyan-700 transition-colors group"
                                     >
                                         <div className="flex items-center">
                                             <FolderKanban size={18} strokeWidth={1.5} className="mr-3 text-cyan-600" />
@@ -728,12 +692,12 @@ export default function EmployeeDashboard() {
 
                 <div className="p-4 border-t border-[#EAEAEA]">
                     <div className="flex items-center space-x-3 px-3 py-2 mb-2 bg-[#F7F6F3] rounded-[6px]">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs uppercase">
+                        <div className="w-8 h-8 rounded-full bg-[#f0f0ee] text-[#111111] flex items-center justify-center font-bold text-xs uppercase">
                             {user?.name?.charAt(0) || 'E'}
                         </div>
                         <div className="overflow-hidden">
                             <p className="text-xs font-bold text-[#111111] truncate">{user?.name || 'Employee'}</p>
-                            <p className="text-[10px] font-semibold text-blue-600 truncate">{user?.role || 'Employee'}</p>
+                            <p className="text-[10px] font-semibold text-[#3f3f3f] truncate">{user?.role || 'Employee'}</p>
                         </div>
                     </div>
                     <button 
@@ -754,7 +718,7 @@ export default function EmployeeDashboard() {
                     <button
                             onClick={toggleSidebar}
                         title={isSidebarCollapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"}
-                            className="employee-desktop-toggle p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all cursor-pointer border border-[#EAEAEA] active:scale-95"
+                            className="employee-desktop-toggle p-1.5 rounded-lg text-[#6b6b6b] hover:text-[#111111] hover:bg-[#f0f0ee] transition-all cursor-pointer border border-[#EAEAEA] active:scale-95"
                     >
                         {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
                     </button>
@@ -800,8 +764,8 @@ export default function EmployeeDashboard() {
             {/* Modal for Missed Previous Day Checkout */}
             {isPreviousCheckoutModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setIsPreviousCheckoutModalOpen(false)}></div>
-                    <div className="relative z-10 w-full max-w-lg bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-fade-up">
+                    <div className="fixed inset-0 bg-[#111111]/50 backdrop-blur-sm" onClick={() => setIsPreviousCheckoutModalOpen(false)}></div>
+                    <div className="employee-dialog relative z-10 w-full max-w-lg bg-white border border-[#e6e6e3] rounded-2xl shadow-2xl overflow-hidden animate-fade-up">
                         <div className="bg-amber-600 px-6 py-4 text-white flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                                 <AlertTriangle size={20} />
@@ -823,17 +787,17 @@ export default function EmployeeDashboard() {
                             </div>
                             <form id="previousCheckOutForm" onSubmit={handlePreviousCheckOutSubmit} className="space-y-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                    <label className="block text-xs font-bold text-[#3f3f3f] uppercase tracking-wider mb-1.5">
                                         Shift Date & Check-in Time
                                     </label>
-                                    <div className="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-700 font-medium">
+                                    <div className="text-xs bg-[#f5f5f3] border border-[#e6e6e3] rounded-lg p-2.5 text-[#3f3f3f] font-medium">
                                         {new Date(pendingPrevious?.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                                         {' · Checked in at '}
                                         {pendingPrevious?.checkInTime ? new Date(pendingPrevious.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                    <label className="block text-xs font-bold text-[#3f3f3f] uppercase tracking-wider mb-1.5">
                                         Description / Reason for Missed Checkout <span className="text-rose-500">*</span>
                                     </label>
                                     <textarea
@@ -842,16 +806,16 @@ export default function EmployeeDashboard() {
                                         placeholder="Briefly describe what tasks you worked on and why you forgot to checkout yesterday..."
                                         value={previousCheckoutReason}
                                         onChange={(e) => setPreviousCheckoutReason(e.target.value)}
-                                        className="w-full text-sm border border-slate-300 rounded-xl p-3 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-50 resize-none bg-slate-50/50"
+                                        className="w-full text-sm border border-slate-300 rounded-xl p-3 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-50 resize-none bg-[#f5f5f3]/50"
                                     ></textarea>
                                 </div>
                             </form>
                         </div>
-                        <div className="border-t border-slate-100 bg-slate-50 px-6 py-4 flex justify-end space-x-3">
+                        <div className="border-t border-[#ededea] bg-[#f5f5f3] px-6 py-4 flex justify-end space-x-3">
                             <button
                                 type="button"
                                 onClick={() => setIsPreviousCheckoutModalOpen(false)}
-                                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
+                                className="px-4 py-2 text-sm font-medium text-[#555555] hover:text-slate-800 transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
@@ -869,8 +833,8 @@ export default function EmployeeDashboard() {
 
             {isCheckOutModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm" onClick={() => setIsCheckOutModalOpen(false)}></div>
-                    <div className="relative z-10 w-full max-w-md bg-white border border-[#EAEAEA] rounded-[6px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+                    <div className="fixed inset-0 bg-[#111111]/40" onClick={() => setIsCheckOutModalOpen(false)}></div>
+                    <div className="employee-dialog relative z-10 w-full max-w-md bg-white border border-[#EAEAEA] rounded-[6px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
                         <div className="p-6">
                             <h3 className="text-lg font-medium text-[#111111] mb-1">End of Day Report</h3>
                             <p className="text-sm text-[#787774] mb-4">Please log your completed tasks for today.</p>
@@ -896,8 +860,8 @@ export default function EmployeeDashboard() {
 
             {isLeaveModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm" onClick={() => setIsLeaveModalOpen(false)}></div>
-                    <div className="relative z-10 w-full max-w-md bg-white border border-[#EAEAEA] rounded-[6px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+                    <div className="fixed inset-0 bg-[#111111]/40" onClick={() => setIsLeaveModalOpen(false)}></div>
+                    <div className="employee-dialog relative z-10 w-full max-w-md bg-white border border-[#EAEAEA] rounded-[6px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
                         <div className="p-6">
                             <h3 className="text-lg font-medium text-[#111111] mb-1">Request Time Off</h3>
                             <p className="text-sm text-[#787774] mb-4">Submit a new leave request to your manager.</p>
@@ -944,22 +908,22 @@ export default function EmployeeDashboard() {
             {/* Permission Request Modal */}
             {isPermissionModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={() => setIsPermissionModalOpen(false)}></div>
-                    <div className="relative z-10 w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden animate-fade-up">
+                    <div className="fixed inset-0 bg-[#111111]/60 backdrop-blur-xs" onClick={() => setIsPermissionModalOpen(false)}></div>
+                    <div className="employee-dialog relative z-10 w-full max-w-lg bg-white border border-[#e6e6e3] rounded-3xl shadow-2xl overflow-hidden animate-fade-up">
                         {/* Header */}
-                        <div className="px-6 py-5 bg-gradient-to-r from-indigo-50/80 to-purple-50/80 border-b border-indigo-100 flex items-center justify-between">
+                        <div className="px-6 py-5 bg-[#f5f5f3] border-b border-[#e6e6e3] flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="p-2.5 bg-indigo-600 text-white rounded-2xl shadow-sm">
+                                <div className="p-2.5 bg-[#111111] text-white rounded-2xl shadow-sm">
                                     <Clock size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-black text-slate-900">Request Permission</h3>
-                                    <p className="text-xs text-slate-500 font-medium">Apply for short duration permission (1-4 hours) during your shift.</p>
+                                    <h3 className="text-base font-black text-[#111111]">Request Permission</h3>
+                                    <p className="text-xs text-[#6b6b6b] font-medium">Apply for short duration permission (1-4 hours) during your shift.</p>
                                 </div>
                             </div>
                             <button 
                                 onClick={() => setIsPermissionModalOpen(false)}
-                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-white rounded-xl transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-400 hover:text-[#3f3f3f] hover:bg-white rounded-xl transition-colors cursor-pointer"
                             >
                                 <X size={18} />
                             </button>
@@ -969,7 +933,7 @@ export default function EmployeeDashboard() {
                         <form id="permissionForm" onSubmit={handlePermissionSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                             {/* Date */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                <label className="block text-xs font-bold text-[#3f3f3f] uppercase tracking-wider mb-1.5">
                                     Permission Date <span className="text-rose-500">*</span>
                                 </label>
                                 <input 
@@ -977,13 +941,13 @@ export default function EmployeeDashboard() {
                                     required 
                                     value={permissionData.date} 
                                     onChange={(e) => setPermissionData({ ...permissionData, date: e.target.value })} 
-                                    className="w-full text-xs font-bold border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 bg-slate-50/50" 
+                                    className="w-full text-xs font-bold border border-[#e6e6e3] rounded-xl p-3 focus:outline-none focus:border-[#111111] focus:ring-4 focus:ring-[#f0f0ee] bg-[#f5f5f3]/50"
                                 />
                             </div>
 
                             {/* Duration / Hours Chips */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                <label className="block text-xs font-bold text-[#3f3f3f] uppercase tracking-wider mb-1.5">
                                     Duration (Hours) <span className="text-rose-500">*</span>
                                 </label>
                                 <div className="grid grid-cols-4 gap-2 mb-2">
@@ -994,8 +958,8 @@ export default function EmployeeDashboard() {
                                             onClick={() => setPermissionData({ ...permissionData, hours: h })}
                                             className={`py-2.5 text-xs font-extrabold rounded-xl border transition-all cursor-pointer ${
                                                 permissionData.hours === h
-                                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                                                    ? 'bg-[#111111] text-white border-[#111111] shadow-sm'
+                                                    : 'bg-[#f5f5f3] text-[#3f3f3f] border-[#e6e6e3] hover:bg-[#f0f0ee]'
                                             }`}
                                         >
                                             {h} {h === 1 ? 'Hour' : 'Hours'}
@@ -1006,7 +970,7 @@ export default function EmployeeDashboard() {
 
                             {/* Time Slot */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                <label className="block text-xs font-bold text-[#3f3f3f] uppercase tracking-wider mb-1.5">
                                     Preferred Time Slot (e.g. 10:00 AM - 12:00 PM)
                                 </label>
                                 <div className="flex flex-wrap gap-1.5 mb-2">
@@ -1021,8 +985,8 @@ export default function EmployeeDashboard() {
                                             onClick={() => setPermissionData({ ...permissionData, timeSlot: slot })}
                                             className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all cursor-pointer ${
                                                 permissionData.timeSlot === slot
-                                                    ? 'bg-indigo-50 text-indigo-700 border-indigo-300 font-bold'
-                                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                                    ? 'bg-[#f0f0ee] text-[#111111] border-indigo-300 font-bold'
+                                                    : 'bg-white text-[#555555] border-[#e6e6e3] hover:bg-[#f5f5f3]'
                                             }`}
                                         >
                                             {slot}
@@ -1034,19 +998,19 @@ export default function EmployeeDashboard() {
                                     placeholder="Or type custom time (e.g. 11:30 AM to 01:30 PM)"
                                     value={permissionData.timeSlot} 
                                     onChange={(e) => setPermissionData({ ...permissionData, timeSlot: e.target.value })} 
-                                    className="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 bg-slate-50/50" 
+                                    className="w-full text-xs border border-[#e6e6e3] rounded-xl p-3 focus:outline-none focus:border-[#111111] focus:ring-4 focus:ring-[#f0f0ee] bg-[#f5f5f3]/50"
                                 />
                             </div>
 
                             {/* Permission Type */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                <label className="block text-xs font-bold text-[#3f3f3f] uppercase tracking-wider mb-1.5">
                                     Permission Type
                                 </label>
                                 <select 
                                     value={permissionData.type} 
                                     onChange={(e) => setPermissionData({ ...permissionData, type: e.target.value })} 
-                                    className="w-full text-xs font-medium border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 bg-slate-50/50 cursor-pointer"
+                                    className="w-full text-xs font-medium border border-[#e6e6e3] rounded-xl p-3 focus:outline-none focus:border-[#111111] focus:ring-4 focus:ring-indigo-50 bg-[#f5f5f3]/50 cursor-pointer"
                                 >
                                     <option value="Personal Work">Personal Work</option>
                                     <option value="Late Coming">Late Coming</option>
@@ -1058,7 +1022,7 @@ export default function EmployeeDashboard() {
 
                             {/* Reason */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                <label className="block text-xs font-bold text-[#3f3f3f] uppercase tracking-wider mb-1.5">
                                     Reason / Description <span className="text-rose-500">*</span>
                                 </label>
                                 <textarea 
@@ -1067,19 +1031,19 @@ export default function EmployeeDashboard() {
                                     placeholder="Explain why you need this permission (e.g., Bank visit, hospital consultation, urgent personal work)..." 
                                     value={permissionData.reason} 
                                     onChange={(e) => setPermissionData({ ...permissionData, reason: e.target.value })} 
-                                    className="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 resize-none bg-slate-50/50"
+                                    className="w-full text-xs border border-[#e6e6e3] rounded-xl p-3 focus:outline-none focus:border-[#111111] focus:ring-4 focus:ring-indigo-50 resize-none bg-[#f5f5f3]/50"
                                 ></textarea>
                             </div>
 
                             {/* Previous Submissions List inside modal if any */}
                             {myPermissions.length > 0 && (
-                                <div className="pt-3 border-t border-slate-100">
-                                    <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">My Recent Permissions</h4>
+                                <div className="pt-3 border-t border-[#ededea]">
+                                    <h4 className="text-[11px] font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">My Recent Permissions</h4>
                                     <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
                                         {myPermissions.slice(0, 3).map((p) => (
-                                            <div key={p._id} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between text-xs">
+                                            <div key={p._id} className="p-2.5 bg-[#f5f5f3] rounded-xl border border-[#e6e6e3]/60 flex items-center justify-between text-xs">
                                                 <div>
-                                                    <span className="font-bold text-slate-900">{p.hours}h ({p.type})</span>
+                                                    <span className="font-bold text-[#111111]">{p.hours}h ({p.type})</span>
                                                     <span className="text-slate-400 text-[11px] ml-1.5">
                                                         {new Date(p.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                                                     </span>
@@ -1099,13 +1063,13 @@ export default function EmployeeDashboard() {
                         </form>
 
                         {/* Footer */}
-                        <div className="border-t border-slate-100 bg-slate-50/80 px-6 py-4 flex items-center justify-between">
+                        <div className="border-t border-[#ededea] bg-[#f5f5f3]/80 px-6 py-4 flex items-center justify-between">
                             <span className="text-xs text-slate-400 font-medium">HR approval required</span>
                             <div className="flex space-x-3">
                                 <button 
                                     type="button" 
                                     onClick={() => setIsPermissionModalOpen(false)} 
-                                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                                    className="px-4 py-2 text-xs font-bold text-[#555555] hover:text-[#111111] transition-colors cursor-pointer"
                                 >
                                     Cancel
                                 </button>
@@ -1113,7 +1077,7 @@ export default function EmployeeDashboard() {
                                     type="submit" 
                                     form="permissionForm" 
                                     disabled={isSubmittingPerm}
-                                    className="px-5 py-2.5 text-xs font-extrabold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm hover:shadow transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                                    className="px-5 py-2.5 text-xs font-extrabold text-white bg-[#111111] hover:bg-[#303030] rounded-xl shadow-sm hover:shadow transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                                 >
                                     {isSubmittingPerm ? 'Submitting...' : 'Submit Permission Request'}
                                 </button>

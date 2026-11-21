@@ -155,7 +155,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                     <select 
                         value={callStatus} 
                         onChange={(e) => setCallStatus(e.target.value)}
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#111111] focus:ring-1 focus:ring-blue-500 transition-colors"
                     >
                         {['Lead', 'Attend 1', 'Attend 2', 'Not Attend', 'Not Attend 1', 'Not Attend 2', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Rejected'].map(s => (
                             <option key={s} value={s}>{s}</option>
@@ -171,7 +171,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                                 type="date" 
                                 value={alertDate} 
                                 onChange={(e) => setAlertDate(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500"
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#111111]"
                             />
                         </div>
                         <div>
@@ -180,7 +180,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                                 type="time" 
                                 value={alertTime} 
                                 onChange={(e) => setAlertTime(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500"
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#111111]"
                             />
                         </div>
                     </div>
@@ -194,7 +194,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                             value={descriptions[callStatus] || ''}
                             onChange={(e) => setDescriptions({ ...descriptions, [callStatus]: e.target.value })}
                             placeholder={`Enter notes for ${callStatus}...`}
-                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#111111]"
                         />
                     </div>
                 )}
@@ -207,7 +207,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                             value={rejectReason}
                             onChange={(e) => setRejectReason(e.target.value)}
                             placeholder="Why was this lead rejected?"
-                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#111111]"
                         />
                     </div>
                 )}
@@ -216,7 +216,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                     <button 
                         onClick={handleCallStatusSave} 
                         disabled={isSaving}
-                        className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer"
+                        className="w-full py-3 bg-[#111111] text-white font-medium rounded-lg hover:bg-[#303030] transition-colors disabled:opacity-50 cursor-pointer"
                     >
                         {isSaving ? 'Saving...' : 'Save Call Status'}
                     </button>
@@ -228,12 +228,12 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
     const renderPipelineStages = () => {
         if (pendingStage) {
             return (
-                <div className="space-y-5 bg-slate-50/80 p-6 rounded-2xl border border-slate-200 shadow-sm animate-fade-up">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div className="space-y-5 bg-[#f5f5f3]/80 p-6 rounded-2xl border border-[#e6e6e3] shadow-sm animate-fade-up">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#e6e6e3]">
                         <h3 className="font-bold text-slate-800 text-base flex items-center">
-                            <ArrowRight size={18} className="mr-2 text-blue-600" /> Move to {pendingStage}
+                            <ArrowRight size={18} className="mr-2 text-[#3f3f3f]" /> Move to {pendingStage}
                         </h3>
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#e6e6e3] text-[#111111]">
                             Stage Transition
                         </span>
                     </div>
@@ -244,27 +244,27 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5 flex items-center">
-                                        <Calendar size={14} className="mr-1.5 text-blue-600" /> 
+                                        <Calendar size={14} className="mr-1.5 text-[#3f3f3f]" />
                                         {pendingStage} Alert Date {pendingStage === 'Appointment' && <span className="text-rose-500 ml-1">*</span>}
                                     </label>
                                     <input 
                                         type="date" 
                                         value={stageAlertDate} 
                                         onChange={(e) => setStageAlertDate(e.target.value)} 
-                                        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 text-sm font-medium text-slate-800"
+                                        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl outline-none focus:border-[#111111] focus:ring-4 focus:ring-[#f0f0ee] text-sm font-medium text-slate-800"
                                         required={pendingStage === 'Appointment'}
                                     />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5 flex items-center">
-                                        <Clock size={14} className="mr-1.5 text-blue-600" /> 
+                                        <Clock size={14} className="mr-1.5 text-[#3f3f3f]" />
                                         {pendingStage} Alert Time
                                     </label>
                                     <input 
                                         type="time" 
                                         value={stageAlertTime} 
                                         onChange={(e) => setStageAlertTime(e.target.value)} 
-                                        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 text-sm font-medium text-slate-800"
+                                        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl outline-none focus:border-[#111111] focus:ring-4 focus:ring-[#f0f0ee] text-sm font-medium text-slate-800"
                                     />
                                 </div>
                             </div>
@@ -278,7 +278,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                                     value={stageNotes}
                                     onChange={(e) => setStageNotes(e.target.value)}
                                     placeholder={`Enter details, meeting purpose, or location for ${pendingStage}...`}
-                                    className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 text-sm resize-none"
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl outline-none focus:border-[#111111] focus:ring-4 focus:ring-[#f0f0ee] text-sm resize-none"
                                 />
                             </div>
                         </div>
@@ -310,14 +310,14 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                     <div className="flex space-x-3 pt-2">
                         <button 
                             onClick={() => { setPendingStage(null); setStageAlertDate(''); setStageAlertTime(''); }} 
-                            className="flex-1 py-2.5 bg-white border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+                            className="flex-1 py-2.5 bg-white border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-[#f5f5f3] transition-colors cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button 
                             onClick={confirmStageMove} 
                             disabled={isSaving}
-                            className="flex-1 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+                            className="flex-1 py-2.5 bg-[#111111] text-white font-bold rounded-xl hover:bg-[#303030] transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
                         >
                             {isSaving ? 'Saving...' : 'Confirm Move'}
                         </button>
@@ -470,10 +470,10 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                     <div>
                         <div className="flex items-center space-x-3 mb-1">
                             <h2 className="text-2xl font-extrabold text-gray-900">{lead.customerName}</h2>
-                            <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">{lead.leadId}</span>
+                            <span className="px-2.5 py-0.5 bg-[#e6e6e3] text-[#111111] text-xs font-bold rounded-full">{lead.leadId}</span>
                             <button 
                                 onClick={() => { onClose(); onEdit(lead); }} 
-                                className="p-1.5 ml-2 bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer flex items-center shadow-sm"
+                                className="p-1.5 ml-2 bg-white border border-gray-200 text-gray-500 hover:text-[#3f3f3f] hover:border-blue-300 hover:bg-[#f0f0ee] rounded-lg transition-colors cursor-pointer flex items-center shadow-sm"
                                 title="Edit Lead"
                             >
                                 <Eye size={16} className="mr-1.5" /> <span className="text-xs font-bold">View/Edit</span>
@@ -503,7 +503,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Lead Info</h4>
                             <div className="space-y-3 text-[14px]">
                                 <div className="flex justify-between"><span className="text-gray-500">Source:</span> <span className="font-medium text-gray-800">{lead.leadSource}</span></div>
-                                <div className="flex justify-between"><span className="text-gray-500">Status:</span> <span className="font-medium text-blue-600 bg-blue-50 px-2 rounded">{lead.leadStatus}</span></div>
+                                <div className="flex justify-between"><span className="text-gray-500">Status:</span> <span className="font-medium text-[#3f3f3f] bg-[#f0f0ee] px-2 rounded">{lead.leadStatus}</span></div>
                                 <div className="flex justify-between"><span className="text-gray-500">Call Status:</span> <span className="font-medium text-gray-800">{lead.callStatus || 'Lead'}</span></div>
                                 <div className="flex justify-between"><span className="text-gray-500">Value:</span> <span className="font-bold text-gray-800">₹{(lead.leadValue || 0).toLocaleString()}</span></div>
                             </div>
@@ -541,7 +541,7 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                                     <h4 className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2 flex items-center">
                                         <PhoneOutgoing size={12} className="mr-1" /> Callback ({num}) Notes
                                     </h4>
-                                    <p className="text-sm text-gray-600 bg-blue-50/50 p-3 rounded-xl border border-blue-100 shadow-sm">{desc}</p>
+                                    <p className="text-sm text-gray-600 bg-[#f0f0ee]/50 p-3 rounded-xl border border-[#ededea] shadow-sm">{desc}</p>
                                 </div>
                             );
                         })}
@@ -612,13 +612,13 @@ export default function LeadDetailsModal({ lead, onClose, onUpdate, onEdit }) {
                         <div className="flex border-b border-gray-200">
                             <button 
                                 onClick={() => setActiveTab('call_status')}
-                                className={`flex-1 py-4 text-sm font-bold flex items-center justify-center transition-colors border-b-[3px] cursor-pointer ${activeTab === 'call_status' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+                                className={`flex-1 py-4 text-sm font-bold flex items-center justify-center transition-colors border-b-[3px] cursor-pointer ${activeTab === 'call_status' ? 'border-blue-600 text-[#111111] bg-[#f0f0ee]/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
                             >
                                 <PhoneOutgoing size={16} className="mr-2" /> Call Status
                             </button>
                             <button 
                                 onClick={() => setActiveTab('pipeline')}
-                                className={`flex-1 py-4 text-sm font-bold flex items-center justify-center transition-colors border-b-[3px] cursor-pointer ${activeTab === 'pipeline' ? 'border-blue-600 text-blue-700 bg-blue-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+                                className={`flex-1 py-4 text-sm font-bold flex items-center justify-center transition-colors border-b-[3px] cursor-pointer ${activeTab === 'pipeline' ? 'border-blue-600 text-[#111111] bg-[#f0f0ee]/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
                             >
                                 <Target size={16} className="mr-2" /> Change Stage
                             </button>

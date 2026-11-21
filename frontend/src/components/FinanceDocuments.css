@@ -1,0 +1,21 @@
+.finance-document-list, .finance-document-editor { display: grid; gap: 16px; min-width: 0; }
+.finance-document-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.finance-document-heading h2 { font-size: clamp(24px, 3vw, 38px); font-weight: 500; letter-spacing: -.045em; }
+.finance-document-heading h2 span { color: var(--workspace-muted); }
+.finance-document-primary { display: inline-flex; min-height: 42px; align-items: center; gap: 6px; padding-inline: 15px; border-radius: 999px; background: var(--workspace-ink); color: var(--workspace-surface); cursor: pointer; }
+.finance-document-primary:hover { background: #303030; }
+.finance-document-list .finance-quote-summary > div:last-child { background: var(--workspace-surface); color: var(--workspace-ink); }
+.finance-document-list .finance-quote-summary > div:last-child :is(dt, small) { color: var(--workspace-muted); }
+.finance-document-list :is(input[type='text'], input[type='search']) { min-height: 36px; }
+.finance-document-list table { text-align: left; }
+.finance-document-list th { color: var(--workspace-muted); font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.finance-document-toolbar { padding: 18px; border-radius: var(--workspace-card-radius); background: var(--workspace-surface); }
+.finance-document-toolbar h2 { font-size: 20px; font-weight: 500; }
+.finance-document-toolbar button { border-radius: 999px; min-height: 32px; }
+.finance-document-inputs > div { border-radius: 22px; }
+.finance-document-inputs h3 { font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 16px; }
+.finance-document-inputs :is(label, input, textarea, select) { min-width: 0; }
+.finance-document-inputs label { text-transform: none; font-weight: 500; }
+.finance-document-inputs :is(input, textarea, select):focus-visible, .finance-document-toolbar button:focus-visible, .finance-document-list :is(button, input):focus-visible { outline: 2px solid var(--workspace-ink); outline-offset: 2px; }
+.finance-template-card h3 { font-weight: 500; }
+@media (max-width: 650px) { .finance-document-toolbar { padding: 12px; } }

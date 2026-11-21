@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './HRViews.css';
 import { 
     Plus, Search, UserCheck, Pencil, Trash2, Mail, Briefcase, Phone, 
     Eye, X, CreditCard, Landmark, Hash, Building2, Calendar, ShieldCheck, 
@@ -23,18 +23,16 @@ export default function EmployeeManagement() {
         setCurrentPage(1);
     }, [searchTerm]);
 
-    // Prevent background scrolling and handle ESC key when modal is open
+    // Keep Escape available while employee details are open.
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') setSelectedEmp(null);
         };
         if (selectedEmp) {
             window.addEventListener('keydown', handleKeyDown);
-            document.body.style.overflow = 'hidden';
         }
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
-            document.body.style.overflow = 'unset';
         };
     }, [selectedEmp]);
 
@@ -131,16 +129,16 @@ export default function EmployeeManagement() {
     const paginatedEmployees = filteredEmployees.slice((validPage - 1) * PAGE_SIZE, validPage * PAGE_SIZE);
 
     return (
-        <div className="space-y-6">
+        <div className="hr-views-stack">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="relative w-full sm:w-96">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                     <input 
                         type="text" 
-                        placeholder="Search employees by name, ID or Dept..." 
+                        aria-label="Search employees" placeholder="Search employees"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all font-medium text-gray-700"
+                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#111111] focus:ring-4 focus:ring-[#f0f0ee] transition-all font-medium text-gray-700"
                     />
                 </div>
                 <div className="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
@@ -156,14 +154,16 @@ export default function EmployeeManagement() {
                     </div>
                     <button 
                         onClick={() => navigate('/hr/employee/add')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
+                        className="bg-[#111111] hover:bg-[#303030] text-white px-5 py-2.5 rounded-xl font-bold flex items-center shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
                     >
                         <Plus size={18} className="mr-2" /> Add Employee
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
+            <div className="hr-employee-directory" data-selected={Boolean(selectedEmp)}>
+                <section className="hr-view-panel" aria-label="Employees">
+            <div className="hr-employee-directory-list">
                 {filteredEmployees.length === 0 ? (
                     <div className="col-span-full py-16 text-center text-gray-500 bg-white rounded-2xl border border-gray-100 shadow-sm">
                         <UserCheck size={48} className="mx-auto text-gray-300 mb-4" />
@@ -171,7 +171,7 @@ export default function EmployeeManagement() {
                         <p className="text-sm text-gray-500 mt-1">Click "Add Employee" to onboard your staff.</p>
                         <button 
                             onClick={() => navigate('/hr/employee/add')} 
-                            className="mt-4 px-5 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition-colors cursor-pointer inline-flex items-center text-sm"
+                            className="mt-4 px-5 py-2 bg-[#f0f0ee] text-[#3f3f3f] rounded-xl font-bold hover:bg-[#e6e6e3] transition-colors cursor-pointer inline-flex items-center text-sm"
                         >
                             <Plus size={16} className="mr-1.5" /> Add First Employee
                         </button>
@@ -195,7 +195,7 @@ export default function EmployeeManagement() {
                                         <div className={`w-11 h-11 rounded-full flex items-center justify-center text-base font-black shadow-inner shrink-0 overflow-hidden ${
                                             isInactive 
                                             ? 'bg-slate-200 text-slate-500' 
-                                            : 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700'
+                                            : 'bg-[#f0f0ee] text-[#111111]'
                                         }`}>
                                             {emp.photo ? (
                                                 <img src={emp.photo} alt={emp.firstName} className="w-full h-full object-cover" />
@@ -210,7 +210,7 @@ export default function EmployeeManagement() {
                                                 </h3>
                                             </div>
                                             <div className="flex items-center gap-1.5 mt-0.5">
-                                                <p className="text-[11px] font-semibold text-blue-600 tracking-wide uppercase">{emp.employeeId}</p>
+                                                <p className="text-[11px] font-semibold text-[#3f3f3f] tracking-wide uppercase">{emp.employeeId}</p>
                                                 {isInactive && (
                                                     <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-slate-200 text-slate-600 tracking-wider">
                                                         Deactivated
@@ -229,7 +229,7 @@ export default function EmployeeManagement() {
                                         </button>
                                         <button 
                                             onClick={() => navigate(`/hr/employee/edit/${emp._id}`)} 
-                                            className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-1.5 rounded-lg transition-colors cursor-pointer"
+                                            className="text-[#3f3f3f] hover:text-blue-800 bg-[#f0f0ee] hover:bg-[#e6e6e3] p-1.5 rounded-lg transition-colors cursor-pointer"
                                             title="Edit employee and statutory/bank details"
                                         >
                                             <Pencil size={15} />
@@ -303,7 +303,7 @@ export default function EmployeeManagement() {
                                         <span className="text-slate-400 italic">No bank/PAN added</span>
                                         <button 
                                             onClick={() => navigate(`/hr/employee/edit/${emp._id}`)}
-                                            className="text-blue-600 font-bold hover:underline cursor-pointer flex items-center gap-0.5"
+                                            className="text-[#3f3f3f] font-bold hover:underline cursor-pointer flex items-center gap-0.5"
                                         >
                                             <Plus size={11} /> Add Details
                                         </button>
@@ -333,7 +333,7 @@ export default function EmployeeManagement() {
                                             <RotateCcw size={11} /> Reactivate
                                         </button>
                                     )}
-                                    <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                                    <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-[#f0f0ee] text-[#111111] border border-blue-100">
                                         {emp.role || emp.userId?.role || 'Employee'}
                                     </span>
                                 </div>
@@ -373,20 +373,13 @@ export default function EmployeeManagement() {
                 </div>
             )}
 
-            {/* Employee Details Modal rendered directly into document.body via Portal to prevent any parent container clipping */}
-            {selectedEmp && createPortal(
-                <div 
-                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm overflow-y-auto" 
-                    onClick={() => setSelectedEmp(null)}
-                >
-                    <div 
-                        className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 relative my-auto overflow-hidden flex flex-col max-h-[88vh]"
-                        onClick={e => e.stopPropagation()}
-                    >
+                </section>
+                {selectedEmp && (
+                    <aside className="hr-view-panel hr-employee-details" aria-label="Employee details">
                         {/* Fixed Top Header (Always Visible!) */}
                         <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-white/95 backdrop-blur-sm shrink-0">
                             <div className="flex items-center space-x-4">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 overflow-hidden">
+                                <div className="w-14 h-14 rounded-2xl bg-[#111111] text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-none shrink-0 overflow-hidden">
                                     {selectedEmp.photo ? (
                                         <img src={selectedEmp.photo} alt={selectedEmp.firstName} className="w-full h-full object-cover" />
                                     ) : (
@@ -402,7 +395,7 @@ export default function EmployeeManagement() {
                                             {selectedEmp.status || 'Active'}
                                         </span>
                                     </div>
-                                    <p className="text-xs font-bold text-blue-600 tracking-wider uppercase mt-1">
+                                    <p className="text-xs font-bold text-[#3f3f3f] tracking-wider uppercase mt-1">
                                         {selectedEmp.employeeId} • {selectedEmp.designation || 'Staff'} ({selectedEmp.department || 'General'})
                                     </p>
                                 </div>
@@ -413,7 +406,7 @@ export default function EmployeeManagement() {
                                         navigate(`/hr/employee/edit/${selectedEmp._id}`);
                                         setSelectedEmp(null);
                                     }}
-                                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                                    className="px-3.5 py-2 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                                 >
                                     <Pencil size={13} />
                                     <span>Edit Details</span>
@@ -462,7 +455,7 @@ export default function EmployeeManagement() {
                                     </div>
                                     <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
                                         <span className="text-slate-400 block text-[10px] font-bold uppercase">Assigned Role</span>
-                                        <span className="font-bold text-blue-700">{selectedEmp.role || selectedEmp.userId?.role || 'Employee'}</span>
+                                        <span className="font-bold text-[#111111]">{selectedEmp.role || selectedEmp.userId?.role || 'Employee'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -545,11 +538,11 @@ export default function EmployeeManagement() {
                             {Array.isArray(selectedEmp.userId?.activeModules) && selectedEmp.userId.activeModules.length > 0 && (
                                 <div>
                                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center">
-                                        <ShieldCheck size={14} className="mr-1.5 text-blue-600" /> Enabled Dashboard Modules
+                                        <ShieldCheck size={14} className="mr-1.5 text-[#3f3f3f]" /> Enabled Dashboard Modules
                                     </h4>
                                     <div className="flex flex-wrap gap-2">
                                         {selectedEmp.userId.activeModules.map(m => (
-                                            <span key={m} className="px-3 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200/70 text-xs font-bold uppercase tracking-wide">
+                                            <span key={m} className="px-3 py-1 rounded-lg bg-[#f0f0ee] text-[#111111] border border-[#e6e6e3]/70 text-xs font-bold uppercase tracking-wide">
                                                 {m}
                                             </span>
                                         ))}
@@ -602,17 +595,16 @@ export default function EmployeeManagement() {
                                         navigate(`/hr/employee/edit/${selectedEmp._id}`);
                                         setSelectedEmp(null);
                                     }}
-                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
+                                    className="px-4 py-2 bg-[#111111] hover:bg-[#303030] text-white font-bold rounded-xl text-xs shadow-md shadow-none flex items-center gap-1.5 cursor-pointer"
                                 >
                                     <Pencil size={13} />
                                     <span>Edit Details</span>
                                 </button>
                             </div>
                         </div>
-                    </div>
-                </div>,
-                document.body
-            )}
+                    </aside>
+                )}
+            </div>
         </div>
     );
 }

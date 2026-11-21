@@ -1,3 +1,4 @@
+import './FinanceDocuments.css';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
@@ -201,55 +202,17 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
     const totalMonthlyValue = templates.reduce((sum, t) => sum + calculateTotals(t).grandTotal, 0);
 
     return (
-        <div className="space-y-6 text-slate-800">
-
-            {/* TOP HEADER & STATS CARDS */}
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-5 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
-                <div>
-                    <div className="flex items-center gap-2">
-                        <span className="p-2 rounded-xl bg-orange-100 text-[#FF4500]">
-                            <Repeat size={20} />
-                        </span>
-                        <div>
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                                Fixed Client Templates
-                                <span className="text-xs px-2.5 py-0.5 rounded-full bg-orange-50 text-[#FF4500] border border-orange-200 font-bold">
-                                    Monthly Recurring
-                                </span>
-                            </h2>
-                            <p className="text-xs text-slate-400 font-medium mt-0.5">
-                                Pre-saved client billing templates for instant 1-click Quotation & Invoice generation
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-right min-w-[120px]">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Clients</span>
-                        <h4 className="text-lg font-black text-slate-900 font-mono">{totalTemplatesCount}</h4>
-                    </div>
-
-                    <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-right min-w-[130px]">
-                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">GST (18%)</span>
-                        <h4 className="text-lg font-black text-emerald-950 font-mono">{gstTemplatesCount} Clients</h4>
-                    </div>
-
-                    <div className="px-4 py-2.5 rounded-2xl bg-purple-50 border border-purple-200 text-right min-w-[130px]">
-                        <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">Non-GST (0%)</span>
-                        <h4 className="text-lg font-black text-purple-950 font-mono">{nonGstTemplatesCount} Clients</h4>
-                    </div>
-
-                    <button 
-                        type="button"
-                        onClick={handleOpenAdd}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-[#FF4500] to-orange-600 hover:from-orange-600 hover:to-[#FF4500] text-white font-bold text-xs shadow-md shadow-orange-500/20 active:scale-95 transition-all cursor-pointer"
-                    >
-                        <Plus size={16} />
-                        <span>Add New Template</span>
-                    </button>
-                </div>
-            </div>
+        <div className="finance-document-list">
+            <header className="finance-document-heading">
+                <h2>Fixed client templates</h2>
+                <button type="button" className="finance-document-primary" onClick={handleOpenAdd}><Plus size={16} /> New template</button>
+            </header>
+            <dl className="finance-receipt-summary finance-quote-summary">
+                <div><dt>Monthly recurring</dt><dd>₹{totalMonthlyValue.toLocaleString('en-IN')}</dd></div>
+                <div><dt>Fixed clients</dt><dd>{totalTemplatesCount}</dd></div>
+                <div><dt>GST</dt><dd>{gstTemplatesCount}</dd></div>
+                <div><dt>Non-GST</dt><dd>{nonGstTemplatesCount}</dd></div>
+            </dl>
 
             {/* SUCCESS NOTICE */}
             {successMessage && (
@@ -260,24 +223,24 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
             )}
 
             {/* SEARCH & TAX FILTER BAR */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-white rounded-2xl border border-[#e6e6e3] shadow-xs">
                 <div className="relative w-full sm:w-80">
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 
                         type="text" 
-                        placeholder="Search template title, client name, GSTIN..."
+                        aria-label="Search templates" placeholder="Search templates"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-[#FF4500] focus:bg-white transition-all"
+                        className="w-full pl-9 pr-3 py-2 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-[#FF4500] focus:bg-white transition-all"
                     />
                 </div>
 
-                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                <div className="flex items-center gap-1 bg-[#f0f0ee] p-1 rounded-xl text-xs font-bold">
                     <button 
                         type="button"
                         onClick={() => setTaxFilter('ALL')}
                         className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                            taxFilter === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            taxFilter === 'ALL' ? 'bg-white text-[#111111] shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                         }`}
                     >
                         All ({templates.length})
@@ -286,7 +249,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                         type="button"
                         onClick={() => setTaxFilter('GST')}
                         className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                            taxFilter === 'GST' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            taxFilter === 'GST' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                         }`}
                     >
                         GST 18% ({gstTemplatesCount})
@@ -295,7 +258,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                         type="button"
                         onClick={() => setTaxFilter('NONGST')}
                         className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                            taxFilter === 'NONGST' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                            taxFilter === 'NONGST' ? 'bg-white text-purple-700 shadow-xs' : 'text-slate-600 hover:text-[#111111]'
                         }`}
                     >
                         Non-GST ({nonGstTemplatesCount})
@@ -309,7 +272,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                     Loading fixed templates...
                 </div>
             ) : filteredTemplates.length === 0 ? (
-                <div className="p-12 text-center bg-white rounded-3xl border border-slate-200">
+                <div className="p-12 text-center bg-white rounded-3xl border border-[#e6e6e3]">
                     <Repeat size={36} className="mx-auto text-slate-300 mb-2" />
                     <h3 className="font-bold text-slate-700 text-sm">No templates found</h3>
                     <p className="text-xs text-slate-400 mt-1">Try adjusting your search or add a new fixed client template.</p>
@@ -321,16 +284,13 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                         return (
                             <div 
                                 key={template._id}
-                                className="bg-white rounded-3xl border border-slate-200/90 hover:border-orange-300 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden group"
+                                className="finance-template-card bg-white rounded-3xl border border-[#e6e6e3] flex flex-col justify-between overflow-hidden group"
                             >
-                                {/* Top Bar with Color Accent */}
-                                <div className={`h-1.5 w-full ${isGst ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-purple-500 to-indigo-500'}`} />
-
                                 <div className="p-5 space-y-4 flex-1">
                                     {/* Header Row */}
                                     <div className="flex items-start justify-between gap-2">
                                         <div>
-                                            <h3 className="text-base font-black text-slate-900 group-hover:text-[#FF4500] transition-colors">
+                                            <h3 className="text-base font-black text-[#111111] group-hover:text-[#FF4500] transition-colors">
                                                 {template.name}
                                             </h3>
                                             <span className="text-xs font-semibold text-slate-500 block mt-0.5">
@@ -352,7 +312,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                             <button 
                                                 type="button"
                                                 onClick={() => handleOpenEdit(template)}
-                                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                                                className="p-1.5 text-slate-400 hover:text-[#3f3f3f] hover:bg-[#f0f0ee] rounded-lg transition-colors cursor-pointer"
                                                 title="Edit Template"
                                             >
                                                 <Edit2 size={14} />
@@ -369,7 +329,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                     </div>
 
                                     {/* Client Address & GST info */}
-                                    <div className="p-3 bg-slate-50/70 rounded-2xl border border-slate-100 text-[11px] text-slate-600 space-y-1">
+                                    <div className="p-3 bg-[#f5f5f3]/70 rounded-2xl border border-slate-100 text-[11px] text-slate-600 space-y-1">
                                         {(template.clientDetails?.addressLine1 || template.clientDetails?.location) && (
                                             <div className="flex items-start gap-1.5">
                                                 <MapPin size={13} className="text-slate-400 shrink-0 mt-0.5" />
@@ -407,7 +367,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                                             {item.description}
                                                         </span>
                                                         {item.hsn && (
-                                                            <span className="text-[9px] font-mono text-slate-400 bg-slate-100 px-1 py-0.2 rounded">
+                                                            <span className="text-[9px] font-mono text-slate-400 bg-[#f0f0ee] px-1 py-0.2 rounded">
                                                                 {item.hsn}
                                                             </span>
                                                         )}
@@ -423,11 +383,11 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                 </div>
 
                                 {/* Bottom Pricing & Dual 1-Click Action Buttons */}
-                                <div className="p-4 bg-slate-50 border-t border-slate-100 rounded-b-3xl space-y-3">
+                                <div className="p-4 bg-[#f5f5f3] border-t border-slate-100 rounded-b-3xl space-y-3">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-slate-500">Monthly Total</span>
                                         <div className="text-right">
-                                            <span className="text-lg font-black font-mono text-slate-900 block">
+                                            <span className="text-lg font-black font-mono text-[#111111] block">
                                                 ₹{grandTotal.toLocaleString('en-IN')}
                                             </span>
                                             {isGst && (
@@ -453,7 +413,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                         <button 
                                             type="button"
                                             onClick={() => onSelectForInvoice && onSelectForInvoice(template)}
-                                            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
+                                            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
                                             title="Generate Invoice with this template"
                                         >
                                             <FileText size={14} />
@@ -471,13 +431,13 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                ADD / EDIT MODAL
             ======================================================== */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
-                    <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5 animate-fade-up">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/60 backdrop-blur-xs p-4 overflow-y-auto">
+                    <div className="bg-white rounded-3xl border border-[#e6e6e3] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5 animate-fade-up">
                         
                         {/* Modal Header */}
                         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                             <div>
-                                <h3 className="text-lg font-black text-slate-900">
+                                <h3 className="text-lg font-black text-[#111111]">
                                     {editId ? 'Edit Fixed Template' : 'Add New Fixed Template'}
                                 </h3>
                                 <p className="text-xs text-slate-400 font-medium">
@@ -487,7 +447,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                             <button 
                                 type="button"
                                 onClick={() => setShowModal(false)}
-                                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-[#f0f0ee] transition-colors cursor-pointer"
                             >
                                 <X size={18} />
                             </button>
@@ -506,12 +466,12 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                     placeholder="e.g. SR AUTOMATION, SEASON 6"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-[#FF4500] focus:bg-white"
+                                    className="w-full px-3 py-2 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl text-xs font-bold text-[#111111] outline-none focus:border-[#FF4500] focus:bg-white"
                                 />
                             </div>
 
                             {/* Client Details Section */}
-                            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                            <div className="p-4 bg-[#f5f5f3] rounded-2xl border border-[#e6e6e3] space-y-3">
                                 <h4 className="text-xs font-black uppercase text-slate-600 tracking-wider flex items-center gap-1.5">
                                     <Building2 size={14} className="text-[#FF4500]" />
                                     <span>Client Details</span>
@@ -529,7 +489,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                                 ...formData, 
                                                 clientDetails: { ...formData.clientDetails, name: e.target.value } 
                                             })}
-                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-[#FF4500]"
+                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-[#FF4500]"
                                         />
                                     </div>
 
@@ -543,7 +503,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                                 ...formData, 
                                                 clientDetails: { ...formData.clientDetails, gstNo: e.target.value } 
                                             })}
-                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-semibold text-slate-800 outline-none focus:border-[#FF4500]"
+                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-mono font-semibold text-slate-800 outline-none focus:border-[#FF4500]"
                                         />
                                     </div>
 
@@ -557,7 +517,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                                 ...formData, 
                                                 clientDetails: { ...formData.clientDetails, addressLine1: e.target.value } 
                                             })}
-                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-[#FF4500]"
+                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-[#FF4500]"
                                         />
                                     </div>
 
@@ -571,7 +531,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                                 ...formData, 
                                                 clientDetails: { ...formData.clientDetails, addressLine2: e.target.value } 
                                             })}
-                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-[#FF4500]"
+                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-[#FF4500]"
                                         />
                                     </div>
 
@@ -585,14 +545,14 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                                 ...formData, 
                                                 clientDetails: { ...formData.clientDetails, location: e.target.value } 
                                             })}
-                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-[#FF4500]"
+                                            className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-xl text-xs font-medium text-slate-800 outline-none focus:border-[#FF4500]"
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             {/* Items Section */}
-                            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                            <div className="p-4 bg-[#f5f5f3] rounded-2xl border border-[#e6e6e3] space-y-3">
                                 <div className="flex items-center justify-between">
                                     <h4 className="text-xs font-black uppercase text-slate-600 tracking-wider flex items-center gap-1.5">
                                         <Layers size={14} className="text-[#FF4500]" />
@@ -610,21 +570,21 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
 
                                 <div className="space-y-2">
                                     {formData.items.map((item, index) => (
-                                        <div key={index} className="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200">
+                                        <div key={index} className="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-[#e6e6e3]">
                                             <input 
                                                 type="text" 
                                                 required
                                                 placeholder="Service Description"
                                                 value={item.description}
                                                 onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                                                className="flex-2 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-[#FF4500]"
+                                                className="flex-2 px-2.5 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-[#FF4500]"
                                             />
                                             <input 
                                                 type="text" 
                                                 placeholder="HSN"
                                                 value={item.hsn}
                                                 onChange={(e) => handleItemChange(index, 'hsn', e.target.value)}
-                                                className="w-20 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 outline-none focus:border-[#FF4500]"
+                                                className="w-20 px-2 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-lg text-xs font-mono text-slate-800 outline-none focus:border-[#FF4500]"
                                             />
                                             <input 
                                                 type="number" 
@@ -633,7 +593,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                                 placeholder="Price ₹"
                                                 value={item.price}
                                                 onChange={(e) => handleItemChange(index, 'price', e.target.value)}
-                                                className="w-24 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900 outline-none focus:border-[#FF4500]"
+                                                className="w-24 px-2 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-lg text-xs font-mono font-bold text-[#111111] outline-none focus:border-[#FF4500]"
                                             />
                                             <input 
                                                 type="number" 
@@ -642,7 +602,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                                 placeholder="Qty"
                                                 value={item.qty}
                                                 onChange={(e) => handleItemChange(index, 'qty', e.target.value)}
-                                                className="w-14 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900 outline-none focus:border-[#FF4500]"
+                                                className="w-14 px-2 py-1.5 bg-[#f5f5f3] border border-[#e6e6e3] rounded-lg text-xs font-mono font-bold text-[#111111] outline-none focus:border-[#FF4500]"
                                             />
                                             {formData.items.length > 1 && (
                                                 <button 
@@ -666,7 +626,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                 <select 
                                     value={formData.taxRate}
                                     onChange={(e) => setFormData({ ...formData, taxRate: Number(e.target.value) })}
-                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-[#FF4500]"
+                                    className="w-full px-3 py-2 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-[#FF4500]"
                                 >
                                     <option value={9}>18% GST (9% CGST + 9% SGST)</option>
                                     <option value={0}>0% Non-GST (No Tax)</option>
@@ -678,7 +638,7 @@ export default function FixedTemplates({ onSelectForQuote, onSelectForInvoice })
                                 <button 
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-[#f0f0ee] transition-colors cursor-pointer"
                                 >
                                     Cancel
                                 </button>

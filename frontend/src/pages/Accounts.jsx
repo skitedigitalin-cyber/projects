@@ -25,7 +25,7 @@ export default function Accounts() {
                 <header className="accounts-page-heading">
                     <div>
                         <p>Accounts{summary && ` · FY ${summary.fiscalYear}–${String(summary.fiscalYear + 1).slice(-2)}`}</p>
-                        <h1>{profit == null ? 'Accounts' : <>{compactRupees(Math.abs(profit))} {profit < 0 ? 'loss' : 'profit'} <span>this month</span></>}</h1>
+                        <h1>{activeTab !== 'income-expense' ? tabs.find(([id]) => id === activeTab)?.[1] : profit == null ? 'Accounts' : <>{compactRupees(Math.abs(profit))} {profit < 0 ? 'loss' : 'profit'} <span>this month</span></>}</h1>
                     </div>
                     <nav aria-label="Accounts views">
                         {tabs.map(([id, label]) => <button type="button" key={id} aria-current={activeTab === id ? 'page' : undefined} onClick={() => setActiveTab(id)}>{label}</button>)}
@@ -39,7 +39,7 @@ export default function Accounts() {
                         </section>
                     </>
                 ) : (
-                    <div className="accounts-card accounts-existing">
+                    <div>
                         {activeTab === 'invoice-payments' && <InvoicePayment onBack={() => setActiveTab('income-expense')} />}
                         {activeTab === 'profit-graph' && <ProfitGraph />}
                         {activeTab === 'clients-analytics' && <ClientsAnalytics />}

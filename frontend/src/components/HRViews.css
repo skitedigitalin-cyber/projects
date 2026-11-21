@@ -1,0 +1,87 @@
+.hr-views-stack, .hr-metrics-grid, .hr-metrics-summary { display: grid; gap: 18px; min-width: 0; }
+.hr-metrics-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.hr-metrics-summary > div, .hr-view-panel { min-width: 0; padding: 22px; border-radius: var(--workspace-card-radius); background: var(--workspace-surface); }
+.hr-metrics-summary dt, .hr-view-panel :is(p, small) { color: var(--workspace-muted); font-size: 13px; }
+.hr-metrics-summary dd, .hr-workforce-total > strong { display: block; margin-top: 8px; font-size: 38px; line-height: 1; font-weight: 500; letter-spacing: -.045em; }
+.hr-view-panel h2 { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 12px; font-size: 18px; font-weight: 500; }
+.hr-view-panel > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.hr-metrics-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.hr-workforce-total { background: var(--workspace-ink); color: var(--workspace-surface); }
+.hr-workforce-total :is(p, small) { color: #d4d4d4; }
+.hr-workforce-total p { margin-top: 8px; }
+.hr-workforce-total progress { display: block; width: 100%; height: 7px; margin: 12px 0 4px; border-radius: 999px; overflow: hidden; accent-color: var(--workspace-coral); }
+.hr-workforce-total progress::-webkit-progress-bar { background: #3f3f3f; }
+.hr-workforce-total progress::-webkit-progress-value { background: var(--workspace-coral); }
+.hr-view-rows li { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding-block: 9px; border-top: 1px solid var(--workspace-line); }
+.hr-view-rows time, .hr-view-rows strong { color: var(--workspace-muted); font-weight: 500; }
+.hr-task-workspace { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; gap: 18px; }
+.hr-task-inline-form { display: grid; gap: 14px; }
+.hr-view-panel.hr-task-inline { background: #171717; color: #fff; color-scheme: dark; }
+.hr-task-inline .lead-editor-card { background: transparent; color: inherit; }
+.hr-task-inline .lead-editor-card label, .hr-view-panel.hr-task-inline p { color: #d4d4d4; }
+.hr-task-inline .lead-editor-card :is(input:not([type='radio']), select, textarea) { background: #252525; border-color: #454545; color: #fff; }
+.hr-task-inline .lead-editor-card :is(input, select, textarea):focus-visible { outline-color: #ff8b68; }
+.hr-task-inline-form .lead-editor-card { border-radius: 0; padding: 0; }
+.hr-task-inline-form .lead-followup { position: static; }
+.hr-task-inline-form .lead-field-grid { grid-template-columns: minmax(0, 1fr); }
+.hr-task-inline-form .lead-field-wide { grid-column: auto; }
+.hr-task-inline-form h2 { font-size: 15px; }
+.hr-task-submit { min-height: 42px; padding: 6px 16px; border-radius: 999px; background: #ff6a3d; color: #111; cursor: pointer; }
+.hr-task-submit:hover:not(:disabled) { background: #ff8b68; }
+.hr-task-submit:disabled { opacity: .55; cursor: default; }
+.hr-leave-filters > button { display: grid; gap: 7px; min-width: 0; padding: 18px; border-radius: 22px; background: var(--workspace-surface); text-align: left; cursor: pointer; }
+.hr-leave-filters > button[aria-pressed='true'] { background: var(--workspace-ink); color: var(--workspace-surface); }
+.hr-leave-filters > button strong { font-size: 30px; line-height: 1.1; font-weight: 500; }
+.hr-leave-filters > button span { font-size: 13px; }
+.hr-view-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.hr-view-controls :is(button, label) { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 4px 10px; border-radius: 999px; background: var(--workspace-canvas); font-size: 12px; }
+.hr-view-controls button { cursor: pointer; }
+.hr-view-controls button:disabled { cursor: default; opacity: .55; }
+.hr-view-controls .hr-view-primary { background: var(--workspace-ink); color: var(--workspace-surface); }
+.hr-view-controls input { min-width: 0; }
+.hr-view-controls input[type='search'] { width: 130px; }
+.hr-view-table { overflow-x: auto; }
+.hr-view-table table { width: 100%; min-width: 720px; border-collapse: collapse; text-align: left; }
+.hr-view-table :is(th, td) { padding: 10px 8px; border-bottom: 1px solid var(--workspace-line); }
+.hr-view-table th { font-weight: 500; }
+.hr-view-table thead { color: var(--workspace-muted); font-size: 12px; }
+.hr-view-table small { display: block; font-size: 11px; }
+.hr-leave-person { display: flex; align-items: center; gap: 8px; }
+.hr-leave-person .hr-avatar { width: 30px; height: 30px; flex: none; }
+.hr-leave-state { display: inline-block; padding: 3px 8px; border-radius: 999px; background: var(--workspace-soft); font-size: 12px; }
+.hr-leave-state[data-status='Approved'] { background: #edf6ee; color: #176638; }
+.hr-leave-state[data-status='Rejected'] { background: #fdecea; color: var(--workspace-danger); }
+.hr-leave-state[data-status='Pending'] { background: #ffe8df; }
+.hr-view-pagination { justify-content: flex-end; margin-top: 12px; }
+.hr-employee-directory { display: grid; gap: 18px; min-width: 0; align-items: start; }
+.hr-employee-directory[data-selected='true'] { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+.hr-employee-directory-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 14px; }
+.hr-employee-directory[data-selected='true'] .hr-employee-directory-list { grid-template-columns: minmax(0, 1fr); }
+.hr-employee-directory-list > div { border-radius: 20px; box-shadow: none; }
+.hr-employee-details > div { padding-inline: 0; }
+.hr-employee-details > div:first-child { flex-wrap: wrap; gap: 10px; }
+.hr-employee-details > div:last-child { background: var(--workspace-surface); }
+.hr-attendance-switch { padding: 10px 12px; border-radius: 22px; background: var(--workspace-surface); }
+.hr-attendance-switch > div:first-child { flex-wrap: wrap; }
+.hr-attendance-switch button { border-radius: 999px; box-shadow: none; }
+.hr-attendance-switch button[aria-pressed='true'] { border-color: var(--workspace-ink); background: var(--workspace-ink); color: var(--workspace-surface); }
+.hr-attendance-switch button[aria-pressed='true'] > svg { color: var(--workspace-surface); }
+.hr-attendance-table th, .hr-payroll-list th { background: var(--workspace-surface); color: var(--workspace-muted); font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; }
+.hr-payroll-grid { display: grid; align-items: start; gap: 18px; min-width: 0; }
+.hr-payroll-grid[data-selected='true'] { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+.hr-payroll-list table { min-width: 720px; }
+.hr-payslip > div:last-child { flex-wrap: wrap; gap: 10px; }
+.hr-payslip button { padding: 7px 12px; border-radius: 999px; cursor: pointer; }
+.hr-payslip button:hover { background: var(--workspace-soft); color: var(--workspace-ink); }
+@media (max-width: 800px) { .hr-metrics-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 900px) { .hr-task-workspace, .hr-employee-directory[data-selected='true'], .hr-payroll-grid[data-selected='true'] { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 550px) {
+    .hr-metrics-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hr-metrics-summary > div, .hr-view-panel { padding: 16px; border-radius: 20px; }
+}
+@media print {
+    body:has(.hr-payslip) * { visibility: hidden; }
+    body .hr-payslip, body .hr-payslip * { visibility: visible; }
+    body .hr-payslip { position: absolute; inset: 0 auto auto 0; width: min(100%, 740px); }
+    body .hr-payslip button { display: none; }
+}

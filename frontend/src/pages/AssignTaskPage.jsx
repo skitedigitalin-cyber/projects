@@ -4,7 +4,7 @@ import axios from 'axios';
 import WorkspaceEditor from '../components/WorkspaceEditor';
 import './HREditors.css';
 
-export default function AssignTaskPage() {
+export default function AssignTaskPage({ onAssigned } = {}) {
     const navigate = useNavigate();
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -49,7 +49,16 @@ export default function AssignTaskPage() {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            navigate('/hr');
+            if (onAssigned) {
+                setEmployeeId('');
+                setTitle('');
+                setDescription('');
+                setPriority('Normal');
+                setDueDate('');
+                onAssigned();
+            } else {
+                navigate('/hr');
+            }
         } catch (error) {
             console.error('Error assigning task:', error);
             alert(error.response?.data?.message || 'Failed to assign task');
@@ -58,11 +67,8 @@ export default function AssignTaskPage() {
         }
     };
 
-    return (
-        <WorkspaceEditor backTo="/hr" backLabel="Attendance & HR" label="Team tasks" title="Assign new task"
-            formId="taskForm" saveLabel={saving ? 'Assigning…' : 'Assign task'} disabled={saving || loading}>
-            {loading ? <p role="status">Loading employees…</p> : (
-                <form id="taskForm" onSubmit={handleSubmit} className="lead-editor-form">
+    const form = loading ? <p role="status">Loading employees…</p> : (
+        <form id="taskForm" onSubmit={handleSubmit} className={onAssigned ? "hr-task-inline-form" : "lead-editor-form"}>
                     <section className="lead-editor-card" aria-labelledby="task-details-title">
                         <h2 id="task-details-title">Task details</h2>
                         <div className="lead-field-grid">
@@ -83,8 +89,16 @@ export default function AssignTaskPage() {
                             <label>Due date<input type="date" name="dueDate" value={dueDate} onChange={event => setDueDate(event.target.value)} /></label>
                         </section>
                     </aside>
-                </form>
-            )}
+                    {onAssigned && <button type="submit" className="hr-task-submit" disabled={saving}>{saving ? 'Assigning…' : 'Assign task'}</button>}
+        </form>
+    );
+
+    if (onAssigned) return <section className="hr-view-panel hr-task-inline"><h2>Assign a task</h2>{form}</section>;
+
+    return (
+        <WorkspaceEditor backTo="/hr" backLabel="Attendance & HR" label="Team tasks" title="Assign new task"
+            formId="taskForm" saveLabel={saving ? 'Assigning…' : 'Assign task'} disabled={saving || loading}>
+            {form}
         </WorkspaceEditor>
     );
 }

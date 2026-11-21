@@ -1,0 +1,44 @@
+.sales-targets { display: grid; grid-template-columns: minmax(0, 1.94fr) minmax(0, 1fr); gap: 20px; }
+.sales-target-progress { display: grid; grid-template-rows: auto 1fr auto auto; gap: 16px; min-width: 0; min-height: 455px; padding: 36px; border-radius: var(--workspace-card-radius); background: var(--workspace-ink); color: var(--workspace-surface); }
+.sales-target-progress header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.sales-target-progress h2, .sales-target-panel h2 { font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.sales-target-progress header span { color: #d4d4d4; font: 12px 'Skite Dashboard Mono', monospace; text-transform: uppercase; }
+.sales-target-amount { align-self: center; }
+.sales-target-amount strong { font-size: clamp(46px, 6.4vw, 86px); line-height: 1.05; font-weight: 500; letter-spacing: -.055em; }
+.sales-target-amount p { margin-top: 10px; color: #d4d4d4; font-size: 16px; }
+.sales-target-progress progress, .sales-target-history progress { width: 100%; height: 7px; border: 0; border-radius: 999px; overflow: hidden; accent-color: var(--workspace-coral); }
+.sales-target-progress progress::-webkit-progress-bar { background: #3f3f3f; }
+.sales-target-progress progress { height: 12px; }
+.sales-target-history progress::-webkit-progress-bar { background: var(--workspace-soft); }
+.sales-targets progress::-webkit-progress-value { background: var(--workspace-coral); border-radius: 999px; }
+.sales-target-progress dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.sales-target-progress dl > div { display: grid; gap: 4px; }
+.sales-target-progress dt { color: #d4d4d4; font-size: 12px; }
+.sales-target-progress dd { font-size: 18px; font-weight: 500; overflow-wrap: anywhere; }
+.sales-target-panel > p { margin-top: 8px; color: var(--workspace-muted); }
+.sales-target-panel form { display: grid; gap: 14px; margin-top: 20px; }
+.sales-target-panel label { display: grid; gap: 6px; }
+.sales-target-panel input { min-height: 44px; width: 100%; padding: 0 16px; border: 1px solid var(--workspace-line); border-radius: 15px; background: var(--workspace-surface); }
+.sales-target-panel input[type='number'] { min-height: 52px; font-size: 22px; }
+.sales-target-panel button[type='submit'] { min-height: 49px; padding: 0 18px; border-radius: 999px; background: var(--workspace-ink); color: var(--workspace-surface); cursor: pointer; }
+.sales-target-panel details summary { color: var(--workspace-muted); font-size: 12px; cursor: pointer; }
+.sales-target-months { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
+.sales-target-months button { min-height: 42px; padding: 3px 5px; border: 1px solid var(--workspace-line); border-radius: 12px; cursor: pointer; }
+.sales-target-months button[aria-pressed='true'] { background: var(--workspace-ink); color: var(--workspace-surface); }
+.sales-target-panel [role='alert'] { color: var(--workspace-danger); }
+.sales-target-panel :is(input, button):focus-visible { outline: 2px solid var(--workspace-ink); outline-offset: 2px; }
+.sales-target-history { grid-column: 1 / -1; }
+.sales-target-history :is(header span, p, small) { color: var(--workspace-muted); font-size: 12px; }
+.sales-target-history ul { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.sales-target-history li { display: grid; align-content: start; gap: 8px; min-width: 0; min-height: 132px; padding: 14px; border-radius: 20px; background: var(--workspace-canvas); }
+.sales-target-history li > span { color: var(--workspace-muted); font: 11px 'Skite Dashboard Mono', monospace; text-transform: uppercase; }
+.sales-target-history li strong { font-size: 23px; font-weight: 500; line-height: 1; }
+.sales-target-history li progress::-webkit-progress-value { background: var(--workspace-ink); }
+.sales-target-history li[data-current='true'] progress::-webkit-progress-value { background: var(--workspace-coral); }
+.sales-target-history li[data-hit='true'] progress::-webkit-progress-value { background: #15803d; }
+@media (max-width: 720px) {
+    .sales-targets { grid-template-columns: minmax(0, 1fr); }
+    .sales-target-progress { min-height: 310px; padding: 20px; }
+    .sales-target-progress dd { font-size: 15px; }
+    .sales-target-history ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

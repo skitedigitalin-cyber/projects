@@ -12,11 +12,23 @@
     font-display: swap;
 }
 
+.skite-workspace, .employee-portal, .ceo-dashboard {
+    --workspace-canvas: #f5f5f3;
+    --workspace-surface: #fff;
+    --workspace-ink: #111;
+    --workspace-muted: #6b6b6b;
+    --workspace-line: #e6e6e3;
+    --workspace-soft: #f0f0ee;
+    --workspace-coral: #ff6a3d;
+    --workspace-danger: #b42318;
+    --workspace-card-radius: 28px;
+}
+
 .skite-workspace {
     --workspace-accent: #ff6a3d;
     min-height: 100dvh;
-    background: #f5f5f3;
-    color: #111;
+    background: var(--workspace-canvas);
+    color: var(--workspace-ink);
     font: 14px/1.5 'Skite Dashboard Geist', system-ui, sans-serif;
 }
 .skite-workspace[data-workspace-theme='default'] { --workspace-accent: #213b82; }

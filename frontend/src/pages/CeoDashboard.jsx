@@ -160,7 +160,7 @@ export default function CeoDashboard() {
             <CeoWorkspace company={user?.companyName} />
             <details className="ceo-administration">
             <summary>Workspace administration</summary>
-            <div className="ceo-administration-content bg-slate-50 p-4 md:p-8">
+            <div className="ceo-administration-content bg-[#f5f5f3] p-4 md:p-8">
             <style dangerouslySetInnerHTML={{__html: `
                 @keyframes fadeUp {
                     from { opacity: 0; transform: translateY(20px); }
@@ -172,10 +172,10 @@ export default function CeoDashboard() {
             `}} />
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200 animate-fade-up">
+                <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-[#e6e6e3] animate-fade-up">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Super Admin Dashboard</h1>
-                        <p className="text-slate-500 mt-1">Manage tenants, subscriptions, and global settings</p>
+                        <h1 className="text-3xl font-extrabold text-[#111111] tracking-tight">Super Admin Dashboard</h1>
+                        <p className="text-[#6b6b6b] mt-1">Manage tenants, subscriptions, and global settings</p>
                     </div>
                     <button 
                         onClick={handleLogout}
@@ -186,53 +186,53 @@ export default function CeoDashboard() {
                 </div>
 
                 {/* Global Settings */}
-                <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100 animate-fade-up delay-100">
+                <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-[#ededea] animate-fade-up delay-100">
                     <div className="bg-white p-6 rounded-[1.5rem] shadow-sm">
-                        <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-                            <Settings size={20} className="mr-2 text-blue-600" /> Global Pricing Settings
+                        <h2 className="text-xl font-bold text-[#111111] mb-4 flex items-center">
+                            <Settings size={20} className="mr-2 text-[#3f3f3f]" /> Global Pricing Settings
                         </h2>
                         <div className="flex flex-col sm:flex-row items-end gap-4 max-w-lg">
                             <div className="flex-1 w-full">
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Monthly Subscription Price (₹)</label>
+                                <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">Monthly Subscription Price (₹)</label>
                                 <input 
                                     type="number" 
                                     value={subscriptionPrice}
                                     onChange={(e) => setSubscriptionPrice(e.target.value)}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none font-bold text-slate-900"
+                                    className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl focus:bg-white focus:border-[#111111] focus:ring-2 focus:ring-[#111111]/20 transition-all outline-none font-bold text-[#111111]"
                                 />
                             </div>
                             <button 
                                 onClick={handleUpdatePrice}
                                 disabled={isSavingPrice}
-                                className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                className="w-full sm:w-auto bg-[#111111] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#303030] transition-colors disabled:opacity-50"
                             >
                                 {isSavingPrice ? 'Saving...' : 'Save Price'}
                             </button>
                         </div>
-                        <p className="text-xs text-slate-500 mt-2">This is the amount all tenants will be asked to pay after their trial expires.</p>
+                        <p className="text-xs text-[#6b6b6b] mt-2">This is the amount all tenants will be asked to pay after their trial expires.</p>
                     </div>
                 </div>
 
                 {/* Clients Header */}
                 <div className="flex justify-between items-center animate-fade-up delay-200">
-                    <h2 className="text-2xl font-bold text-slate-900 flex items-center">
-                        <Building size={24} className="mr-3 text-blue-600" />
+                    <h2 className="text-2xl font-bold text-[#111111] flex items-center">
+                        <Building size={24} className="mr-3 text-[#3f3f3f]" />
                         Registered Workspaces
                     </h2>
                     <button 
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center px-5 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 shadow-lg hover:-translate-y-0.5 transition-all font-bold"
+                        className="flex items-center px-5 py-2.5 bg-[#111111] text-white rounded-xl hover:bg-[#303030] shadow-lg hover:-translate-y-0.5 transition-all font-bold"
                     >
                         <Plus size={20} className="mr-2" /> Add New Workspace
                     </button>
                 </div>
 
                 {/* Clients Table */}
-                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden p-2 animate-fade-up delay-200">
-                    <div className="bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 overflow-x-auto">
+                <div className="bg-white rounded-[2rem] border border-[#e6e6e3] shadow-sm overflow-hidden p-2 animate-fade-up delay-200">
+                    <div className="bg-[#f5f5f3]/50 rounded-[1.5rem] border border-[#ededea]/50 overflow-x-auto">
                         <table className="w-full text-left whitespace-nowrap">
                             <thead>
-                                <tr className="border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                <tr className="border-b border-[#e6e6e3] text-xs font-bold text-[#6b6b6b] uppercase tracking-wider">
                                     <th className="p-4">Workspace</th>
                                     <th className="p-4">Subdomain</th>
                                     <th className="p-4">Admin Detail</th>
@@ -243,21 +243,21 @@ export default function CeoDashboard() {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="6" className="text-center p-8 text-slate-500">Loading workspaces...</td></tr>
+                                    <tr><td colSpan="6" className="text-center p-8 text-[#6b6b6b]">Loading workspaces...</td></tr>
                                 ) : clients.map(client => (
-                                    <tr key={client._id} className="border-b border-slate-100 last:border-0 hover:bg-white transition-colors">
+                                    <tr key={client._id} className="border-b border-[#ededea] last:border-0 hover:bg-white transition-colors">
                                         <td className="p-4">
-                                            <div className="font-bold text-slate-900">{client.companyName}</div>
-                                            <div className="text-xs text-slate-500 mt-1">Created: {new Date(client.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                                            <div className="font-bold text-[#111111]">{client.companyName}</div>
+                                            <div className="text-xs text-[#6b6b6b] mt-1">Created: {new Date(client.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                                         </td>
                                         <td className="p-4">
-                                            <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg font-mono text-sm font-bold">
+                                            <span className="bg-[#f0f0ee] text-[#3f3f3f] px-3 py-1 rounded-lg font-mono text-sm font-bold">
                                                 {client.subDomain}.skitec.rm
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            <div className="font-bold text-slate-700">{client.adminUser?.name || 'N/A'}</div>
-                                            <div className="text-xs text-slate-500">{client.adminUser?.email}</div>
+                                            <div className="font-bold text-[#3f3f3f]">{client.adminUser?.name || 'N/A'}</div>
+                                            <div className="text-xs text-[#6b6b6b]">{client.adminUser?.email}</div>
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-2">
@@ -266,13 +266,13 @@ export default function CeoDashboard() {
                                                 </span>
                                                 <button 
                                                     onClick={() => { setSelectedClient(client); setExtendDays(1); setIsTrialModalOpen(true); }}
-                                                    className="p-1.5 bg-slate-100 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                                    className="p-1.5 bg-[#f0f0ee] text-[#555555] hover:text-[#3f3f3f] hover:bg-[#f0f0ee] rounded-md transition-colors"
                                                     title="Extend Trial"
                                                 >
                                                     <Clock size={14} />
                                                 </button>
                                             </div>
-                                            <div className="text-[10px] text-slate-500 mt-1 font-mono">Until: {new Date(client.validUntil).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                                            <div className="text-[10px] text-[#6b6b6b] mt-1 font-mono">Until: {new Date(client.validUntil).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                                         </td>
                                         <td className="p-4">
                                             {client.isActive ? (
@@ -314,22 +314,22 @@ export default function CeoDashboard() {
 
             {/* Trial Edit Modal */}
             {isTrialModalOpen && selectedClient && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-[#111111]/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl p-6">
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">Extend Access</h3>
-                        <p className="text-sm text-slate-500 mb-6">Modify validity for <span className="font-bold text-slate-900">{selectedClient.companyName}</span></p>
+                        <h3 className="text-xl font-bold text-[#111111] mb-2">Extend Access</h3>
+                        <p className="text-sm text-[#6b6b6b] mb-6">Modify validity for <span className="font-bold text-[#111111]">{selectedClient.companyName}</span></p>
                         
                         <form onSubmit={handleExtendTrial}>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Days to extend from today</label>
+                            <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">Days to extend from today</label>
                             <input 
                                 type="number" required value={extendDays}
                                 onChange={e => setExtendDays(e.target.value)}
                                 min="1"
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 outline-none mb-6 font-bold"
+                                className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl focus:bg-white focus:border-[#111111] outline-none mb-6 font-bold"
                             />
                             <div className="flex justify-end gap-2">
-                                <button type="button" onClick={() => setIsTrialModalOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-100 rounded-lg">Cancel</button>
-                                <button type="submit" className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md">Apply Extension</button>
+                                <button type="button" onClick={() => setIsTrialModalOpen(false)} className="px-4 py-2 font-bold text-[#6b6b6b] hover:bg-[#f0f0ee] rounded-lg">Cancel</button>
+                                <button type="submit" className="px-6 py-2 bg-[#111111] text-white font-bold rounded-lg hover:bg-[#303030] shadow-md">Apply Extension</button>
                             </div>
                         </form>
                     </div>
@@ -338,14 +338,14 @@ export default function CeoDashboard() {
 
             {/* Create Client Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-[#111111]/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-fade-up flex flex-col max-h-[90vh]">
-                        <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                        <div className="px-8 py-6 border-b border-[#ededea] flex justify-between items-center sticky top-0 bg-white z-10">
                             <div>
-                                <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">Add New Workspace</h3>
-                                <p className="text-sm text-slate-500 font-medium">Provision a new tenant environment</p>
+                                <h3 className="text-2xl font-extrabold text-[#111111] tracking-tight">Add New Workspace</h3>
+                                <p className="text-sm text-[#6b6b6b] font-medium">Provision a new tenant environment</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                            <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-[#f0f0ee] rounded-full transition-colors">
                                 <XCircle size={24} className="text-slate-400" />
                             </button>
                         </div>
@@ -354,74 +354,74 @@ export default function CeoDashboard() {
                             <form id="create-client-form" onSubmit={handleCreateClient} className="space-y-6">
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="col-span-2 sm:col-span-1">
-                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Company Name</label>
+                                        <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">Company Name</label>
                                         <input 
                                             type="text" required value={formData.companyName}
                                             onChange={e => setFormData({...formData, companyName: e.target.value})}
-                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all font-medium outline-none"
+                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl focus:bg-white focus:border-[#111111] transition-all font-medium outline-none"
                                         />
                                     </div>
                                     <div className="col-span-2 sm:col-span-1">
-                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Subdomain</label>
+                                        <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">Subdomain</label>
                                         <div className="flex">
                                             <input 
                                                 type="text" required value={formData.subDomain}
                                                 onChange={e => setFormData({...formData, subDomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')})}
-                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-l-xl focus:bg-white focus:border-blue-500 transition-all font-medium outline-none"
+                                                className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-l-xl focus:bg-white focus:border-[#111111] transition-all font-medium outline-none"
                                             />
-                                            <span className="px-3 py-3 bg-slate-100 border border-l-0 border-slate-200 rounded-r-xl text-slate-500 font-medium whitespace-nowrap">.skitec.rm</span>
+                                            <span className="px-3 py-3 bg-[#f0f0ee] border border-l-0 border-[#e6e6e3] rounded-r-xl text-[#6b6b6b] font-medium whitespace-nowrap">.skitec.rm</span>
                                         </div>
                                     </div>
                                     <div className="col-span-2 sm:col-span-1">
-                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Free Trial Days</label>
+                                        <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">Free Trial Days</label>
                                         <input 
                                             type="number" required value={formData.trialDays}
                                             onChange={e => setFormData({...formData, trialDays: e.target.value})}
                                             min="1"
-                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all font-medium outline-none"
+                                            className="w-full px-4 py-3 bg-[#f5f5f3] border border-[#e6e6e3] rounded-xl focus:bg-white focus:border-[#111111] transition-all font-medium outline-none"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                                    <h4 className="font-bold text-slate-900 mb-4">Admin Account Details</h4>
+                                <div className="p-6 bg-[#f5f5f3] rounded-2xl border border-[#e6e6e3]">
+                                    <h4 className="font-bold text-[#111111] mb-4">Admin Account Details</h4>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="col-span-2 sm:col-span-1">
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Admin Name</label>
+                                            <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">Admin Name</label>
                                             <input 
                                                 type="text" required value={formData.adminName}
                                                 onChange={e => setFormData({...formData, adminName: e.target.value})}
-                                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:border-blue-500 outline-none"
+                                                className="w-full px-4 py-3 bg-white border border-[#e6e6e3] rounded-xl focus:border-[#111111] outline-none"
                                             />
                                         </div>
                                         <div className="col-span-2 sm:col-span-1">
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Admin Email</label>
+                                            <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">Admin Email</label>
                                             <input 
                                                 type="email" required value={formData.adminEmail}
                                                 onChange={e => setFormData({...formData, adminEmail: e.target.value})}
-                                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:border-blue-500 outline-none"
+                                                className="w-full px-4 py-3 bg-white border border-[#e6e6e3] rounded-xl focus:border-[#111111] outline-none"
                                             />
                                         </div>
                                         <div className="col-span-2">
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Admin Password</label>
+                                            <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-2">Admin Password</label>
                                             <input 
                                                 type="password" required value={formData.adminPassword}
                                                 onChange={e => setFormData({...formData, adminPassword: e.target.value})}
-                                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:border-blue-500 outline-none"
+                                                className="w-full px-4 py-3 bg-white border border-[#e6e6e3] rounded-xl focus:border-[#111111] outline-none"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Active Modules</label>
+                                    <label className="block text-xs font-bold text-[#6b6b6b] uppercase tracking-wider mb-3">Active Modules</label>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                         {ALL_MODULES.map(module => (
                                             <button
                                                 type="button"
                                                 key={module.id}
                                                 onClick={() => toggleModuleSelection(module.id)}
-                                                className={"flex items-center px-4 py-3 rounded-xl border text-sm font-bold transition-all " + (formData.activeModules.includes(module.id) ? 'bg-slate-900 border-slate-900 text-white shadow-md' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50')}
+                                                className={"flex items-center px-4 py-3 rounded-xl border text-sm font-bold transition-all " + (formData.activeModules.includes(module.id) ? 'bg-[#111111] border-[#111111] text-white shadow-md' : 'bg-white border-[#e6e6e3] text-[#555555] hover:bg-[#f5f5f3]')}
                                             >
                                                 {module.icon}
                                                 {module.name}
@@ -432,11 +432,11 @@ export default function CeoDashboard() {
                             </form>
                         </div>
                         
-                        <div className="p-6 border-t border-slate-100 bg-white flex justify-end sticky bottom-0 z-10">
-                            <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-xl transition-colors mr-2">
+                        <div className="p-6 border-t border-[#ededea] bg-white flex justify-end sticky bottom-0 z-10">
+                            <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 font-bold text-[#6b6b6b] hover:text-[#3f3f3f] hover:bg-[#f5f5f3] rounded-xl transition-colors mr-2">
                                 Cancel
                             </button>
-                            <button type="submit" form="create-client-form" className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                            <button type="submit" form="create-client-form" className="px-8 py-3 bg-[#111111] text-white rounded-xl font-bold hover:bg-[#303030] hover:shadow-lg hover:-translate-y-0.5 transition-all">
                                 Provision Workspace
                             </button>
                         </div>

@@ -36,7 +36,7 @@ export default function MyLeaves() {
                 <h3 className="text-base font-semibold text-gray-800 flex items-center">
                     <Calendar size={18} className="mr-2 text-gray-500" /> Leave Requests History
                 </h3>
-                <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+                <span className="text-xs font-semibold text-slate-500 bg-[#f0f0ee] px-3 py-1 rounded-full">
                     Total: {leaves.length}
                 </span>
             </div>
@@ -89,27 +89,27 @@ export default function MyLeaves() {
 
             {/* Pagination Footer */}
             {leaves.length > PAGE_SIZE && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-slate-200 bg-white">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-[#e6e6e3] bg-white">
                     <span className="text-xs font-semibold text-slate-500">
-                        Showing <strong className="text-slate-900">{(validPage - 1) * PAGE_SIZE + 1}</strong>–<strong className="text-slate-900">{Math.min(validPage * PAGE_SIZE, leaves.length)}</strong> of <strong className="text-slate-900">{leaves.length}</strong> requests
+                        Showing <strong className="text-[#111111]">{(validPage - 1) * PAGE_SIZE + 1}</strong>–<strong className="text-[#111111]">{Math.min(validPage * PAGE_SIZE, leaves.length)}</strong> of <strong className="text-[#111111]">{leaves.length}</strong> requests
                     </span>
                     <div className="flex items-center space-x-2">
                         <button 
                             type="button"
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={validPage <= 1}
-                            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                            className="px-3.5 py-1.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                         >
                             <ChevronLeft size={14} /> Previous
                         </button>
-                        <span className="px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold text-xs font-mono">
+                        <span className="px-2.5 py-0.5 rounded-md bg-[#f0f0ee] text-[#111111] font-bold text-xs font-mono">
                             {validPage} / {totalPages}
                         </span>
                         <button 
                             type="button"
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={validPage >= totalPages}
-                            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                            className="px-3.5 py-1.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                         >
                             Next <ChevronRight size={14} />
                         </button>

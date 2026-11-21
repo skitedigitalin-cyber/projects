@@ -673,18 +673,18 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
         return (
             <div className="space-y-6 animate-fade-in text-slate-800">
                 {/* Top Sticky Header Bar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-[#e6e6e3] shadow-xs">
                     <div className="flex items-center gap-3">
                         <button
                             type="button"
                             onClick={() => setViewMode('list')}
-                            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#e6e6e3] bg-white hover:bg-[#f5f5f3] text-slate-700 font-bold text-xs transition-colors cursor-pointer"
                         >
                             <ArrowLeft size={16} />
                             <span>Back to Invoices</span>
                         </button>
                         <div>
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                            <h2 className="text-xl font-black text-[#111111] tracking-tight">
                                 {editId ? 'View / Edit Invoice' : 'Create New Invoice'}
                             </h2>
                             <p className="text-xs text-slate-400 font-medium">
@@ -700,7 +700,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 <button
                                     type="button"
                                     onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-                                    className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#3f3f3f] border border-[#e6e6e3] rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
                                     title="Pre-fill with recurring monthly client template"
                                 >
                                     <Repeat size={13} />
@@ -708,7 +708,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                     <ChevronDown size={13} />
                                 </button>
                                 {showTemplateDropdown && (
-                                    <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl z-50 p-1.5 space-y-1 animate-fade-up">
+                                    <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-2xl border border-[#e6e6e3] shadow-xl z-50 p-1.5 space-y-1 animate-fade-up">
                                         <div className="px-2.5 py-1 text-[10px] font-black uppercase text-slate-400 tracking-wider">
                                             Select Fixed Template ({fixedTemplates.length})
                                         </div>
@@ -717,10 +717,10 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                 key={tmpl._id}
                                                 type="button"
                                                 onClick={() => loadTemplateIntoInvoice(tmpl)}
-                                                className="w-full text-left px-2.5 py-2 hover:bg-blue-50 rounded-xl transition-colors cursor-pointer flex items-center justify-between group"
+                                                className="w-full text-left px-2.5 py-2 hover:bg-[#f0f0ee] rounded-xl transition-colors cursor-pointer flex items-center justify-between group"
                                             >
                                                 <div>
-                                                    <span className="font-bold text-xs text-slate-800 group-hover:text-blue-600 block">
+                                                    <span className="font-bold text-xs text-slate-800 group-hover:text-[#3f3f3f] block">
                                                         {tmpl.name}
                                                     </span>
                                                     <span className="text-[10px] text-slate-400 block truncate max-w-[150px]">
@@ -743,7 +743,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                             <button
                                 type="button"
                                 onClick={onNavigateToHistory}
-                                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                                className="flex items-center gap-1.5 px-3 py-2 bg-[#f0f0ee] hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
                             >
                                 <History size={14} />
                                 <span>History</span>
@@ -769,7 +769,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                             type="button"
                             onClick={handleDownloadEditorPdf}
                             disabled={savingInvoice}
-                            className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
                         >
                             <Download size={14} />
                             <span>Download PDF</span>
@@ -803,8 +803,8 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                     <div className="space-y-6">
                         
                         {/* Section 1: Invoice Meta */}
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                            <h3 className="text-sm font-black text-blue-600 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
+                            <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                                 <FileText size={16} />
                                 <span>Invoice Details</span>
                             </h3>
@@ -817,7 +817,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         value={invoiceNumber} 
                                         onChange={(e) => setInvoiceNumber(e.target.value)} 
                                         placeholder="e.g. INV/26-27/001" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold focus:outline-none focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                                 <div>
@@ -826,15 +826,15 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         type="date" 
                                         value={invoiceDate} 
                                         onChange={(e) => setInvoiceDate(e.target.value)} 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-medium text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Section 2: Issued To (Customer Details) */}
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                            <h3 className="text-sm font-black text-blue-600 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
+                            <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                                 <User size={16} />
                                 <span>Issued To (Client Details)</span>
                             </h3>
@@ -854,13 +854,13 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         }} 
                                         onFocus={() => setShowClientDropdown(true)}
                                         placeholder="Type or select client name..." 
-                                        className="w-full pl-3 pr-10 py-2.5 border border-slate-200 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full pl-3 pr-10 py-2.5 border border-[#e6e6e3] rounded-xl font-bold text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                     <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                 </div>
 
                                 {showClientDropdown && (
-                                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-slate-200 rounded-xl mt-1 max-h-52 overflow-y-auto shadow-xl">
+                                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 max-h-52 overflow-y-auto shadow-xl">
                                         {customers
                                             .filter(c => (c.customerName || '').toLowerCase().includes(customerName.toLowerCase()) || 
                                                          (c.companyName || '').toLowerCase().includes(customerName.toLowerCase()))
@@ -868,9 +868,9 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                 <div 
                                                     key={i} 
                                                     onMouseDown={() => handleSelectCustomer(c)}
-                                                    className="p-3 cursor-pointer border-b border-slate-100 hover:bg-blue-50/50 transition-colors"
+                                                    className="p-3 cursor-pointer border-b border-slate-100 hover:bg-[#f0f0ee]/50 transition-colors"
                                                 >
-                                                    <div className="font-bold text-slate-900 text-xs">{c.customerName}</div>
+                                                    <div className="font-bold text-[#111111] text-xs">{c.customerName}</div>
                                                     <div className="text-[11px] text-slate-500">{c.companyName} {c.gstNumber && `• GST: ${c.gstNumber}`}</div>
                                                 </div>
                                             ))}
@@ -891,7 +891,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         value={customerGst} 
                                         onChange={(e) => setCustomerGst(e.target.value)} 
                                         placeholder="e.g. 33AAAAA0000A1Z5" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                                 <div>
@@ -901,7 +901,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         value={customerPhone} 
                                         onChange={(e) => setCustomerPhone(e.target.value)} 
                                         placeholder="e.g. 9876543210" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                                 <div className="sm:col-span-2">
@@ -911,7 +911,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         value={customerEmail} 
                                         onChange={(e) => setCustomerEmail(e.target.value)} 
                                         placeholder="e.g. client@company.com" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                                 <div className="sm:col-span-2">
@@ -921,37 +921,37 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         value={addressLine1} 
                                         onChange={(e) => setAddressLine1(e.target.value)} 
                                         placeholder="Address Line 1" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500 mb-2"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111] mb-2"
                                     />
                                     <input 
                                         type="text" 
                                         value={addressLine2} 
                                         onChange={(e) => setAddressLine2(e.target.value)} 
                                         placeholder="Address Line 2 (Optional)" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500 mb-2"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111] mb-2"
                                     />
                                     <input 
                                         type="text" 
                                         value={locationCity} 
                                         onChange={(e) => setLocationCity(e.target.value)} 
                                         placeholder="City / State / Pincode" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Section 3: Line Items */}
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                        <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
                             <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                                <h3 className="text-sm font-black text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                                <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider flex items-center gap-2">
                                     <FilePlus size={16} />
                                     <span>Invoice Items</span>
                                 </h3>
                                 <button 
                                     type="button"
                                     onClick={addItem} 
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs cursor-pointer transition-colors"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#3f3f3f] font-bold text-xs cursor-pointer transition-colors"
                                 >
                                     <Plus size={14} /> Add Item
                                 </button>
@@ -959,7 +959,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
 
                             <div className="space-y-3">
                                 {items.map((item, index) => (
-                                    <div key={index} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                                    <div key={index} className="p-4 rounded-xl border border-[#e6e6e3] bg-[#f5f5f3]/50 space-y-3">
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                                             {/* Description with preset dropdown */}
                                             <div className="sm:col-span-2 relative" ref={activeServiceDropdownIndex === index ? serviceDropdownRef : null}>
@@ -974,20 +974,20 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                             setActiveServiceDropdownIndex(index);
                                                         }}
                                                         onFocus={() => setActiveServiceDropdownIndex(index)}
-                                                        className="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-blue-500"
+                                                        className="w-full pl-3 pr-8 py-2 bg-white border border-[#e6e6e3] rounded-lg text-[#111111] font-semibold focus:outline-none focus:border-[#111111]"
                                                     />
                                                     <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                                 </div>
 
                                                 {activeServiceDropdownIndex === index && (
-                                                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-slate-200 rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl">
+                                                    <div className="absolute top-full left-0 right-0 z-30 bg-white border border-[#e6e6e3] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl">
                                                         {SERVICES_LIST
                                                             .filter(s => s.name.toLowerCase().includes((item.description || '').toLowerCase()))
                                                             .map((srv, i) => (
                                                                 <div 
                                                                     key={i} 
                                                                     onMouseDown={() => handleSelectServicePreset(index, srv)}
-                                                                    className="p-2.5 cursor-pointer border-b border-slate-100 hover:bg-blue-50/50 flex justify-between items-center text-xs"
+                                                                    className="p-2.5 cursor-pointer border-b border-slate-100 hover:bg-[#f0f0ee]/50 flex justify-between items-center text-xs"
                                                                 >
                                                                     <span className="font-bold text-slate-800">{srv.name}</span>
                                                                     <span className="font-mono text-[10px] text-slate-400">HSN: {srv.hsn}</span>
@@ -1005,7 +1005,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                     placeholder="e.g. 998314" 
                                                     value={item.hsn} 
                                                     onChange={(e) => handleItemChange(index, 'hsn', e.target.value)}
-                                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                                                    className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-lg font-mono text-[#111111] focus:outline-none focus:border-[#111111]"
                                                 />
                                             </div>
                                         </div>
@@ -1018,7 +1018,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                     placeholder="0.00" 
                                                     value={item.price} 
                                                     onChange={(e) => handleItemChange(index, 'price', e.target.value)}
-                                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-500"
+                                                    className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-lg font-mono font-bold text-[#111111] focus:outline-none focus:border-[#111111]"
                                                 />
                                             </div>
                                             <div className="w-20">
@@ -1028,12 +1028,12 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                     placeholder="1" 
                                                     value={item.qty} 
                                                     onChange={(e) => handleItemChange(index, 'qty', e.target.value)}
-                                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-mono font-bold text-slate-900 text-center focus:outline-none focus:border-blue-500"
+                                                    className="w-full px-3 py-2 bg-white border border-[#e6e6e3] rounded-lg font-mono font-bold text-[#111111] text-center focus:outline-none focus:border-[#111111]"
                                                 />
                                             </div>
                                             <div className="w-32">
                                                 <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1 text-right">Row Total</label>
-                                                <div className="py-2 px-3 bg-slate-100 rounded-lg font-mono font-black text-slate-900 text-right">
+                                                <div className="py-2 px-3 bg-[#f0f0ee] rounded-lg font-mono font-black text-[#111111] text-right">
                                                     ₹{((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 0)).toLocaleString('en-IN')}
                                                 </div>
                                             </div>
@@ -1056,15 +1056,15 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                             <button 
                                 type="button"
                                 onClick={addItem} 
-                                className="w-full py-3 rounded-xl border border-dashed border-blue-500 text-blue-600 bg-blue-50/50 hover:bg-blue-50 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                                className="w-full py-3 rounded-xl border border-dashed border-[#111111] text-[#3f3f3f] bg-[#f0f0ee]/50 hover:bg-[#f0f0ee] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                             >
                                 <Plus size={16} /> Add Another Item
                             </button>
                         </div>
 
                         {/* Section 4: Taxes, Discounts & Notes */}
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                            <h3 className="text-sm font-black text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2">
+                        <div className="bg-white p-5 rounded-2xl border border-[#e6e6e3] shadow-xs space-y-4">
+                            <h3 className="text-sm font-black text-[#3f3f3f] uppercase tracking-wider border-b border-slate-100 pb-2">
                                 Tax Rates & Terms
                             </h3>
 
@@ -1078,7 +1078,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                             type="number" 
                                             value={taxRate} 
                                             onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} 
-                                            className="w-24 px-3 py-2 border border-slate-200 rounded-xl font-bold font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                                            className="w-24 px-3 py-2 border border-[#e6e6e3] rounded-xl font-bold font-mono text-[#111111] focus:outline-none focus:border-[#111111]"
                                         />
                                         <span className="text-slate-500 font-medium">% each (Total: {(parseFloat(taxRate) || 0) * 2}%)</span>
                                     </div>
@@ -1092,7 +1092,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         value={discount} 
                                         onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} 
                                         placeholder="0.00" 
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                             </div>
@@ -1105,7 +1105,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         value={notes}
                                         onChange={(e) => setNotes(e.target.value)}
                                         placeholder="Optional notes for client..."
-                                        className="w-full p-2.5 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full p-2.5 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                                 <div>
@@ -1114,7 +1114,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         rows="3"
                                         value={termsAndConditions}
                                         onChange={(e) => setTermsAndConditions(e.target.value)}
-                                        className="w-full p-2.5 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-blue-500"
+                                        className="w-full p-2.5 border border-[#e6e6e3] rounded-xl text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
                                 </div>
                             </div>
@@ -1124,7 +1124,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
 
                     {/* RIGHT COLUMN: LIVE REAL-TIME PREVIEW */}
                     <div className="space-y-4 lg:sticky lg:top-4">
-                        <div className="p-3 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-sm">
+                        <div className="p-3 bg-[#111111] text-white rounded-2xl flex items-center justify-between shadow-sm">
                             <div className="flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 <span className="text-xs font-black tracking-wide uppercase">Live Interactive Preview</span>
@@ -1133,7 +1133,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 <select
                                     value={editorTemplate}
                                     onChange={(e) => setEditorTemplate(e.target.value)}
-                                    className="px-2.5 py-1 bg-slate-800 text-white rounded-lg text-[11px] font-bold border border-slate-700 outline-none"
+                                    className="px-2.5 py-1 bg-[#303030] text-white rounded-lg text-[11px] font-bold border border-slate-700 outline-none"
                                 >
                                     {INVOICE_TEMPLATES.map(t => (
                                         <option key={t.id} value={t.id}>{t.name}</option>
@@ -1143,7 +1143,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                         </div>
 
                         {/* Printable Live Invoice Card */}
-                        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                        <div className="bg-white rounded-2xl shadow-xl border border-[#e6e6e3] overflow-hidden">
                             <InvoiceRenderer 
                                 innerRef={editorPreviewRef}
                                 invoice={liveInvoiceData} 
@@ -1167,7 +1167,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
             {/* Header: Clean & Neat */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">Invoices</h1>
+                    <h1 className="text-2xl font-black text-[#111111] tracking-tight">Invoices</h1>
                     <p className="text-sm text-slate-500 mt-0.5">
                         Create invoices, view status, and manage client billings.
                     </p>
@@ -1178,9 +1178,9 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                     {onNavigateToHistory && (
                         <button
                             onClick={onNavigateToHistory}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-200"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-[#f0f0ee] hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer border border-[#e6e6e3]"
                         >
-                            <History size={16} className="text-blue-600" />
+                            <History size={16} className="text-[#3f3f3f]" />
                             <span>Invoice History & Filter</span>
                             <ArrowRight size={14} className="text-slate-400" />
                         </button>
@@ -1192,7 +1192,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                             <button
                                 type="button"
                                 onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-                                className="px-3.5 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-2xs"
+                                className="px-3.5 py-2.5 bg-[#f0f0ee] hover:bg-[#e6e6e3] text-[#3f3f3f] border border-[#e6e6e3] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-2xs"
                                 title="Instantly create invoice from recurring client template"
                             >
                                 <Repeat size={14} />
@@ -1200,7 +1200,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 <ChevronDown size={14} />
                             </button>
                             {showTemplateDropdown && (
-                                <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl z-50 p-1.5 space-y-1 animate-fade-up">
+                                <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-2xl border border-[#e6e6e3] shadow-xl z-50 p-1.5 space-y-1 animate-fade-up">
                                     <div className="px-2.5 py-1 text-[10px] font-black uppercase text-slate-400 tracking-wider">
                                         Fixed Monthly Clients ({fixedTemplates.length})
                                     </div>
@@ -1209,10 +1209,10 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                             key={tmpl._id}
                                             type="button"
                                             onClick={() => loadTemplateIntoInvoice(tmpl)}
-                                            className="w-full text-left px-2.5 py-2 hover:bg-blue-50 rounded-xl transition-colors cursor-pointer flex items-center justify-between group"
+                                            className="w-full text-left px-2.5 py-2 hover:bg-[#f0f0ee] rounded-xl transition-colors cursor-pointer flex items-center justify-between group"
                                         >
                                             <div>
-                                                <span className="font-bold text-xs text-slate-800 group-hover:text-blue-600 block">
+                                                <span className="font-bold text-xs text-slate-800 group-hover:text-[#3f3f3f] block">
                                                     {tmpl.name}
                                                 </span>
                                                 <span className="text-[10px] text-slate-400 block truncate max-w-[150px]">
@@ -1234,7 +1234,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                     {/* Create Invoice Button: Switches directly to 2-Column Workspace! */}
                     <button 
                         onClick={startNewInvoice}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+                        className="flex items-center gap-2 bg-[#111111] hover:bg-[#303030] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-blue-500/20 transition-all cursor-pointer"
                     >
                         <Plus size={16} />
                         <span>Create Invoice</span>
@@ -1248,14 +1248,14 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                     onClick={() => { setGstFilter('ALL'); setCurrentPage(1); }}
                     className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                         gstFilter === 'ALL'
-                            ? 'bg-slate-900 text-white shadow-xs'
-                            : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                            ? 'bg-[#111111] text-white shadow-xs'
+                            : 'bg-white text-slate-600 hover:bg-[#f0f0ee] border border-[#e6e6e3]'
                     }`}
                 >
                     <Layers size={14} />
                     <span>All Invoices</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                        gstFilter === 'ALL' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
+                        gstFilter === 'ALL' ? 'bg-[#303030] text-slate-200' : 'bg-[#f0f0ee] text-slate-600'
                     }`}>
                         {invoices.length}
                     </span>
@@ -1266,7 +1266,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                     className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                         gstFilter === 'GST'
                             ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/20'
-                            : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                            : 'bg-white text-slate-600 hover:bg-[#f0f0ee] border border-[#e6e6e3]'
                     }`}
                 >
                     <FileText size={14} />
@@ -1283,7 +1283,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                     className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                         gstFilter === 'NONGST'
                             ? 'bg-amber-600 text-white shadow-xs shadow-amber-600/20'
-                            : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                            : 'bg-white text-slate-600 hover:bg-[#f0f0ee] border border-[#e6e6e3]'
                     }`}
                 >
                     <FileText size={14} />
@@ -1297,7 +1297,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
             </div>
 
             {/* Clean Minimal Filter Bar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/80">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-[#f5f5f3]/80 rounded-2xl border border-[#e6e6e3]/80">
                 <div className="relative flex-1 max-w-md">
                     <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 
@@ -1308,7 +1308,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                             setSearchTerm(e.target.value);
                             setCurrentPage(1);
                         }}
-                        className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-xs font-medium"
+                        className="w-full pl-10 pr-4 py-2 bg-white border border-[#e6e6e3] rounded-xl outline-none focus:border-[#111111] text-xs font-medium"
                     />
                     {searchTerm && (
                         <button onClick={() => { setSearchTerm(''); setCurrentPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -1324,8 +1324,8 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                             onClick={() => { setStatusFilter(st); setCurrentPage(1); }}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                                 statusFilter === st
-                                    ? 'bg-slate-900 text-white shadow-xs'
-                                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                                    ? 'bg-[#111111] text-white shadow-xs'
+                                    : 'bg-white text-slate-600 border border-[#e6e6e3] hover:bg-[#f5f5f3]'
                             }`}
                         >
                             {st === 'ALL' ? 'All' : st}
@@ -1335,11 +1335,11 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
             </div>
 
             {/* Invoices Table */}
-            <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-xs border border-[#e6e6e3] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200 text-[11px] uppercase text-slate-400 font-bold tracking-wider">
+                            <tr className="bg-[#f5f5f3] border-b border-[#e6e6e3] text-[11px] uppercase text-slate-400 font-bold tracking-wider">
                                 <th className="py-4 px-6">Invoice #</th>
                                 <th className="py-4 px-6">Customer</th>
                                 <th className="py-4 px-6">Date</th>
@@ -1361,12 +1361,12 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 </tr>
                             ) : (
                                 paginatedInvoices.map((inv) => (
-                                    <tr key={inv._id} className="hover:bg-slate-50/70 transition-colors">
-                                        <td className="py-4 px-6 font-mono font-bold text-slate-900 text-sm">
+                                    <tr key={inv._id} className="hover:bg-[#f5f5f3]/70 transition-colors">
+                                        <td className="py-4 px-6 font-mono font-bold text-[#111111] text-sm">
                                             {inv.invoiceNumber}
                                         </td>
                                         <td className="py-4 px-6">
-                                            <div className="font-bold text-slate-900 text-sm">
+                                            <div className="font-bold text-[#111111] text-sm">
                                                 {inv.customerId?.customerName || inv.customerId?.companyName || 'Unknown Customer'}
                                             </div>
                                             <div className="text-xs text-slate-400">
@@ -1376,7 +1376,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         <td className="py-4 px-6 text-xs text-slate-600 font-medium">
                                             {inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
                                         </td>
-                                        <td className="py-4 px-6 font-bold text-slate-900 font-mono text-sm">
+                                        <td className="py-4 px-6 font-bold text-[#111111] font-mono text-sm">
                                             ₹{(inv.grandTotal || 0).toLocaleString('en-IN')}
                                         </td>
                                         <td className="py-4 px-6">
@@ -1384,7 +1384,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                 inv.paymentStatus === 'Paid' 
                                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
                                                     : inv.paymentStatus === 'Partial'
-                                                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                                    ? 'bg-[#f0f0ee] text-[#111111] border border-[#e6e6e3]'
                                                     : 'bg-amber-50 text-amber-700 border border-amber-200'
                                             }`}>
                                                 {inv.paymentStatus || 'Unpaid'}
@@ -1395,7 +1395,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                 {/* Quick View Button */}
                                                 <button 
                                                     onClick={() => setViewingInvoice(inv)}
-                                                    className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                                                    className="p-1.5 text-slate-400 hover:text-[#111111] hover:bg-[#f0f0ee] rounded-lg transition-colors cursor-pointer"
                                                     title="Quick View"
                                                 >
                                                     <Eye size={16} />
@@ -1404,7 +1404,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                 {/* Edit in 2-Column Workspace */}
                                                 <button 
                                                     onClick={() => handleEditClick(inv)}
-                                                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                                                    className="p-1.5 text-slate-400 hover:text-[#3f3f3f] hover:bg-[#f0f0ee] rounded-lg transition-colors cursor-pointer"
                                                     title="Edit in Split Workspace"
                                                 >
                                                     <Pencil size={16} />
@@ -1447,7 +1447,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 type="button"
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white flex items-center gap-1 font-bold cursor-pointer"
+                                className="px-3 py-1.5 rounded-lg border border-[#e6e6e3] bg-white hover:bg-[#f5f5f3] disabled:opacity-40 disabled:hover:bg-white flex items-center gap-1 font-bold cursor-pointer"
                             >
                                 <ChevronLeft size={14} /> Previous
                             </button>
@@ -1456,7 +1456,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 type="button"
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white flex items-center gap-1 font-bold cursor-pointer"
+                                className="px-3 py-1.5 rounded-lg border border-[#e6e6e3] bg-white hover:bg-[#f5f5f3] disabled:opacity-40 disabled:hover:bg-white flex items-center gap-1 font-bold cursor-pointer"
                             >
                                 Next <ChevronRight size={14} />
                             </button>
@@ -1473,11 +1473,11 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                         if (e.target === e.currentTarget) setViewingInvoice(null);
                     }}
                 >
-                    <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 h-[92vh] max-h-[92vh] flex flex-col overflow-hidden animate-scale-in text-left">
+                    <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-[#e6e6e3] h-[92vh] max-h-[92vh] flex flex-col overflow-hidden animate-scale-in text-left">
                         {/* Header Bar */}
-                        <div className="shrink-0 px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                        <div className="shrink-0 px-6 py-4 bg-[#111111] text-white flex items-center justify-between border-b border-slate-800">
                             <div className="flex items-center gap-3">
-                                <span className="p-2 rounded-xl bg-slate-800 text-emerald-400">
+                                <span className="p-2 rounded-xl bg-[#303030] text-emerald-400">
                                     <FileText size={18} />
                                 </span>
                                 <div>
@@ -1500,7 +1500,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                             );
                                         }
                                     }}
-                                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                                    className="px-3.5 py-1.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
                                 >
                                     <Download size={14} />
                                     <span>Download PDF</span>
@@ -1512,7 +1512,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         setViewingInvoice(null);
                                         handleEditClick(target);
                                     }}
-                                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                                    className="px-3.5 py-1.5 rounded-xl bg-[#111111] hover:bg-[#303030] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
                                 >
                                     <Pencil size={14} />
                                     <span>Edit</span>
@@ -1520,7 +1520,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 <button
                                     type="button"
                                     onClick={() => setViewingInvoice(null)}
-                                    className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#303030] transition-colors cursor-pointer"
                                     title="Close (Esc)"
                                 >
                                     <X size={18} />
@@ -1529,11 +1529,11 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                         </div>
 
                         {/* Invoice Rendered Preview Body */}
-                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-100/60 flex justify-center">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#f0f0ee]/60 flex justify-center">
                             <div 
                                 id="printable-invoice-modal-content"
                                 ref={previewModalRef} 
-                                className="w-full max-w-4xl bg-white shadow-xl rounded-xl overflow-hidden border border-slate-200 my-auto"
+                                className="w-full max-w-4xl bg-white shadow-xl rounded-xl overflow-hidden border border-[#e6e6e3] my-auto"
                             >
                                 <InvoiceRenderer 
                                     invoice={viewingInvoice} 

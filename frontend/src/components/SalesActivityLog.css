@@ -1,0 +1,40 @@
+.sales-activity { display: grid; gap: 18px; }
+.sales-activity-intro p { margin-top: 4px; color: var(--workspace-muted); }
+.sales-activity-presets, .sales-activity-date, .sales-activity-contact { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.sales-activity-presets button, .sales-activity-date :is(label, button), .sales-activity-contact :is(a, button), .sales-activity-table footer button {
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    gap: 6px;
+    padding-inline: 12px;
+    border-radius: 999px;
+    background: var(--workspace-canvas);
+    font-size: 12px;
+}
+.sales-activity :is(a, button):not(:disabled) { cursor: pointer; }
+.sales-activity :is(a, button):focus-visible, .sales-activity input:focus-visible { outline: 2px solid var(--workspace-ink); outline-offset: 2px; }
+.sales-activity-presets button:hover, .sales-activity-date button:hover, .sales-activity-contact a:hover { background: var(--workspace-line); }
+.sales-activity-date { padding-top: 12px; border-top: 1px solid var(--workspace-line); }
+.sales-activity-date label input { max-width: 135px; color: var(--workspace-ink); }
+.sales-activity-date p { margin-left: auto; color: var(--workspace-muted); font-size: 12px; }
+.sales-activity-table table { table-layout: auto; min-width: 760px; }
+.sales-activity-table .sales-table-scroll th { width: auto; padding-right: 14px; }
+.sales-activity-table .sales-table-scroll th:nth-child(2) { width: 20%; }
+.sales-activity-table .sales-table-scroll th:nth-child(5) { width: 22%; }
+.sales-activity-table .sales-table-scroll td:nth-child(4) { font: inherit; color: inherit; text-transform: none; }
+.sales-activity-table td:nth-child(2) button { text-align: left; font-weight: 500; }
+.sales-activity-table td:nth-child(2) button:hover { text-decoration: underline; }
+.sales-activity-table time { font: 12px 'Skite Dashboard Mono', monospace; white-space: nowrap; }
+.sales-activity-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; background: var(--workspace-soft); font-size: 12px; }
+.sales-activity-badge[data-category='callback'] { background: #ffe8df; }
+.sales-activity-badge[data-stage='Lost'], .sales-activity-badge[data-category='lost'] { background: #fdecea; color: var(--workspace-danger); }
+.sales-activity-badge[data-stage='Converted'], .sales-activity-badge[data-category='converted'] { background: #edf6ee; color: #176638; }
+.sales-activity-contact { justify-content: flex-end; flex-wrap: nowrap; gap: 4px; }
+.sales-activity-contact :is(a, button) { min-height: 34px; padding-inline: 9px; }
+.sales-activity-contact button { background: var(--workspace-ink); color: var(--workspace-surface); }
+.sales-activity-table .sales-activity-empty { text-align: center; color: var(--workspace-muted); }
+.sales-activity-table footer p { margin-right: auto; color: var(--workspace-muted); font-size: 12px; }
+@media (max-width: 600px) {
+    .sales-activity-date p { width: 100%; margin: 0; }
+    .sales-activity-table footer { gap: 6px; }
+}
