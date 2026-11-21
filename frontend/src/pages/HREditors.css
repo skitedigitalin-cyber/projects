@@ -1,7 +1,7 @@
 .hr-task-timing label + label { margin-top: 16px; }
-.hr-task-timing select, .hr-task-timing input[type='date'] {
+.lead-followup .hr-task-timing :is(select, input[type='date']) {
     color-scheme: dark;
-    background: #282828;
+    background-color: #282828;
     border-color: #282828;
     color: #fff;
 }

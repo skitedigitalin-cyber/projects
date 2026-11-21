@@ -856,7 +856,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                         placeholder="Type or select client name..." 
                                         className="w-full pl-3 pr-10 py-2.5 border border-[#e6e6e3] rounded-xl font-bold text-[#111111] focus:outline-none focus:border-[#111111]"
                                     />
-                                    <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <ChevronDown aria-hidden="true" className="workspace-autocomplete-chevron" />
                                 </div>
 
                                 {showClientDropdown && (
@@ -974,9 +974,9 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                                             setActiveServiceDropdownIndex(index);
                                                         }}
                                                         onFocus={() => setActiveServiceDropdownIndex(index)}
-                                                        className="w-full pl-3 pr-8 py-2 bg-white border border-[#e6e6e3] rounded-lg text-[#111111] font-semibold focus:outline-none focus:border-[#111111]"
+                                                        className="w-full pl-3 pr-9 py-2 bg-white border border-[#e6e6e3] rounded-lg text-[#111111] font-semibold focus:outline-none focus:border-[#111111]"
                                                     />
-                                                    <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                                    <ChevronDown aria-hidden="true" className="workspace-autocomplete-chevron" />
                                                 </div>
 
                                                 {activeServiceDropdownIndex === index && (
@@ -1133,7 +1133,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                                 <select
                                     value={editorTemplate}
                                     onChange={(e) => setEditorTemplate(e.target.value)}
-                                    className="px-2.5 py-1 bg-[#303030] text-white rounded-lg text-[11px] font-bold border border-slate-700 outline-none"
+                                    className="workspace-select-dark px-2.5 py-1 bg-[#303030] text-white rounded-lg text-[11px] font-bold border border-slate-700 outline-none"
                                 >
                                     {INVOICE_TEMPLATES.map(t => (
                                         <option key={t.id} value={t.id}>{t.name}</option>

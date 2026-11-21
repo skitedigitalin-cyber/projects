@@ -821,7 +821,7 @@ export default function StudentManagement() {
                                                 required
                                                 value={formData.level} 
                                                 onChange={e => handleLevelChange(e.target.value)}
-                                                className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500 cursor-pointer font-bold"
+                                                className="workspace-select-dark w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500 cursor-pointer font-bold"
                                             >
                                                 <option value="Beginner">Beginner (1 Course)</option>
                                                 <option value="Intermediate">Intermediate (2 Courses)</option>
@@ -837,7 +837,7 @@ export default function StudentManagement() {
                                             <select 
                                                 value={formData.preferredType} 
                                                 onChange={e => setFormData({ ...formData, preferredType: e.target.value })}
-                                                className="w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500 cursor-pointer"
+                                                className="workspace-select-dark w-full px-3.5 py-2.5 bg-[#303030] border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500 cursor-pointer"
                                             >
                                                 <option value="Offline">Offline</option>
                                                 <option value="Online">Online</option>

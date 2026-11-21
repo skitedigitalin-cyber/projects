@@ -1582,7 +1582,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             placeholder="Type or select client name..." 
                                             className="w-full pl-3 pr-10 py-2.5 border border-[#e6e6e3] rounded-xl font-bold text-[#111111] focus:outline-none focus:border-[#111111]"
                                         />
-                                        <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                        <ChevronDown aria-hidden="true" className="workspace-autocomplete-chevron" />
                                     </div>
 
                                     {showClientDropdown && (

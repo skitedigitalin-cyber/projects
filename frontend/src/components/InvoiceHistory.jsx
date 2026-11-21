@@ -797,7 +797,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
                 ======================================================== */}
             {viewingInvoice && createPortal(
                 <div 
-                    className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-hidden"
+                    className="workspace-invoice-preview fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-hidden"
                     onClick={(e) => {
                         if (e.target === e.currentTarget) setViewingInvoice(null);
                     }}
