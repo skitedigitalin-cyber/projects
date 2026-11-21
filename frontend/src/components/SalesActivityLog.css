@@ -17,10 +17,12 @@
 .sales-activity-date { padding-top: 12px; border-top: 1px solid var(--workspace-line); }
 .sales-activity-date label input { max-width: 135px; color: var(--workspace-ink); }
 .sales-activity-date p { margin-left: auto; color: var(--workspace-muted); font-size: 12px; }
-.sales-activity-table table { table-layout: auto; min-width: 760px; }
-.sales-activity-table .sales-table-scroll th { width: auto; padding-right: 14px; }
+.sales-list-panel.sales-activity-table table { min-width: 760px; table-layout: fixed; }
+.sales-activity-table .sales-table-scroll th:nth-child(1) { width: 13%; }
 .sales-activity-table .sales-table-scroll th:nth-child(2) { width: 20%; }
-.sales-activity-table .sales-table-scroll th:nth-child(5) { width: 22%; }
+.sales-activity-table .sales-table-scroll th:nth-child(3) { width: 13%; }
+.sales-activity-table .sales-table-scroll th:nth-child(4) { width: 20%; }
+.sales-activity-table .sales-table-scroll th:last-child { width: 132px; }
 .sales-activity-table .sales-table-scroll td:nth-child(4) { font: inherit; color: inherit; text-transform: none; }
 .sales-activity-table td:nth-child(2) button { text-align: left; font-weight: 500; }
 .sales-activity-table td:nth-child(2) button:hover { text-decoration: underline; }
@@ -30,7 +32,8 @@
 .sales-activity-badge[data-stage='Lost'], .sales-activity-badge[data-category='lost'] { background: #fdecea; color: var(--workspace-danger); }
 .sales-activity-badge[data-stage='Converted'], .sales-activity-badge[data-category='converted'] { background: #edf6ee; color: #176638; }
 .sales-activity-contact { justify-content: flex-end; flex-wrap: nowrap; gap: 4px; }
-.sales-activity-contact :is(a, button) { min-height: 34px; padding-inline: 9px; }
+.sales-activity-contact :is(a, button) { flex: none; min-height: 34px; padding-inline: 9px; white-space: nowrap; }
+.sales-activity-contact a { width: 34px; justify-content: center; padding-inline: 0; }
 .sales-activity-contact button { background: var(--workspace-ink); color: var(--workspace-surface); }
 .sales-activity-table .sales-activity-empty { text-align: center; color: var(--workspace-muted); }
 .sales-activity-table footer p { margin-right: auto; color: var(--workspace-muted); font-size: 12px; }
