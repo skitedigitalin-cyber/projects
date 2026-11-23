@@ -1,3 +1,4 @@
+import { quotationDetailLines, quotationTextRuns } from '../../utils/quotationDescription';
 import React from 'react';
 import defaultLogo from '../../assets/skite-logo.jpg';
 import defaultSign from '../../assets/Sign.jpg';
@@ -129,14 +130,17 @@ export default function QuoteRenderer({
                                 const price = item.price !== '' && item.price !== undefined ? Number(item.price) : 0;
                                 const qty = item.qty !== '' && item.qty !== undefined ? Number(item.qty) : 1;
                                 const rowTotal = price * qty;
+                                const details = quotationDetailLines(item.subDescription);
                                 return (
                                     <tr key={idx} className="hover:bg-orange-50/20 transition-colors">
-                                        <td className="p-3 font-semibold text-slate-800 max-w-[280px]">
-                                            <div className="font-bold text-slate-900 text-xs">{item.description || 'Package/Service'}</div>
-                                            {item.subDescription && (
+                                        <td className="p-3 text-slate-800 max-w-[280px]">
+                                            <div className="font-bold text-slate-900 text-xs">{quotationTextRuns(item.description || 'Package/Service').map(run => run.text).join('')}</div>
+                                            {details.length > 0 && (
                                                 <div className="text-[11px] text-slate-500 mt-1.5 space-y-0.5 pl-2 border-l border-orange-200">
-                                                    {item.subDescription.split('\n').filter(l => l.trim()).map((line, lIdx) => (
-                                                        <div key={lIdx} className="leading-tight">• {line.trim()}</div>
+                                                    {details.map((line, lIdx) => (
+                                                        <div key={lIdx} className="leading-tight">• {quotationTextRuns(line).map((run, index) =>
+                                                            run.bold ? <strong key={index}>{run.text}</strong> : run.text
+                                                        )}</div>
                                                     ))}
                                                 </div>
                                             )}

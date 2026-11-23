@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { quotationDetailLines, quotationTextRuns } from './quotationDescription';
 
 import defaultLogo from '../assets/skite-logo.jpg';
 import defaultSign from '../assets/Sign.jpg';
@@ -185,22 +186,24 @@ export async function generateNativeQuotePdf(quote, company = {}, fileName = 'Qu
     const sgstVal = quote.sgst !== undefined ? Number(quote.sgst) : Math.round(subtotalVal * (halfTaxRate / 100));
     const grandTotalVal = Number(quote.grandTotal !== undefined ? quote.grandTotal : (subtotalVal + (isZeroTax ? 0 : (cgstVal + sgstVal))));
 
+    const descriptionCells = new Map();
     const tableBody = items.map(item => {
-        let desc = item.description || '';
-        if (item.subDescription && item.subDescription.trim()) {
-            const bullets = item.subDescription.split('\n')
-                .filter(l => l.trim())
-                .map(l => `  • ${l.trim()}`)
-                .join('\n');
-            desc = `${desc}\n${bullets}`;
-        }
+        const paragraphs = [
+            ...(item.description || '').split(/\r?\n/).map(line => quotationTextRuns(line, true)),
+            ...quotationDetailLines(item.subDescription).map(line => [
+                { text: '• ', bold: false },
+                ...quotationTextRuns(line)
+            ])
+        ];
+        const description = { content: '' };
+        descriptionCells.set(description, { paragraphs, drawn: 0 });
         const hsn = item.hsn || '-';
         const price = item.price !== '' && item.price !== undefined ? Number(item.price) : 0;
         const qty = item.qty !== '' && item.qty !== undefined ? Number(item.qty) : 1;
         const total = price * qty;
         
         return [
-            desc, 
+            description,
             hsn, 
             price > 0 ? price.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '-', 
             qty.toString(), 
@@ -263,11 +266,61 @@ export async function generateNativeQuotePdf(quote, company = {}, fileName = 'Qu
             fillColor: [255, 255, 255]
         },
         columnStyles: { 
-            0: { cellWidth: 80, fontStyle: 'bold' },
+            0: { cellWidth: 80 },
             1: { halign: 'center' },
             2: { halign: 'right' },
             3: { halign: 'center' },
-            4: { halign: 'right', fontStyle: 'bold' } 
+            4: { halign: 'right', fontStyle: 'bold' }
+        },
+        didParseCell({ cell, section }) {
+            const description = section === 'body' && descriptionCells.get(cell.raw);
+            if (!description) return;
+
+            // Measure using bold, the widest weight, and let AutoTable reserve space for each line.
+            const font = doc.getFont();
+            const fontSize = doc.getFontSize();
+            doc.setFont(cell.styles.font, 'bold').setFontSize(cell.styles.fontSize);
+            const width = 80 - cell.padding('horizontal');
+            description.lines = description.paragraphs.flatMap(runs => {
+                const text = runs.map(run => run.text).join('');
+                let cursor = 0;
+                return doc.splitTextToSize(text, width).map(line => {
+                    const start = line ? text.indexOf(line, cursor) : cursor;
+                    const end = start + line.length;
+                    cursor = end;
+                    let offset = 0;
+                    return runs.flatMap(run => {
+                        const part = run.text.slice(Math.max(0, start - offset), Math.max(0, end - offset));
+                        offset += run.text.length;
+                        return part ? [{ ...run, text: part }] : [];
+                    });
+                });
+            });
+            cell.text = description.lines.map(runs => runs.map(run => run.text).join(''));
+            cell.styles.overflow = 'visible';
+            doc.setFont(font.fontName, font.fontStyle).setFontSize(fontSize);
+        },
+        willDrawCell({ cell, section }) {
+            const description = section === 'body' && descriptionCells.get(cell.raw);
+            if (!description) return;
+            description.visibleText = cell.text;
+            cell.text = [];
+        },
+        didDrawCell({ cell, section }) {
+            const description = section === 'body' && descriptionCells.get(cell.raw);
+            if (!description) return;
+            cell.text = description.visibleText;
+            const lineHeight = doc.getLineHeight() / doc.internal.scaleFactor;
+            const firstY = cell.y + cell.padding('top') + cell.styles.fontSize / doc.internal.scaleFactor * 0.85;
+            for (let index = 0; index < cell.text.length; index++) {
+                let x = cell.x + cell.padding('left');
+                for (const run of description.lines[description.drawn++] || []) {
+                    doc.setFont(cell.styles.font, run.bold ? 'bold' : 'normal');
+                    doc.text(run.text, x, firstY + index * lineHeight);
+                    x += doc.getTextWidth(run.text);
+                }
+            }
+            doc.setFont(cell.styles.font, cell.styles.fontStyle);
         }
     });
 
