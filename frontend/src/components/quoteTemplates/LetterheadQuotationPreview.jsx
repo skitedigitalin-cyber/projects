@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { topImage as defaultTopImage, bottomImage as defaultBottomImage, sealImage as defaultSealImage, signImage as defaultSignImage } from '../../assets/robotriqImages';
 
 export const DEFAULT_ROBOTRIQ_TERMS = [
   { id: 1, title: 'Quotation Validity', desc: 'This quotation is valid for 15 days from the date of issue unless otherwise specified.' },
@@ -31,12 +30,13 @@ export default function LetterheadQuotationPreview({
     footerImage,
     sealImage,
     signImage,
+    isRobotriq = false,
     readOnly = false
 }) {
-    const activeTopImage = headerImage || defaultTopImage;
-    const activeBottomImage = footerImage || defaultBottomImage;
-    const activeSealImage = sealImage || defaultSealImage;
-    const activeSignImage = signImage || defaultSignImage;
+    const activeTopImage = headerImage;
+    const activeBottomImage = footerImage;
+    const activeSealImage = sealImage;
+    const activeSignImage = signImage;
 
     const inputStyle = {
         background: 'transparent',
@@ -94,7 +94,7 @@ export default function LetterheadQuotationPreview({
     };
 
     const items = data.items || [];
-    const terms = data.terms && data.terms.length > 0 ? data.terms : DEFAULT_ROBOTRIQ_TERMS;
+    const terms = data.terms && data.terms.length > 0 ? data.terms : isRobotriq ? DEFAULT_ROBOTRIQ_TERMS : [];
 
     return (
         <div className="flex flex-col items-center bg-slate-100 p-4 sm:p-6 overflow-y-auto space-y-8 select-text">
@@ -113,7 +113,7 @@ export default function LetterheadQuotationPreview({
             >
                 {/* Full Width Edge-to-Edge Header */}
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                    <img src={activeTopImage} alt="Quotation Header" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    {activeTopImage && <img src={activeTopImage} alt="Quotation Header" style={{ width: '100%', height: 'auto', display: 'block' }} />}
                 </div>
 
                 {/* Header Title & Date / Quote No */}
@@ -308,16 +308,16 @@ export default function LetterheadQuotationPreview({
                     <div style={{ width: '45%', zIndex: 10 }}>
                         <div style={{ fontWeight: 'bold', fontSize: '11px', marginBottom: '4px', textDecoration: 'underline' }}>BANK DETAILS</div>
                         <div style={{ display: 'flex', marginBottom: '2px' }}>
-                            <InputField value={data.bankName || 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED'} onChange={(val) => onChange('bankName', val)} />
+                            <InputField value={data.bankName || ''} onChange={(val) => onChange('bankName', val)} />
                         </div>
                         <div style={{ display: 'flex', marginBottom: '2px' }}>
-                            <InputField value={data.branch || 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.'} onChange={(val) => onChange('branch', val)} />
+                            <InputField value={data.branch || ''} onChange={(val) => onChange('branch', val)} />
                         </div>
                         <div style={{ display: 'flex', marginBottom: '2px' }}>
-                            <InputField value={data.bobAc || 'ACC NO : 252511010000242'} onChange={(val) => onChange('bobAc', val)} />
+                            <InputField value={data.bobAc || ''} onChange={(val) => onChange('bobAc', val)} />
                         </div>
                         <div style={{ display: 'flex', marginBottom: '2px' }}>
-                            <InputField value={data.ifsc || 'IFSC CODE : UBIN0825255'} onChange={(val) => onChange('ifsc', val)} />
+                            <InputField value={data.ifsc || ''} onChange={(val) => onChange('ifsc', val)} />
                         </div>
                         <div style={{ marginTop: '8px', color: '#64748b', fontStyle: 'italic', fontSize: '9.5px' }}>
                             * Fixed 16-point Terms & Conditions are appended automatically as page 2 in the PDF.
@@ -345,7 +345,7 @@ export default function LetterheadQuotationPreview({
                             <InputField value={data.sigThanks || 'Thanking you,'} onChange={(val) => onChange('sigThanks', val)} style={{ textAlign: 'center' }} />
                         </div>
                         <div style={{ marginBottom: '6px', fontSize: '9.5px' }}>
-                            <InputField value={data.sigFor || 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED'} onChange={(val) => onChange('sigFor', val)} style={{ textAlign: 'center', fontSize: '9.5px' }} />
+                            <InputField value={data.sigFor || ''} onChange={(val) => onChange('sigFor', val)} style={{ textAlign: 'center', fontSize: '9.5px' }} />
                         </div>
 
                         {/* Sign Image */}
@@ -370,7 +370,7 @@ export default function LetterheadQuotationPreview({
 
                 {/* Edge-to-Edge Footer */}
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
-                    <img src={activeBottomImage} alt="Quotation Footer" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    {activeBottomImage && <img src={activeBottomImage} alt="Quotation Footer" style={{ width: '100%', height: 'auto', display: 'block' }} />}
                 </div>
             </div>
 
@@ -389,7 +389,7 @@ export default function LetterheadQuotationPreview({
             >
                 {/* Edge-to-Edge Header */}
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                    <img src={activeTopImage} alt="Quotation Header" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    {activeTopImage && <img src={activeTopImage} alt="Quotation Header" style={{ width: '100%', height: 'auto', display: 'block' }} />}
                 </div>
 
                 <div style={{ textAlign: 'center', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>
@@ -439,7 +439,7 @@ export default function LetterheadQuotationPreview({
 
                 {/* Edge-to-Edge Footer */}
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
-                    <img src={activeBottomImage} alt="Quotation Footer" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    {activeBottomImage && <img src={activeBottomImage} alt="Quotation Footer" style={{ width: '100%', height: 'auto', display: 'block' }} />}
                 </div>
             </div>
         </div>

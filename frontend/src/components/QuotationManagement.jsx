@@ -14,7 +14,7 @@ import QuoteRenderer from './quoteTemplates/QuoteRenderer';
 import { generateNativeQuotePdf } from '../utils/quotePdfGenerator';
 import LetterheadQuotationPreview, { DEFAULT_ROBOTRIQ_TERMS } from './quoteTemplates/LetterheadQuotationPreview';
 import { generateLetterheadQuotePdf } from '../utils/letterheadQuotePdfGenerator';
-import { topImage as defaultTopImage, bottomImage as defaultBottomImage, sealImage as defaultSealImage, signImage as defaultSignImage } from '../assets/robotriqImages';
+import { isRobotriqQuotationTenant, quotationAssets } from '../utils/quotationBranding';
 
 // Quick Preset Services & Packages for Digital Agencies
 const PRESET_SERVICES = [
@@ -41,16 +41,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     const isSkite = user?.isSkiteTenant === true || tenantId === '6af2c94a9d29730751ed2d01' ||
         Boolean(user?.companyName?.toLowerCase().includes('skite'));
 
-    // Detect Robotriq tenant
-    const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const isRobotriq = !isSkite && (
-        user?.subDomain === 'robotriq' ||
-        tenantId === '6afd35731172da4b0de9a48e' ||
-        (user?.companyName && user.companyName.toLowerCase().includes('robotriq')) ||
-        (user?.name && user.name.toLowerCase().includes('robotriq')) ||
-        (user?.email && user.email.toLowerCase().includes('robotriq')) ||
-        rawStored.toLowerCase().includes('robotriq')
-    );
+    const isRobotriq = isRobotriqQuotationTenant(user);
 
     const [internalQuoteFormat, setQuoteFormat] = useState('letterhead');
     const quoteFormat = isRobotriq ? 'letterhead' : internalQuoteFormat;
@@ -87,14 +78,14 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         netAmountLabel: 'NET AMOUNT',
         netAmount: 0,
         netAmountStr: '0.00',
-        bankName: 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED',
-        branch: 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.',
-        bobAc: 'ACC NO : 252511010000242',
-        ifsc: 'IFSC CODE : UBIN0825255',
+        bankName: isRobotriq ? 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED' : '',
+        branch: isRobotriq ? 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.' : '',
+        bobAc: isRobotriq ? 'ACC NO : 252511010000242' : '',
+        ifsc: isRobotriq ? 'IFSC CODE : UBIN0825255' : '',
         sigThanks: 'Thanking you,',
-        sigFor: 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+        sigFor: isRobotriq ? 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED' : '',
         sigName: 'Authorised Signatory',
-        terms: DEFAULT_ROBOTRIQ_TERMS,
+        terms: isRobotriq ? DEFAULT_ROBOTRIQ_TERMS : [],
         items: [
             {
                 sno: 1,
@@ -317,18 +308,9 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 seal: res.data?.invoiceSeal || ''
             });
 
-            // Set Quotation Letterhead Branding
-            const qHeader = res.data?.quotationHeaderImage || localStorage.getItem('quotation-header-image') || defaultTopImage;
-            const qFooter = res.data?.quotationFooterImage || localStorage.getItem('quotation-footer-image') || defaultBottomImage;
-            const qSeal = res.data?.quotationSeal || res.data?.invoiceSeal || localStorage.getItem('quotation-seal-image') || defaultSealImage;
-            const qSign = res.data?.quotationSign || res.data?.invoiceSign || localStorage.getItem('quotation-sign-image') || defaultSignImage;
             const qBank = res.data?.quotationBankDetails || {};
-
             setBranding({
-                quotationHeaderImage: qHeader,
-                quotationFooterImage: qFooter,
-                quotationSeal: qSeal,
-                quotationSign: qSign,
+                ...quotationAssets(res.data, isRobotriq),
                 quotationBankDetails: qBank
             });
 
@@ -511,14 +493,14 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 netAmountLabel: 'NET AMOUNT',
                 netAmount: 0,
                 netAmountStr: '0.00',
-                bankName: branding.quotationBankDetails?.bankName || 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED',
-                branch: branding.quotationBankDetails?.branch || 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.',
-                bobAc: branding.quotationBankDetails?.bobAc || 'ACC NO : 252511010000242',
-                ifsc: branding.quotationBankDetails?.ifsc || 'IFSC CODE : UBIN0825255',
+                bankName: branding.quotationBankDetails?.bankName || (isRobotriq ? 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED' : ''),
+                branch: branding.quotationBankDetails?.branch || (isRobotriq ? 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.' : ''),
+                bobAc: branding.quotationBankDetails?.bobAc || (isRobotriq ? 'ACC NO : 252511010000242' : ''),
+                ifsc: branding.quotationBankDetails?.ifsc || (isRobotriq ? 'IFSC CODE : UBIN0825255' : ''),
                 sigThanks: branding.quotationBankDetails?.sigThanks || 'Thanking you,',
-                sigFor: branding.quotationBankDetails?.sigFor || 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+                sigFor: branding.quotationBankDetails?.sigFor || (isRobotriq ? 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED' : ''),
                 sigName: branding.quotationBankDetails?.sigName || 'Authorised Signatory',
-                terms: DEFAULT_ROBOTRIQ_TERMS,
+                terms: isRobotriq ? DEFAULT_ROBOTRIQ_TERMS : [],
                 items: [
                     {
                         sno: 1,
@@ -583,7 +565,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 customerName: prev.customerName || customerName || '',
                 reference: prev.reference || refNo || customerName || '',
                 phone: prev.phone || customerPhone || '',
-                terms: prev.terms && prev.terms.length > 0 ? prev.terms : DEFAULT_ROBOTRIQ_TERMS
+                terms: prev.terms && prev.terms.length > 0 ? prev.terms : isRobotriq ? DEFAULT_ROBOTRIQ_TERMS : []
             }));
         }
     };
@@ -610,14 +592,14 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 gstAmountStr: cData.gstAmountStr || String(quote.taxAmount || '0.00'),
                 validityDays: cData.validityDays || 15,
                 netAmountStr: cData.netAmountStr || String(quote.grandTotal || ''),
-                bankName: cData.bankName || branding.quotationBankDetails?.bankName || 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED',
-                branch: cData.branch || branding.quotationBankDetails?.branch || 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.',
-                bobAc: cData.bobAc || branding.quotationBankDetails?.bobAc || 'ACC NO : 252511010000242',
-                ifsc: cData.ifsc || branding.quotationBankDetails?.ifsc || 'IFSC CODE : UBIN0825255',
+                bankName: cData.bankName || branding.quotationBankDetails?.bankName || (isRobotriq ? 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED' : ''),
+                branch: cData.branch || branding.quotationBankDetails?.branch || (isRobotriq ? 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.' : ''),
+                bobAc: cData.bobAc || branding.quotationBankDetails?.bobAc || (isRobotriq ? 'ACC NO : 252511010000242' : ''),
+                ifsc: cData.ifsc || branding.quotationBankDetails?.ifsc || (isRobotriq ? 'IFSC CODE : UBIN0825255' : ''),
                 sigThanks: cData.sigThanks || branding.quotationBankDetails?.sigThanks || 'Thanking you,',
-                sigFor: cData.sigFor || branding.quotationBankDetails?.sigFor || 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+                sigFor: cData.sigFor || branding.quotationBankDetails?.sigFor || (isRobotriq ? 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED' : ''),
                 sigName: cData.sigName || branding.quotationBankDetails?.sigName || 'Authorised Signatory',
-                terms: cData.terms && cData.terms.length > 0 ? cData.terms : DEFAULT_ROBOTRIQ_TERMS,
+                terms: cData.terms && cData.terms.length > 0 ? cData.terms : isRobotriq ? DEFAULT_ROBOTRIQ_TERMS : [],
                 items: cData.items && cData.items.length > 0 ? cData.items : (quote.items || []).map((it, idx) => ({
                     sno: idx + 1,
                     componentText: it.description || '',
@@ -919,7 +901,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         try {
             setSavingQuote(true);
             if (quoteFormat === 'letterhead') {
-                await generateLetterheadQuotePdf(letterheadData, branding);
+                await generateLetterheadQuotePdf(letterheadData, branding, isRobotriq);
                 return;
             }
             const safeName = (customerName || 'Client').replace(/[^a-zA-Z0-9]/g, '_');
@@ -939,7 +921,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         try {
             setRowDownloadingId(quote._id);
             if (isRobotriq || quote.templateType === 'letterhead' || (quote.customData && Object.keys(quote.customData).length > 0)) {
-                await generateLetterheadQuotePdf(quote.customData || quote, branding);
+                await generateLetterheadQuotePdf(quote.customData || quote, branding, isRobotriq);
                 return;
             }
             const safeName = (quote.clientDetails?.name || 'Client').replace(/[^a-zA-Z0-9]/g, '_');
@@ -1078,7 +1060,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                     className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                                         quoteFormat === 'letterhead' ? 'bg-[#111111] text-white shadow-xs font-black' : 'text-slate-600 hover:text-[#111111]'
                                     }`}
-                                    title="2-Page Robotriq Letterhead Format"
+                                    title="Two-page quotation letterhead"
                                 >
                                     <span>Letterhead</span>
                                 </button>
@@ -1489,7 +1471,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                 </div>
 
                                 <div className="w-full overflow-x-auto flex justify-center bg-slate-200/60 p-4 rounded-3xl border border-slate-300 shadow-inner">
-                                    <LetterheadQuotationPreview 
+                                    <LetterheadQuotationPreview
+                                        isRobotriq={isRobotriq}
                                         data={letterheadData}
                                         onChange={handleLetterheadChange}
                                         onItemChange={handleLetterheadItemChange}
@@ -2238,7 +2221,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                             <div className="rounded-2xl border border-[#e6e6e3] overflow-hidden shadow-xs bg-white">
                                 {isRobotriq || viewingQuote.templateType === 'letterhead' || (viewingQuote.customData && Object.keys(viewingQuote.customData).length > 0) ? (
                                     <div className="p-4 flex justify-center bg-slate-200/50 overflow-x-auto">
-                                        <LetterheadQuotationPreview 
+                                        <LetterheadQuotationPreview
+                                            isRobotriq={isRobotriq}
                                             data={viewingQuote.customData || viewingQuote}
                                             headerImage={branding.quotationHeaderImage}
                                             footerImage={branding.quotationFooterImage}

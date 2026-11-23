@@ -1,6 +1,5 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { topImage as defaultTopImage, bottomImage as defaultBottomImage, sealImage as defaultSealImage, signImage as defaultSignImage } from '../assets/robotriqImages';
 import { DEFAULT_ROBOTRIQ_TERMS } from '../components/quoteTemplates/LetterheadQuotationPreview';
 
 function preloadImage(src) {
@@ -32,15 +31,15 @@ function preloadImage(src) {
     });
 }
 
-export const generateLetterheadQuotePdf = async (data = {}, branding = {}) => {
+export const generateLetterheadQuotePdf = async (data = {}, branding = {}, isRobotriq = false) => {
     try {
         const doc = new jsPDF();
 
         const [topImg, botImg, sealImg, signImg] = await Promise.all([
-            preloadImage(branding.quotationHeaderImage || defaultTopImage),
-            preloadImage(branding.quotationFooterImage || defaultBottomImage),
-            preloadImage(branding.quotationSeal || defaultSealImage),
-            preloadImage(branding.quotationSign || defaultSignImage)
+            preloadImage(branding.quotationHeaderImage),
+            preloadImage(branding.quotationFooterImage),
+            preloadImage(branding.quotationSeal),
+            preloadImage(branding.quotationSign)
         ]);
 
         const scale = { tblFont: 9, tblPad: 2, termFont: 8.5, termGap: 5, sealSize: 24, sigGap: 45 };
@@ -216,10 +215,10 @@ export const generateLetterheadQuotePdf = async (data = {}, branding = {}) => {
         
         doc.setFontSize(8.5);
         doc.setFont("helvetica", "normal");
-        doc.text(`${data.bankName || 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED'}`, 14, ty + 6);
-        doc.text(`${data.branch || 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.'}`, 14, ty + 12);
-        doc.text(`${data.bobAc || 'ACC NO : 252511010000242'}`, 14, ty + 18);
-        doc.text(`${data.ifsc || 'IFSC CODE : UBIN0825255'}`, 14, ty + 24);
+        doc.text(`${data.bankName || ''}`, 14, ty + 6);
+        doc.text(`${data.branch || ''}`, 14, ty + 12);
+        doc.text(`${data.bobAc || ''}`, 14, ty + 18);
+        doc.text(`${data.ifsc || ''}`, 14, ty + 24);
 
         // Right side: Signature Section
         const sigCenter = 160;
@@ -227,7 +226,7 @@ export const generateLetterheadQuotePdf = async (data = {}, branding = {}) => {
         doc.setFontSize(9.5);
         doc.text(data.sigThanks || "Thanking you,", sigCenter, finalY + 4, { align: 'center' });
         doc.setFontSize(8.5);
-        doc.text(data.sigFor || "For ROBOTRIQ AUTOMATION PRIVATE LIMITED", sigCenter, finalY + 11, { align: 'center' });
+        doc.text(data.sigFor || '', sigCenter, finalY + 11, { align: 'center' });
         
         // Center of the Page: Seal Image (Centered horizontally at X = 90-120mm, right between Bank Details and Signature)
         if (sealImg) {
@@ -260,7 +259,7 @@ export const generateLetterheadQuotePdf = async (data = {}, branding = {}) => {
         doc.setFont("helvetica", "bold");
         doc.text("QUOTATION TERMS & CONDITIONS", 105, 40, { align: 'center' });
         
-        const termsData = data.terms && data.terms.length > 0 ? data.terms : DEFAULT_ROBOTRIQ_TERMS;
+        const termsData = data.terms && data.terms.length > 0 ? data.terms : isRobotriq ? DEFAULT_ROBOTRIQ_TERMS : [];
         const tcBody = termsData.map((term, i) => [term.id || (i + 1), term.title, term.desc]);
         
         autoTable(doc, {

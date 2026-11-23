@@ -13,7 +13,7 @@ import {
 import { INVOICE_TEMPLATES, SAMPLE_INVOICE, getInvoiceTemplates, TEMPLATE_COLOR_PRESETS } from '../components/invoiceTemplates/templateConfigs';
 import InvoiceRenderer from '../components/invoiceTemplates/InvoiceRenderer';
 import { generateSingleInvoicePdf, generateNativeInvoicePdf } from '../utils/invoicePdfGenerator';
-import { topImage as defaultTopImage, bottomImage as defaultBottomImage, sealImage as defaultSealImage, signImage as defaultSignImage } from '../assets/robotriqImages';
+import { isRobotriqQuotationTenant, quotationAssets } from '../utils/quotationBranding';
 import LetterheadQuotationPreview from '../components/quoteTemplates/LetterheadQuotationPreview';
 import { generateLetterheadQuotePdf } from '../utils/letterheadQuotePdfGenerator';
 
@@ -27,23 +27,10 @@ const checkIsSkite = (u) => {
     return false;
 };
 
-const checkIsRobotriq = (u) => {
-    if (!u) return false;
-    const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const tId = u.tenantId ? (u.tenantId._id || u.tenantId).toString() : '';
-    if (tId === '6afd35731172da4b0de9a48e') return true;
-    if (u.subDomain === 'robotriq') return true;
-    if (u.companyName && u.companyName.toLowerCase().includes('robotriq')) return true;
-    if (u.email && u.email.toLowerCase().includes('robotriq')) return true;
-    if (u.name && u.name.toLowerCase().includes('robotriq')) return true;
-    if (rawStored.toLowerCase().includes('robotriq')) return true;
-    return false;
-};
-
 export default function Settings() {
     const { user } = useContext(AuthContext);
     const isSkite = checkIsSkite(user);
-    const isRobotriq = checkIsRobotriq(user);
+    const isRobotriq = isRobotriqQuotationTenant(user);
     const [activeTab, setActiveTab] = useState('permissions');
 
     useEffect(() => {
@@ -112,25 +99,17 @@ export default function Settings() {
     const sealInputRef = useRef(null);
 
     // Quotation Letterhead Branding Assets (Header, Footer, Seal, Signature & Bank Details)
-    const [quotationHeaderPreview, setQuotationHeaderPreview] = useState(() => {
-        return localStorage.getItem('quotation-header-image') || '';
-    });
-    const [quotationFooterPreview, setQuotationFooterPreview] = useState(() => {
-        return localStorage.getItem('quotation-footer-image') || '';
-    });
-    const [quotationSealPreview, setQuotationSealPreview] = useState(() => {
-        return localStorage.getItem('quotation-seal-image') || '';
-    });
-    const [quotationSignPreview, setQuotationSignPreview] = useState(() => {
-        return localStorage.getItem('quotation-sign-image') || '';
-    });
+    const [quotationHeaderPreview, setQuotationHeaderPreview] = useState('');
+    const [quotationFooterPreview, setQuotationFooterPreview] = useState('');
+    const [quotationSealPreview, setQuotationSealPreview] = useState('');
+    const [quotationSignPreview, setQuotationSignPreview] = useState('');
     const [quotationBankDetails, setQuotationBankDetails] = useState({
-        bankName: 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED',
-        branch: 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.',
-        bobAc: 'ACC NO : 252511010000242',
-        ifsc: 'IFSC CODE : UBIN0825255',
+        bankName: isRobotriq ? 'ACC NAME : ROBOTRIQ AUTOMATION PRIVATE LIMITED' : '',
+        branch: isRobotriq ? 'BRANCH : UNION BANK,SUNDHARAPURAM,COIMBATORE.' : '',
+        bobAc: isRobotriq ? 'ACC NO : 252511010000242' : '',
+        ifsc: isRobotriq ? 'IFSC CODE : UBIN0825255' : '',
         sigThanks: 'Thanking you,',
-        sigFor: 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED',
+        sigFor: isRobotriq ? 'For ROBOTRIQ AUTOMATION PRIVATE LIMITED' : '',
         sigName: 'Authorised Signatory'
     });
     const [savingQuotationBranding, setSavingQuotationBranding] = useState(false);
@@ -154,11 +133,11 @@ export default function Settings() {
                     setSignPreview(res.data.invoiceSign || '');
                     setSealPreview(res.data.invoiceSeal || '');
 
-                    // Quotation letterhead assets with fallback to default Robotriq letterhead
-                    setQuotationHeaderPreview(res.data.quotationHeaderImage || localStorage.getItem('quotation-header-image') || defaultTopImage);
-                    setQuotationFooterPreview(res.data.quotationFooterImage || localStorage.getItem('quotation-footer-image') || defaultBottomImage);
-                    setQuotationSealPreview(res.data.quotationSeal || res.data.invoiceSeal || defaultSealImage);
-                    setQuotationSignPreview(res.data.quotationSign || res.data.invoiceSign || defaultSignImage);
+                    const assets = quotationAssets(res.data, isRobotriq);
+                    setQuotationHeaderPreview(assets.quotationHeaderImage);
+                    setQuotationFooterPreview(assets.quotationFooterImage);
+                    setQuotationSealPreview(assets.quotationSeal);
+                    setQuotationSignPreview(assets.quotationSign);
                     if (res.data.quotationBankDetails && Object.keys(res.data.quotationBankDetails).length > 0) {
                         setQuotationBankDetails(res.data.quotationBankDetails);
                     }
@@ -182,7 +161,7 @@ export default function Settings() {
             }
         };
         fetchBranding();
-    }, []);
+    }, [isRobotriq]);
 
     const handleSelectTemplate = async (templateId) => {
         setSelectedTemplate(templateId);
@@ -337,7 +316,6 @@ export default function Settings() {
         try {
             const base64 = await compressImageFile(file, 1600, 500, 0.9);
             setQuotationHeaderPreview(base64);
-            localStorage.setItem('quotation-header-image', base64);
             setQuotationSuccessMsg('Quotation Header image loaded! Click "Save Letterhead Settings" to persist.');
             setTimeout(() => setQuotationSuccessMsg(''), 4000);
         } catch (err) {
@@ -348,7 +326,6 @@ export default function Settings() {
 
     const handleRemoveQuotationHeader = () => {
         setQuotationHeaderPreview('');
-        localStorage.removeItem('quotation-header-image');
         if (quotationHeaderInputRef.current) quotationHeaderInputRef.current.value = '';
     };
 
@@ -358,7 +335,6 @@ export default function Settings() {
         try {
             const base64 = await compressImageFile(file, 1600, 500, 0.9);
             setQuotationFooterPreview(base64);
-            localStorage.setItem('quotation-footer-image', base64);
             setQuotationSuccessMsg('Quotation Footer image loaded! Click "Save Letterhead Settings" to persist.');
             setTimeout(() => setQuotationSuccessMsg(''), 4000);
         } catch (err) {
@@ -369,7 +345,6 @@ export default function Settings() {
 
     const handleRemoveQuotationFooter = () => {
         setQuotationFooterPreview('');
-        localStorage.removeItem('quotation-footer-image');
         if (quotationFooterInputRef.current) quotationFooterInputRef.current.value = '';
     };
 
@@ -379,7 +354,6 @@ export default function Settings() {
         try {
             const base64 = await compressImageFile(file, 500, 500, 0.85);
             setQuotationSealPreview(base64);
-            localStorage.setItem('quotation-seal-image', base64);
             setQuotationSuccessMsg('Quotation Seal loaded! Click "Save Letterhead Settings" to persist.');
             setTimeout(() => setQuotationSuccessMsg(''), 4000);
         } catch (err) {
@@ -389,7 +363,6 @@ export default function Settings() {
 
     const handleRemoveQuotationSeal = () => {
         setQuotationSealPreview('');
-        localStorage.removeItem('quotation-seal-image');
         if (quotationSealInputRef.current) quotationSealInputRef.current.value = '';
     };
 
@@ -399,7 +372,6 @@ export default function Settings() {
         try {
             const base64 = await compressImageFile(file, 500, 250, 0.85);
             setQuotationSignPreview(base64);
-            localStorage.setItem('quotation-sign-image', base64);
             setQuotationSuccessMsg('Quotation Signature loaded! Click "Save Letterhead Settings" to persist.');
             setTimeout(() => setQuotationSuccessMsg(''), 4000);
         } catch (err) {
@@ -409,19 +381,15 @@ export default function Settings() {
 
     const handleRemoveQuotationSign = () => {
         setQuotationSignPreview('');
-        localStorage.removeItem('quotation-sign-image');
         if (quotationSignInputRef.current) quotationSignInputRef.current.value = '';
     };
 
     const handleResetToRobotriqLetterhead = () => {
-        setQuotationHeaderPreview(defaultTopImage);
-        setQuotationFooterPreview(defaultBottomImage);
-        setQuotationSealPreview(defaultSealImage);
-        setQuotationSignPreview(defaultSignImage);
-        localStorage.setItem('quotation-header-image', defaultTopImage);
-        localStorage.setItem('quotation-footer-image', defaultBottomImage);
-        localStorage.setItem('quotation-seal-image', defaultSealImage);
-        localStorage.setItem('quotation-sign-image', defaultSignImage);
+        const assets = quotationAssets({}, true);
+        setQuotationHeaderPreview(assets.quotationHeaderImage);
+        setQuotationFooterPreview(assets.quotationFooterImage);
+        setQuotationSealPreview(assets.quotationSeal);
+        setQuotationSignPreview(assets.quotationSign);
         setQuotationSuccessMsg('Reset to official Robotriq Letterhead (Header, Footer, Seal, Sign)! Click "Save Letterhead Settings" to sync.');
         setTimeout(() => setQuotationSuccessMsg(''), 4000);
     };
@@ -444,7 +412,7 @@ export default function Settings() {
             setTimeout(() => setQuotationSuccessMsg(''), 5000);
         } catch (err) {
             console.error('Error saving quotation branding:', err);
-            setQuotationSuccessMsg('Saved locally! (Backend sync will retry)');
+            setQuotationSuccessMsg('Letterhead settings could not be saved. Please try again.');
             setTimeout(() => setQuotationSuccessMsg(''), 4000);
         } finally {
             setSavingQuotationBranding(false);
@@ -455,7 +423,7 @@ export default function Settings() {
         try {
             const sampleData = {
                 date: new Date().toLocaleDateString('en-GB'),
-                quotationNo: 'RQ/2026/001',
+                quotationNo: isRobotriq ? 'RQ/2026/001' : isSkite ? 'SKT001' : 'QT001',
                 customerName: 'Abilash',
                 reference: 'ATLAS MACHINE TOOLS',
                 application: 'PLC PROGRAMMING TRANING KIT',
@@ -495,7 +463,7 @@ export default function Settings() {
                 quotationFooterImage: quotationFooterPreview,
                 quotationSeal: quotationSealPreview,
                 quotationSign: quotationSignPreview
-            });
+            }, isRobotriq);
         } catch (err) {
             console.error('PDF generation error:', err);
             alert('Failed to generate sample PDF');
@@ -1236,15 +1204,17 @@ export default function Settings() {
                                             </div>
 
                                             <div className="flex flex-wrap items-center gap-2.5">
-                                                <button
-                                                    type="button"
-                                                    onClick={handleResetToRobotriqLetterhead}
-                                                    className="px-3.5 py-2.5 rounded-xl border border-[#e6e6e3] hover:bg-[#f5f5f3] text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
-                                                    title="Restore default Robotriq high-resolution letterhead assets"
-                                                >
-                                                    <RotateCcw size={14} />
-                                                    <span>Reset to Robotriq Letterhead</span>
-                                                </button>
+                                                {isRobotriq && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleResetToRobotriqLetterhead}
+                                                        className="px-3.5 py-2.5 rounded-xl border border-[#e6e6e3] hover:bg-[#f5f5f3] text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                                                        title="Restore default Robotriq high-resolution letterhead assets"
+                                                    >
+                                                        <RotateCcw size={14} />
+                                                        <span>Reset to Robotriq Letterhead</span>
+                                                    </button>
+                                                )}
                                                 <button
                                                     type="button"
                                                     onClick={handleDownloadQuotationSamplePdf}
@@ -1313,7 +1283,7 @@ export default function Settings() {
                                                         <img src={quotationHeaderPreview} alt="Header Preview" className="w-full max-h-28 object-contain rounded-lg" />
                                                     ) : (
                                                         <div className="py-8 text-center text-slate-400 text-xs">
-                                                            No header uploaded. Using default Robotriq letterhead top banner.
+                                                            No header image uploaded.
                                                         </div>
                                                     )}
                                                 </div>
@@ -1365,7 +1335,7 @@ export default function Settings() {
                                                         <img src={quotationFooterPreview} alt="Footer Preview" className="w-full max-h-28 object-contain rounded-lg" />
                                                     ) : (
                                                         <div className="py-8 text-center text-slate-400 text-xs">
-                                                            No footer uploaded. Using default Robotriq letterhead bottom banner.
+                                                            No footer image uploaded.
                                                         </div>
                                                     )}
                                                 </div>
@@ -1396,7 +1366,7 @@ export default function Settings() {
                                                             {quotationSealPreview ? (
                                                                 <img src={quotationSealPreview} alt="Seal" className="max-h-20 object-contain" />
                                                             ) : (
-                                                                <span className="text-xs text-slate-400">Default Robotriq seal active</span>
+                                                                <span className="text-xs text-slate-400">No seal image uploaded</span>
                                                             )}
                                                         </div>
                                                     </div>
@@ -1441,7 +1411,7 @@ export default function Settings() {
                                                             {quotationSignPreview ? (
                                                                 <img src={quotationSignPreview} alt="Signature" className="max-h-20 object-contain" />
                                                             ) : (
-                                                                <span className="text-xs text-slate-400">Default Robotriq signature active</span>
+                                                                <span className="text-xs text-slate-400">No signature image uploaded</span>
                                                             )}
                                                         </div>
                                                     </div>
@@ -1562,7 +1532,8 @@ export default function Settings() {
                                                 </div>
 
                                                 <div className="max-h-[750px] overflow-y-auto rounded-xl border border-slate-300 shadow-inner bg-slate-200 p-4">
-                                                    <LetterheadQuotationPreview 
+                                                    <LetterheadQuotationPreview
+                                                        isRobotriq={isRobotriq}
                                                         readOnly={true}
                                                         headerImage={quotationHeaderPreview}
                                                         footerImage={quotationFooterPreview}
@@ -1570,7 +1541,7 @@ export default function Settings() {
                                                         signImage={quotationSignPreview}
                                                         data={{
                                                             date: new Date().toLocaleDateString('en-GB'),
-                                                            quotationNo: 'RQ/2026/001',
+                                                            quotationNo: isRobotriq ? 'RQ/2026/001' : isSkite ? 'SKT001' : 'QT001',
                                                             customerName: 'Abilash',
                                                             reference: 'ATLAS MACHINE TOOLS',
                                                             application: 'PLC PROGRAMMING TRANING KIT',
