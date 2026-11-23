@@ -90,7 +90,7 @@ function App() {
       <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
         <Router>
           <Routes>
-            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/billing" element={<ProtectedRoute adminOnly><Billing /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute adminOnly><Settings /></ProtectedRoute>} />
             <Route path="/ceo-dashboard" element={<ProtectedRoute ceoOnly><CeoDashboard /></ProtectedRoute>} />
