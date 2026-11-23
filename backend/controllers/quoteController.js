@@ -1,4 +1,5 @@
 const Quote = require('../models/Quote');
+const Tenant = require('../models/Tenant');
 
 // GET /api/quotes - Fetch all quotations for the tenant
 exports.getQuotes = async (req, res) => {
@@ -33,8 +34,22 @@ exports.createQuote = async (req, res) => {
 
         // Auto-generate quote number if not provided
         if (!quoteNo || quoteNo.trim() === '') {
-            const count = await Quote.countDocuments({ tenantId: req.user.tenantId });
-            quoteNo = `RQ/2026/${(count + 1).toString().padStart(3, '0')}`;
+            const tenantId = req.user.tenantId;
+            const tenant = await Tenant.findById(tenantId).select('companyName').lean();
+            const isSkite = String(tenantId) === '6af2c94a9d29730751ed2d01' ||
+                Boolean(tenant?.companyName?.toLowerCase().includes('skite'));
+
+            if (isSkite) {
+                const quotes = await Quote.find({ tenantId }).select('quoteNo').lean();
+                const highestNumber = quotes.reduce((highest, quote) => {
+                    const serial = quote.quoteNo.match(/(\d+)\D*$/);
+                    return serial ? Math.max(highest, Number(serial[1])) : highest;
+                }, 0);
+                quoteNo = `SKT${(highestNumber || quotes.length) + 1}`;
+            } else {
+                const count = await Quote.countDocuments({ tenantId });
+                quoteNo = `RQ/2026/${(count + 1).toString().padStart(3, '0')}`;
+            }
         }
 
         // Calculate totals if not provided or to ensure accuracy

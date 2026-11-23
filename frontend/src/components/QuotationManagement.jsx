@@ -37,15 +37,20 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     // Editor Workspace Tab: 'split' (side-by-side) | 'input' (form only) | 'preview' (preview only)
     const [editorTab, setEditorTab] = useState('split');
 
+    const tenantId = String(user?.tenantId?._id || user?.tenantId || '');
+    const isSkite = user?.isSkiteTenant === true || tenantId === '6af2c94a9d29730751ed2d01' ||
+        Boolean(user?.companyName?.toLowerCase().includes('skite'));
+
     // Detect Robotriq tenant
     const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const isRobotriq = 
+    const isRobotriq = !isSkite && (
         user?.subDomain === 'robotriq' ||
-        String(user?.tenantId?._id || user?.tenantId || '').includes('6afd35731172da4b0de9a48e') ||
+        tenantId === '6afd35731172da4b0de9a48e' ||
         (user?.companyName && user.companyName.toLowerCase().includes('robotriq')) ||
         (user?.name && user.name.toLowerCase().includes('robotriq')) ||
         (user?.email && user.email.toLowerCase().includes('robotriq')) ||
-        rawStored.toLowerCase().includes('robotriq');
+        rawStored.toLowerCase().includes('robotriq')
+    );
 
     const [internalQuoteFormat, setQuoteFormat] = useState('letterhead');
     const quoteFormat = isRobotriq ? 'letterhead' : internalQuoteFormat;
@@ -392,7 +397,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         let maxNum = 0;
         const currentYear = new Date().getFullYear();
 
-        if (isRobotriq || quoteFormat === 'letterhead') {
+        if (isRobotriq) {
             (quotesList || []).forEach(q => {
                 if (!q.quoteNo) return;
                 const match = q.quoteNo.match(/RQ\/(\d{4})\/(\d+)/i) || q.quoteNo.match(/(\d+)/g);
@@ -405,10 +410,9 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
             return `RQ/${currentYear}/${nextNum}`;
         }
 
-        const isSkite = user?.isSkiteTenant || user?.companyName?.toLowerCase().includes('skite') || user?.email?.includes('skite') || company?.name?.toLowerCase().includes('skite');
         const compName = user?.companyName || company?.name || '';
         const rawPrefix = compName.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase();
-        const companyPrefix = isSkite ? 'SKT' : (rawPrefix || 'QT');
+        const companyPrefix = rawPrefix || 'QT';
 
         (quotesList || []).forEach(q => {
             if (!q.quoteNo) return;
@@ -418,7 +422,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 if (!isNaN(num) && num > maxNum) maxNum = num;
             }
         });
-        const nextNum = maxNum > 0 ? maxNum + 1 : (quotesList.length + 1);
+        const nextNum = maxNum > 0 ? maxNum + 1 : quotesList.length + 1;
+        if (isSkite) return `SKT${nextNum}`;
         return `${companyPrefix}-Q${String(nextNum).padStart(3, '0')}`;
     };
 
@@ -733,7 +738,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     const totals = calculateTotals();
     const currentPreviewData = {
         _id: editId || 'live-preview-id',
-        quoteNo: quoteNo || 'SKT-Q001',
+        quoteNo: quoteNo || generateNextQuoteNo(quotes),
         refNo: refNo || '',
         date: quoteDate || new Date().toISOString().split('T')[0],
         validUntil: validUntil || '',
@@ -1250,7 +1255,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                 type="text" 
                                                 value={letterheadData.quotationNo || ''} 
                                                 onChange={(e) => handleLetterheadChange('quotationNo', e.target.value)} 
-                                                placeholder="e.g. RQ/2026/101" 
+                                                placeholder={isSkite ? "e.g. SKT79" : undefined}
                                                 className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold focus:outline-none focus:border-teal-500"
                                             />
                                         </div>
@@ -1523,7 +1528,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             type="text" 
                                             value={quoteNo} 
                                             onChange={(e) => setQuoteNo(e.target.value)} 
-                                            placeholder="e.g. QT-001" 
+                                            placeholder={isSkite ? "e.g. SKT79" : "e.g. QT-001"}
                                             className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold focus:outline-none focus:border-[#111111]"
                                         />
                                     </div>
