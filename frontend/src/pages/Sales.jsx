@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
@@ -151,15 +152,8 @@ const normalizeLeadStage = lead => {
 export default function Sales() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const isRobotriq = Boolean(
-        user?.email?.toLowerCase().includes('robotriq') ||
-        user?.companyName?.toLowerCase().includes('robotriq') ||
-        user?.name?.toLowerCase().includes('robotriq') ||
-        user?.subDomain === 'robotriq' ||
-        String(user?.tenantId?._id || user?.tenantId || '').includes('6afd35731172da4b0de9a48e') ||
-        rawStored.toLowerCase().includes('robotriq')
-    );
+    const workspaceBrand = getWorkspaceBrand(user);
+    const isRobotriq = workspaceBrand === 'robotriq';
 
     const [params, setParams] = useSearchParams();
     const activeTab = params.get('view') || 'leads';

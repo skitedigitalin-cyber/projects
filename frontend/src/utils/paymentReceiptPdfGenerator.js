@@ -86,7 +86,7 @@ export async function generatePaymentReceiptPdf(payment, company = {}, fileName 
         compress: true
     });
 
-    const activeHexColor = customColor || company?.invoiceColor || (typeof window !== 'undefined' ? localStorage.getItem('selected-invoice-color') : '') || '#FF4500';
+    const activeHexColor = customColor || company?.invoiceColor || '#FF4500';
     const primaryColor = hexToRgb(activeHexColor);
 
     // Customer or Party details
@@ -105,9 +105,11 @@ export async function generatePaymentReceiptPdf(payment, company = {}, fileName 
     const inr = (val) => Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     // Company assets
-    const activeLogo = await getOptimizedImage(company.logo || defaultLogo);
-    const activeSeal = await getOptimizedImage(company.seal || defaultSeal);
-    const activeSign = await getOptimizedImage(company.sign || defaultSign);
+    const isSkite = company.workspaceBrand === 'skite';
+    const companyName = company.name || (isSkite ? 'SKITE' : 'Company');
+    const activeLogo = await getOptimizedImage(company.logo || (isSkite ? defaultLogo : null));
+    const activeSeal = await getOptimizedImage(company.seal || (isSkite ? defaultSeal : null));
+    const activeSign = await getOptimizedImage(company.sign || (isSkite ? defaultSign : null));
 
     // Page Margins & Dimensions
     const margin = 40;
@@ -127,14 +129,14 @@ export async function generatePaymentReceiptPdf(payment, company = {}, fileName 
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(16);
             doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            doc.text((company.name || 'SKITE').toUpperCase(), margin, currentY + 14);
+            doc.text(companyName.toUpperCase(), margin, currentY + 14);
             currentY += 28;
         }
     } else {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        doc.text((company.name || 'SKITE').toUpperCase(), margin, currentY + 14);
+        doc.text(companyName.toUpperCase(), margin, currentY + 14);
         currentY += 28;
     }
 
@@ -304,7 +306,7 @@ export async function generatePaymentReceiptPdf(payment, company = {}, fileName 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
     doc.setTextColor(100, 116, 139);
-    doc.text(`for ${(company.name || 'SKITE').toUpperCase()}`, rightX, bottomY + 10, { align: 'right' });
+    doc.text(`for ${companyName.toUpperCase()}`, rightX, bottomY + 10, { align: 'right' });
 
     if (activeSign) {
         try {

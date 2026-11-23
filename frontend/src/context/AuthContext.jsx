@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('invoice-custom-seal');
         localStorage.removeItem('invoice-company-details');
         localStorage.removeItem('selected-invoice-template');
+        localStorage.removeItem('selected-invoice-color');
     };
 
     const login = async (email, password, role) => {

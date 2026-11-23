@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Plus, Search, User, Download, Eye, Trash2, Receipt, CheckCircle2, FileText } from 'lucide-react';
@@ -19,7 +20,8 @@ export default function PaymentManagement() {
 
     // Company branding details for PDF receipts
     const [company, setCompany] = useState({
-        name: user?.companyName || 'SKITE',
+        workspaceBrand: getWorkspaceBrand(user),
+        name: user?.companyName || '',
         address: user?.companyDetails?.address || '',
         gstNumber: user?.companyDetails?.gstNumber || '',
         email: user?.companyDetails?.email || user?.email || '',
@@ -27,7 +29,7 @@ export default function PaymentManagement() {
         logo: user?.invoiceLogo || '',
         sign: user?.invoiceSign || '',
         seal: user?.invoiceSeal || '',
-        invoiceColor: localStorage.getItem('selected-invoice-color') || '#FF4500'
+        invoiceColor: user?.invoiceColor || '#FF4500'
     });
 
     // Form States for creating a Receipt
@@ -65,7 +67,8 @@ export default function PaymentManagement() {
             });
             if (res.data) {
                 setCompany({
-                    name: res.data.companyName || user?.companyName || 'SKITE',
+                    workspaceBrand: getWorkspaceBrand(user),
+                    name: res.data.companyName || user?.companyName || '',
                     address: res.data.companyDetails?.address || '',
                     gstNumber: res.data.companyDetails?.gstNumber || '',
                     email: res.data.companyDetails?.email || user?.email || '',

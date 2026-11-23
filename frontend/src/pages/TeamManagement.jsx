@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
 import TeamOverview from '../components/TeamOverview';
@@ -37,15 +37,6 @@ function TeamProjectRail({ rows, selected, onOpen, onDelete, describe, metadata,
 
 export default function TeamManagement() {
     const { user } = useContext(AuthContext);
-    const isSkite = 
-        user?.isSkiteTenant === true ||
-        user?.tenantId === '6af2c94a9d29730751ed2d01' ||
-        (user?.companyName && user.companyName.toLowerCase().includes('skite')) ||
-        (user?.email && user.email.toLowerCase().includes('skite'));
-
-    if (user && !isSkite) {
-        return <Navigate to="/dashboard" replace />;
-    }
 
     // Top-level Navigation Tabs
     const [mainTab, setMainTab] = useState('overview'); // 'overview' | 'social' | 'webdev' | 'seo' | 'all-tasks'

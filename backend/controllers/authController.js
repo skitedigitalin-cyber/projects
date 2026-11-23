@@ -87,7 +87,7 @@ exports.registerClient = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        const isSkiteTenant = tenant._id.toString() === '6af2c94a9d29730751ed2d01' || (tenant.companyName && tenant.companyName.toLowerCase().includes('skite'));
+        const isSkiteTenant = tenant._id.toString() === '6af2c94a9d29730751ed2d01';
 
         res.status(201).json({
             message: 'Registration successful! Welcome to Skite Prime.',
@@ -153,7 +153,7 @@ exports.login = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        const isSkiteTenant = user.tenantId?.toString() === '6af2c94a9d29730751ed2d01' || (tenant?.companyName && tenant.companyName.toLowerCase().includes('skite'));
+        const isSkiteTenant = user.tenantId?.toString() === '6af2c94a9d29730751ed2d01';
 
         res.json({
             token,
@@ -192,7 +192,7 @@ exports.getMe = async (req, res) => {
         
         const tenant = await Tenant.findById(user.tenantId);
         
-        const isSkiteTenant = user.tenantId?.toString() === '6af2c94a9d29730751ed2d01' || (tenant?.companyName && tenant.companyName.toLowerCase().includes('skite')) || (user.email && user.email.toLowerCase().includes('skite'));
+        const isSkiteTenant = user.tenantId?.toString() === '6af2c94a9d29730751ed2d01';
 
         res.json({
             id: user._id,

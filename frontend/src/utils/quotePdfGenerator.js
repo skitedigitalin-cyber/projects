@@ -84,11 +84,7 @@ export async function generateNativeQuotePdf(quote, company = {}, fileName = 'Qu
     const refNo = quote.refNo || '';
 
     // Load branding assets with intelligent optimization & downscaling
-    const isSkite = 
-        Boolean(company?.name?.toLowerCase().includes('skite')) || 
-        Boolean(company?.email?.toLowerCase().includes('skite')) ||
-        Boolean(company?.accountName?.toLowerCase().includes('skite')) ||
-        (quote?.quoteNo && String(quote.quoteNo).toUpperCase().startsWith('SKT'));
+    const isSkite = company.workspaceBrand === 'skite';
 
     const activeLogo = isSkite ? (defaultLogo || company?.logo) : (company?.logo || null);
     const activeSign = isSkite ? (defaultSign || company?.sign) : (company?.sign || null);

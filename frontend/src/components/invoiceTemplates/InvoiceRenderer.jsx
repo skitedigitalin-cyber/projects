@@ -55,6 +55,7 @@ export default function InvoiceRenderer({
     const activeSeal = company?.seal || '';
 
     const customer = invoice.customerId || invoice.clientDetails || {};
+    const isSkite = company.workspaceBrand === 'skite';
     const clientName = customer.companyName || customer.customerName || customer.name || (typeof invoice.customerId === 'string' ? invoice.customerId : 'Client Name');
     const clientGst = customer.gstNumber || customer.gstNo || '';
     const clientAddress = customer.billingAddress || customer.address || 
@@ -185,17 +186,17 @@ export default function InvoiceRenderer({
                             {/* Logo: Top Left */}
                             {renderLogo("max-h-16 max-w-[200px] object-contain mb-1") || (
                                 <div className="px-4 py-2 inline-flex items-center justify-center rounded-md mb-1 shadow-xs" style={{ backgroundColor: activeColor }}>
-                                    <span className="text-white font-black text-lg tracking-wider">{(company.name || 'SKITE').toUpperCase()}</span>
+                                    <span className="text-white font-black text-lg tracking-wider">{(company.name || (isSkite ? 'SKITE' : 'Company')).toUpperCase()}</span>
                                 </div>
                             )}
                             {company.address ? (
                                 <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed max-w-xs whitespace-pre-line">{company.address}</p>
-                            ) : (
+                            ) : isSkite && (
                                 <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed max-w-xs whitespace-pre-line">
                                     257- Housing Unit/ Kurichi 003{'\n'}L.I.C colony,{'\n'}Coimbatore - 641021
                                 </p>
                             )}
-                            <p className="text-xs text-slate-900 font-bold mt-1">GST NO: {company.gstNumber || '33REAPS5023G1ZE'}</p>
+                            <p className="text-xs text-slate-900 font-bold mt-1">GST NO: {company.gstNumber || (isSkite ? '33REAPS5023G1ZE' : '')}</p>
                         </div>
 
                         <div className="text-right">
@@ -331,16 +332,16 @@ export default function InvoiceRenderer({
                         {/* Bank Details & Contact Info */}
                         <div className="text-xs space-y-1">
                             <h4 className="text-xs font-bold text-slate-900 uppercase mb-1">PAY TO:</h4>
-                            <p className="font-bold text-slate-900 text-sm">{company.bankName || 'Union Bank of India'}</p>
-                            <p className="text-slate-800">Account Name: <span className="font-semibold">{company.accountName || company.name || 'SKITE'}</span></p>
-                            <p className="text-slate-800">Account No: <span className="font-mono text-slate-900">{company.accountNumber || '252511010000196'}</span></p>
-                            <p className="text-slate-800">IFSC: <span className="font-mono text-slate-900">{company.ifscCode || 'UBIN0825255'}</span></p>
-                            <p className="text-slate-800">Branch: <span className="font-semibold">{company.branch || 'Sundarapuram'}</span></p>
+                            <p className="font-bold text-slate-900 text-sm">{company.bankName || (isSkite ? 'Union Bank of India' : '')}</p>
+                            <p className="text-slate-800">Account Name: <span className="font-semibold">{company.accountName || company.name || (isSkite ? 'SKITE' : '')}</span></p>
+                            <p className="text-slate-800">Account No: <span className="font-mono text-slate-900">{company.accountNumber || (isSkite ? '252511010000196' : '')}</span></p>
+                            <p className="text-slate-800">IFSC: <span className="font-mono text-slate-900">{company.ifscCode || (isSkite ? 'UBIN0825255' : '')}</span></p>
+                            <p className="text-slate-800">Branch: <span className="font-semibold">{company.branch || (isSkite ? 'Sundarapuram' : '')}</span></p>
 
                             <div className="pt-3 text-xs text-slate-900 space-y-0.5">
-                                <p>{company.email || 'skitedigital.in@gmail.com'}</p>
-                                <p>{company.website || 'www.skitedigital.in'}</p>
-                                <p>{company.phone || '8754281434'}</p>
+                                <p>{company.email || (isSkite ? 'skitedigital.in@gmail.com' : '')}</p>
+                                <p>{company.website || (isSkite ? 'www.skitedigital.in' : '')}</p>
+                                <p>{company.phone || (isSkite ? '8754281434' : '')}</p>
                             </div>
                         </div>
 
@@ -358,7 +359,7 @@ export default function InvoiceRenderer({
                         {/* Authorised Signatory (Right) */}
                         <div className="flex flex-col items-end text-right">
                             <span className="text-xs text-slate-800">
-                                for {(company.name || 'SKITE')}
+                                for {(company.name || (isSkite ? 'SKITE' : ''))}
                             </span>
                             {activeSign ? (
                                 <img src={activeSign} alt="Authorised Signature" className="h-14 max-w-[160px] object-contain my-1.5" />

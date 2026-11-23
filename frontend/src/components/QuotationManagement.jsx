@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import './FinanceDocuments.css';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -14,7 +15,7 @@ import QuoteRenderer from './quoteTemplates/QuoteRenderer';
 import { generateNativeQuotePdf } from '../utils/quotePdfGenerator';
 import LetterheadQuotationPreview, { DEFAULT_ROBOTRIQ_TERMS } from './quoteTemplates/LetterheadQuotationPreview';
 import { generateLetterheadQuotePdf } from '../utils/letterheadQuotePdfGenerator';
-import { isRobotriqQuotationTenant, quotationAssets } from '../utils/quotationBranding';
+import { quotationAssets } from '../utils/quotationBranding';
 
 // Quick Preset Services & Packages for Digital Agencies
 const PRESET_SERVICES = [
@@ -37,11 +38,9 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     // Editor Workspace Tab: 'split' (side-by-side) | 'input' (form only) | 'preview' (preview only)
     const [editorTab, setEditorTab] = useState('split');
 
-    const tenantId = String(user?.tenantId?._id || user?.tenantId || '');
-    const isSkite = user?.isSkiteTenant === true || tenantId === '6af2c94a9d29730751ed2d01' ||
-        Boolean(user?.companyName?.toLowerCase().includes('skite'));
-
-    const isRobotriq = isRobotriqQuotationTenant(user);
+    const workspaceBrand = getWorkspaceBrand(user);
+    const isSkite = workspaceBrand === 'skite';
+    const isRobotriq = workspaceBrand === 'robotriq';
 
     const [internalQuoteFormat, setQuoteFormat] = useState('letterhead');
     const quoteFormat = isRobotriq ? 'letterhead' : internalQuoteFormat;
@@ -198,6 +197,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
 
     // Company Profile & Assets
     const [company, setCompany] = useState(() => ({
+        workspaceBrand,
         name: '',
         address: '',
         email: '',
@@ -291,6 +291,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
             });
             const cd = res.data?.companyDetails || {};
             setCompany({
+                workspaceBrand,
                 name: cd.name || res.data?.companyName || res.data?.name || '',
                 address: cd.address || '',
                 email: cd.email || res.data?.email || '',

@@ -1,3 +1,5 @@
+import { useAuth } from '../context/AuthContext';
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -14,6 +16,7 @@ import { INVOICE_TEMPLATES } from './invoiceTemplates/templateConfigs';
 import { generateSingleInvoicePdf, generateNativeInvoicePdf, generateBatchInvoicesPdf } from '../utils/invoicePdfGenerator';
 
 export default function InvoiceHistory({ onNavigateToInvoices, workspace = false, onInvoicesChange, onRecordPayment }) {
+    const { user } = useAuth();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState(false);
@@ -25,6 +28,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
 
     // Company Profile for InvoiceRenderer
     const [company, setCompany] = useState(() => ({
+        workspaceBrand: getWorkspaceBrand(user),
         name: '',
         address: '',
         email: '',
@@ -119,6 +123,7 @@ export default function InvoiceHistory({ onNavigateToInvoices, workspace = false
             }
             const cd = res.data?.companyDetails || {};
             setCompany({
+                workspaceBrand: getWorkspaceBrand(user),
                 name: cd.name || res.data?.companyName || res.data?.name || '',
                 address: cd.address || '',
                 email: cd.email || res.data?.email || '',

@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import Layout from '../components/Layout';
@@ -21,16 +22,8 @@ const monthKey = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-d
 export default function Finance() {
     const { user } = useContext(AuthContext);
 
-    // Detect Robotriq tenant
-    const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const isRobotriq = Boolean(
-        user?.email?.toLowerCase().includes('robotriq') ||
-        user?.companyName?.toLowerCase().includes('robotriq') ||
-        user?.name?.toLowerCase().includes('robotriq') ||
-        user?.subDomain === 'robotriq' ||
-        String(user?.tenantId?._id || user?.tenantId || '').includes('6afd35731172da4b0de9a48e') ||
-        rawStored.toLowerCase().includes('robotriq')
-    );
+    const workspaceBrand = getWorkspaceBrand(user);
+    const isRobotriq = workspaceBrand === 'robotriq';
 
     const [activeTab, setActiveTab] = useState(() => isRobotriq ? 'quotations' : 'workspace');
     const [selectedPayment, setSelectedPayment] = useState(null);
@@ -45,11 +38,7 @@ export default function Finance() {
     }, [isRobotriq, activeTab]);
 
     // Fixed Templates feature is exclusive to Skite Digital Agency
-    const isSkite = 
-        user?.isSkiteTenant === true ||
-        user?.tenantId === '6af2c94a9d29730751ed2d01' ||
-        (user?.companyName && user.companyName.toLowerCase().includes('skite')) ||
-        (user?.email && user.email.toLowerCase().includes('skite'));
+    const isSkite = workspaceBrand === 'skite';
 
     const renderContent = () => {
         // Strict Robotriq mode: Only Quotations, Payment Receipts, Customers, Vendors, Purchases

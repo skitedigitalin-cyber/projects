@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -57,6 +58,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
 
     // Company Profile
     const [company, setCompany] = useState(() => ({
+        workspaceBrand: getWorkspaceBrand(user),
         name: '',
         address: '',
         email: '',
@@ -222,6 +224,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
             }
             const cd = res.data?.companyDetails || {};
             setCompany({
+                workspaceBrand: getWorkspaceBrand(user),
                 name: cd.name || res.data?.companyName || res.data?.name || '',
                 address: cd.address || '',
                 email: cd.email || res.data?.email || '',
@@ -274,7 +277,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
             const isWithoutGst = parseFloat(currentTaxRate) === 0;
             let maxNum = 0;
 
-            const isSkite = user?.isSkiteTenant || user?.companyName?.toLowerCase().includes('skite') || user?.email?.includes('skite') || company?.name?.toLowerCase().includes('skite');
+            const isSkite = getWorkspaceBrand(user) === 'skite';
             const compName = user?.companyName || company?.name || '';
             const rawPrefix = compName.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase();
             const companyPrefix = isSkite ? 'SKT' : (rawPrefix || 'INV');

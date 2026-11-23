@@ -26,7 +26,7 @@ export default function QuoteRenderer({
 }) {
     if (!quote) return null;
 
-    const isSkite = company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite');
+    const isSkite = company.workspaceBrand === 'skite';
     const activeLogo = company?.logo || (isSkite ? defaultLogo : '');
     const activeSign = company?.sign || (isSkite ? defaultSign : '');
     const activeSeal = company?.seal || (isSkite ? defaultSeal : '');

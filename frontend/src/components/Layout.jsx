@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
@@ -49,21 +50,9 @@ export default function Layout({ children, noPadding = false, workspace = false,
         navigate('/');
     };
 
-    const rawStored = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const isSkite = 
-        user?.isSkiteTenant === true ||
-        String(user?.tenantId?._id || user?.tenantId || '').includes('6af2c94a9d29730751ed2d01') ||
-        (user?.companyName && user.companyName.toLowerCase().includes('skite')) ||
-        (user?.email && user.email.toLowerCase().includes('skite')) ||
-        rawStored.toLowerCase().includes('skite');
-
-    const isRobotriq = 
-        user?.subDomain === 'robotriq' ||
-        String(user?.tenantId?._id || user?.tenantId || '').includes('6afd35731172da4b0de9a48e') ||
-        (user?.companyName && user.companyName.toLowerCase().includes('robotriq')) ||
-        (user?.name && user.name.toLowerCase().includes('robotriq')) ||
-        (user?.email && user.email.toLowerCase().includes('robotriq')) ||
-        rawStored.toLowerCase().includes('robotriq');
+    const workspaceBrand = getWorkspaceBrand(user);
+    const isSkite = workspaceBrand === 'skite';
+    const isRobotriq = workspaceBrand === 'robotriq';
 
     const allNavItems = [
         { id: 'dashboard', name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },

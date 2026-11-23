@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
@@ -13,24 +14,15 @@ import {
 import { INVOICE_TEMPLATES, SAMPLE_INVOICE, getInvoiceTemplates, TEMPLATE_COLOR_PRESETS } from '../components/invoiceTemplates/templateConfigs';
 import InvoiceRenderer from '../components/invoiceTemplates/InvoiceRenderer';
 import { generateSingleInvoicePdf, generateNativeInvoicePdf } from '../utils/invoicePdfGenerator';
-import { isRobotriqQuotationTenant, quotationAssets } from '../utils/quotationBranding';
+import { quotationAssets } from '../utils/quotationBranding';
 import LetterheadQuotationPreview from '../components/quoteTemplates/LetterheadQuotationPreview';
 import { generateLetterheadQuotePdf } from '../utils/letterheadQuotePdfGenerator';
 
-const checkIsSkite = (u) => {
-    if (!u) return false;
-    if (u.isSkiteTenant === true) return true;
-    const tId = u.tenantId ? (u.tenantId._id || u.tenantId).toString() : '';
-    if (tId === '6af2c94a9d29730751ed2d01') return true;
-    if (u.companyName && u.companyName.toLowerCase().includes('skite')) return true;
-    if (u.email && u.email.toLowerCase().includes('skite')) return true;
-    return false;
-};
-
 export default function Settings() {
     const { user } = useContext(AuthContext);
-    const isSkite = checkIsSkite(user);
-    const isRobotriq = isRobotriqQuotationTenant(user);
+    const workspaceBrand = getWorkspaceBrand(user);
+    const isSkite = workspaceBrand === 'skite';
+    const isRobotriq = workspaceBrand === 'robotriq';
     const [activeTab, setActiveTab] = useState('permissions');
 
     useEffect(() => {
@@ -424,10 +416,10 @@ export default function Settings() {
             const sampleData = {
                 date: new Date().toLocaleDateString('en-GB'),
                 quotationNo: isRobotriq ? 'RQ/2026/001' : isSkite ? 'SKT001' : 'QT001',
-                customerName: 'Abilash',
-                reference: 'ATLAS MACHINE TOOLS',
-                application: 'PLC PROGRAMMING TRANING KIT',
-                phone: '9446035669',
+                customerName: 'Sample Client',
+                reference: 'Sample project',
+                application: isRobotriq ? 'PLC programming training kit' : isSkite ? 'Website design and development' : 'Professional services',
+                phone: '',
                 specNote: 'All Items Included as per your Spec.',
                 totalAmount: 65012,
                 totalAmountStr: '65012.00',
@@ -449,9 +441,9 @@ export default function Settings() {
                 items: [
                     {
                         sno: 1,
-                        componentText: '1. DELTA PLC DVP12SE11T 8DI/4DO - 1NOS.\n2. DELTA DVP16SP11R - 8DI/8DO - 1NOS.\n3. MULTISPAN SMPS PS24 - 5A - 1NOS.\n4. DELTA HMI DOP107EV - 1NOS.\n5. PROGRAMMING, WIRING AND INSTALLATION',
-                        make: 'DELTA',
-                        specifics: '440VAC',
+                        componentText: isRobotriq ? '1. DELTA PLC DVP12SE11T 8DI/4DO - 1NOS.\n2. DELTA DVP16SP11R - 8DI/8DO - 1NOS.\n3. MULTISPAN SMPS PS24 - 5A - 1NOS.\n4. DELTA HMI DOP107EV - 1NOS.\n5. PROGRAMMING, WIRING AND INSTALLATION' : isSkite ? 'Website design and development' : 'Professional services',
+                        make: isRobotriq ? 'DELTA' : '',
+                        specifics: isRobotriq ? '440VAC' : '',
                         qty: 1,
                         price: '65012.00',
                         amountStr: '65012.00'
@@ -504,6 +496,7 @@ export default function Settings() {
         if (!previewModalTemplate) return;
         try {
             const companyPayload = {
+                workspaceBrand,
                 ...companyDetails,
                 logo: logoPreview,
                 sign: signPreview,
@@ -1542,10 +1535,10 @@ export default function Settings() {
                                                         data={{
                                                             date: new Date().toLocaleDateString('en-GB'),
                                                             quotationNo: isRobotriq ? 'RQ/2026/001' : isSkite ? 'SKT001' : 'QT001',
-                                                            customerName: 'Abilash',
-                                                            reference: 'ATLAS MACHINE TOOLS',
-                                                            application: 'PLC PROGRAMMING TRANING KIT',
-                                                            phone: '9446035669',
+                                                            customerName: 'Sample Client',
+                                                            reference: 'Sample project',
+                                                            application: isRobotriq ? 'PLC programming training kit' : isSkite ? 'Website design and development' : 'Professional services',
+                                                            phone: '',
                                                             specNote: 'All Items Included as per your Spec.',
                                                             totalAmount: 65012,
                                                             totalAmountStr: '65012.00',
@@ -1567,9 +1560,9 @@ export default function Settings() {
                                                             items: [
                                                                 {
                                                                     sno: 1,
-                                                                    componentText: '1. DELTA PLC DVP12SE11T 8DI/4DO - 1NOS.\n2. DELTA DVP16SP11R - 8DI/8DO - 1NOS.\n3. MULTISPAN SMPS PS24 - 5A - 1NOS.\n4. DELTA HMI DOP107EV - 1NOS.\n5. PROGRAMMING, WIRING AND INSTALLATION',
-                                                                    make: 'DELTA',
-                                                                    specifics: '440VAC',
+                                                                    componentText: isRobotriq ? '1. DELTA PLC DVP12SE11T 8DI/4DO - 1NOS.\n2. DELTA DVP16SP11R - 8DI/8DO - 1NOS.\n3. MULTISPAN SMPS PS24 - 5A - 1NOS.\n4. DELTA HMI DOP107EV - 1NOS.\n5. PROGRAMMING, WIRING AND INSTALLATION' : isSkite ? 'Website design and development' : 'Professional services',
+                                                                    make: isRobotriq ? 'DELTA' : '',
+                                                                    specifics: isRobotriq ? '440VAC' : '',
                                                                     qty: 1,
                                                                     price: '65012.00',
                                                                     amountStr: '65012.00'
@@ -1739,6 +1732,7 @@ export default function Settings() {
                                 customColor={selectedColor}
                                 company={{ 
                                     ...companyDetails, 
+                                    workspaceBrand,
                                     name: companyDetails.name || user?.companyName || (isSkite ? 'SKITE' : 'YOUR COMPANY'),
                                     logo: logoPreview, 
                                     sign: signPreview, 

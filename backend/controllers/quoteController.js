@@ -1,5 +1,4 @@
 const Quote = require('../models/Quote');
-const Tenant = require('../models/Tenant');
 
 // GET /api/quotes - Fetch all quotations for the tenant
 exports.getQuotes = async (req, res) => {
@@ -35,9 +34,7 @@ exports.createQuote = async (req, res) => {
         // Auto-generate quote number if not provided
         if (!quoteNo || quoteNo.trim() === '') {
             const tenantId = req.user.tenantId;
-            const tenant = await Tenant.findById(tenantId).select('companyName').lean();
-            const isSkite = String(tenantId) === '6af2c94a9d29730751ed2d01' ||
-                Boolean(tenant?.companyName?.toLowerCase().includes('skite'));
+            const isSkite = String(tenantId) === '6af2c94a9d29730751ed2d01';
 
             if (isSkite) {
                 const quotes = await Quote.find({ tenantId }).select('quoteNo').lean();

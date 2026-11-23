@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from './utils/workspaceBrand';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useContext } from 'react';
@@ -36,10 +37,13 @@ axios.interceptors.response.use(
 
 const isEmployee = (u) => u && u.role !== 'Admin' && u.role !== 'CEO';
 
-const ProtectedRoute = ({ children, adminOnly = false, employeeOnly = false, ceoOnly = false, requiredModule = null }) => {
+const ProtectedRoute = ({ children, adminOnly = false, employeeOnly = false, ceoOnly = false, requiredModule = null, workspaceBrand = null }) => {
   const { user, loading } = useContext(AuthContext);
   if (loading) return <div>Loading...</div>;
   if (!user) return <Navigate to="/" replace />;
+  if (workspaceBrand && getWorkspaceBrand(user) !== workspaceBrand) {
+    return <Navigate to={isEmployee(user) ? '/employee-dashboard' : '/dashboard'} replace />;
+  }
   if (ceoOnly && user.role !== 'CEO') {
     return <Navigate to={isEmployee(user) ? '/employee-dashboard' : '/dashboard'} replace />;
   }
@@ -107,7 +111,7 @@ function App() {
             <Route path="/hr/employee/add" element={<ProtectedRoute requiredModule="hr"><EmployeeFormPage /></ProtectedRoute>} />
             <Route path="/hr/employee/edit/:id" element={<ProtectedRoute requiredModule="hr"><EmployeeFormPage /></ProtectedRoute>} />
             <Route path="/hr/assign-task" element={<ProtectedRoute requiredModule="hr"><AssignTaskPage /></ProtectedRoute>} />
-            <Route path="/team-management" element={<ProtectedRoute requiredModule="projects"><TeamManagement /></ProtectedRoute>} />
+            <Route path="/team-management" element={<ProtectedRoute requiredModule="projects" workspaceBrand="skite"><TeamManagement /></ProtectedRoute>} />
             <Route path="/projects" element={<Navigate to="/team-management" replace />} />
             <Route path="/" element={<LandingPage />} />
           </Routes>

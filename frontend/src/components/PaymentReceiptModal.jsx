@@ -25,7 +25,8 @@ export default function PaymentReceiptModal({ payment, company = {}, onClose }) 
     const receiptRef = useRef(null);
     if (!payment) return null;
 
-    const activeColor = company?.invoiceColor || localStorage.getItem('selected-invoice-color') || '#FF4500';
+    const activeColor = company.invoiceColor || '#FF4500';
+    const companyName = company.name || (company.workspaceBrand === 'skite' ? 'SKITE' : 'Company');
     const customer = payment.customerId || {};
     const clientName = customer.companyName || customer.customerName || (typeof payment.customerId === 'string' ? payment.customerId : 'Valued Client');
     const clientAddress = customer.billingAddress || customer.address || '';
@@ -61,7 +62,7 @@ export default function PaymentReceiptModal({ payment, company = {}, onClose }) 
             `Amount: Rs. ${inr(amountVal)}\n` +
             `Mode: ${payment.paymentMode}\n` +
             `Txn ID: ${payment.transactionId || 'N/A'}\n` +
-            `Thank you for your business! - ${company.name || 'SKITE'}`;
+            `Thank you for your business! - ${companyName}`;
         const phone = clientPhone ? clientPhone.replace(/[^0-9]/g, '') : '';
         const url = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
@@ -159,10 +160,10 @@ export default function PaymentReceiptModal({ payment, company = {}, onClose }) 
                                     <img src={company.logo} alt="Company Logo" className="max-h-12 max-w-[160px] object-contain mb-2" />
                                 ) : (
                                     <div className="px-3.5 py-1.5 rounded-lg inline-flex items-center justify-center mb-2 text-white font-black text-sm" style={{ backgroundColor: activeColor }}>
-                                        {(company.name || 'SKITE').toUpperCase()}
+                                        {companyName.toUpperCase()}
                                     </div>
                                 )}
-                                <h4 className="font-extrabold text-sm text-slate-900">{company.name || 'SKITE'}</h4>
+                                <h4 className="font-extrabold text-sm text-slate-900">{companyName}</h4>
                                 {company.address && <p className="text-xs text-slate-500 mt-0.5 max-w-xs leading-relaxed">{company.address}</p>}
                                 {company.gstNumber && <p className="text-xs font-bold text-slate-700 mt-0.5">GSTIN: {company.gstNumber}</p>}
                                 <p className="text-xs text-slate-500">{company.email} {company.phone && `• ${company.phone}`}</p>
@@ -267,7 +268,7 @@ export default function PaymentReceiptModal({ payment, company = {}, onClose }) 
 
                             <div className="text-right">
                                 <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">
-                                    for {(company.name || 'SKITE').toUpperCase()}
+                                    for {companyName.toUpperCase()}
                                 </span>
                                 {company.sign ? (
                                     <img src={company.sign} alt="Authorised Signature" className="h-12 max-w-[140px] object-contain my-1 ml-auto" />

@@ -1,3 +1,4 @@
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -39,7 +40,7 @@ export default function LeadForm() {
     const isEditMode = Boolean(id);
 
     const { user } = useAuth();
-    const isRobotriq = Boolean(user?.email?.toLowerCase().includes('robotriq') || user?.companyName?.toLowerCase().includes('robotriq'));
+    const isRobotriq = getWorkspaceBrand(user) === 'robotriq';
     const activeMasterServices = useMemo(() => isRobotriq ? ROBOTRIQ_COURSES : MASTER_SERVICES, [isRobotriq]);
     const defaultService = activeMasterServices[0];
 

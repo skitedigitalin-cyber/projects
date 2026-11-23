@@ -126,14 +126,8 @@ export function hexToRgb(hex, fallback = [249, 87, 56]) {
 export function renderInvoicePage(doc, invoice, company = {}, assets = {}, customColor = null) {
     if (!invoice) return;
 
-    const rawUser = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const isRobotriq = Boolean(
-        company?.name?.toLowerCase().includes('robotriq') ||
-        company?.email?.toLowerCase().includes('robotriq') ||
-        rawUser.toLowerCase().includes('robotriq') ||
-        invoice.invoiceNumber?.startsWith('ROB')
-    );
-    const isSkite = !isRobotriq && (company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite'));
+    const isRobotriq = company.workspaceBrand === 'robotriq';
+    const isSkite = company.workspaceBrand === 'skite';
 
     // Primary accent color (Teal for Robotriq #0d9488, default Skite signature orange #FF4500)
     const activeHexColor = customColor || company?.invoiceColor || (isRobotriq ? '#0d9488' : '#FF4500');
@@ -378,7 +372,7 @@ export function renderInvoicePage(doc, invoice, company = {}, assets = {}, custo
 
     // Right Column: Authorised Signatory
     doc.setFontSize(9).setFont("helvetica", "normal").setTextColor(0, 0, 0);
-    doc.text(`for ${companyName || 'SKITE'}`, 148, bankY + 12);
+    doc.text(`for ${companyName || 'Company'}`, 148, bankY + 12);
 
     if (signObj?.data) {
         try {
@@ -405,26 +399,12 @@ export async function generateNativeInvoicePdf(invoice, company = {}, fileName =
         compress: true
     });
 
-    const rawUser = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const isRobotriq = Boolean(
-        company?.name?.toLowerCase().includes('robotriq') ||
-        company?.email?.toLowerCase().includes('robotriq') ||
-        rawUser.toLowerCase().includes('robotriq') ||
-        invoice.invoiceNumber?.startsWith('ROB')
-    );
-    const isSkite = !isRobotriq && (company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite'));
+    const isRobotriq = company.workspaceBrand === 'robotriq';
+    const isSkite = company.workspaceBrand === 'skite';
 
-    const activeLogo = isRobotriq 
-        ? (company?.logo || null) 
-        : ((isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo));
-
-    const activeSign = isRobotriq 
-        ? (company?.sign || defaultRobotriqSign) 
-        : ((isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign));
-
-    const activeSeal = isRobotriq 
-        ? (company?.seal || defaultRobotriqSeal) 
-        : ((isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal));
+    const activeLogo = company.logo || (isSkite ? defaultLogo : null);
+    const activeSign = company.sign || (isRobotriq ? defaultRobotriqSign : isSkite ? defaultSign : null);
+    const activeSeal = company.seal || (isRobotriq ? defaultRobotriqSeal : isSkite ? defaultSeal : null);
 
     const [logoObj, signObj, sealObj] = await Promise.all([
         getOptimizedImage(activeLogo, 450, 240, 0.8),
@@ -498,26 +478,12 @@ export async function generateBatchInvoicesPdf(invoices, bundleName = 'Invoices_
         compress: true
     });
 
-    const rawUser = typeof window !== 'undefined' ? (localStorage.getItem('user') || '') : '';
-    const isRobotriq = Boolean(
-        company?.name?.toLowerCase().includes('robotriq') ||
-        company?.email?.toLowerCase().includes('robotriq') ||
-        rawUser.toLowerCase().includes('robotriq') ||
-        (invoices[0]?.invoiceNumber && invoices[0].invoiceNumber.startsWith('ROB'))
-    );
-    const isSkite = !isRobotriq && (company?.name?.toLowerCase().includes('skite') || company?.email?.toLowerCase().includes('skite'));
+    const isRobotriq = company.workspaceBrand === 'robotriq';
+    const isSkite = company.workspaceBrand === 'skite';
 
-    const activeLogo = isRobotriq 
-        ? (company?.logo || null) 
-        : ((isSkite && !company?.logo) ? defaultLogo : (company?.logo || defaultLogo));
-
-    const activeSign = isRobotriq 
-        ? (company?.sign || defaultRobotriqSign) 
-        : ((isSkite && !company?.sign) ? defaultSign : (company?.sign || defaultSign));
-
-    const activeSeal = isRobotriq 
-        ? (company?.seal || defaultRobotriqSeal) 
-        : ((isSkite && !company?.seal) ? defaultSeal : (company?.seal || defaultSeal));
+    const activeLogo = company.logo || (isSkite ? defaultLogo : null);
+    const activeSign = company.sign || (isRobotriq ? defaultRobotriqSign : isSkite ? defaultSign : null);
+    const activeSeal = company.seal || (isRobotriq ? defaultRobotriqSeal : isSkite ? defaultSeal : null);
 
     // Pre-optimize brand assets once for blazing speed and minimal memory
     const [logoObj, signObj, sealObj] = await Promise.all([
