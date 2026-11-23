@@ -20,10 +20,10 @@
     --workspace-line: #e6e6e3;
     --workspace-soft: #f0f0ee;
     --workspace-coral: #ff6a3d;
-    --workspace-danger: #b42318;
-    --workspace-danger-surface: #f9e9e5;
-    --workspace-success: #236249;
-    --workspace-success-surface: #e8f3ec;
+    --workspace-danger: #a8320d;
+    --workspace-danger-surface: #fff0e7;
+    --workspace-success: #3f3f3f;
+    --workspace-success-surface: #f0f0ee;
     --workspace-pending: #874123;
     --workspace-pending-surface: #fff0e7;
     --workspace-card-radius: 28px;
@@ -91,17 +91,11 @@
 }
 
 .skite-workspace {
-    --workspace-accent: #ff6a3d;
     min-height: 100dvh;
     background: var(--workspace-canvas);
     color: var(--workspace-ink);
     font: 14px/1.5 'Skite Dashboard Geist', system-ui, sans-serif;
 }
-.skite-workspace[data-workspace-theme='default'] { --workspace-accent: #213b82; }
-.skite-workspace[data-workspace-theme='emerald'] { --workspace-accent: #057b5c; }
-.skite-workspace[data-workspace-theme='purple'] { --workspace-accent: #6d28d9; }
-.skite-workspace[data-workspace-theme='rose'] { --workspace-accent: #be123c; }
-.skite-workspace[data-workspace-theme='amber'] { --workspace-accent: #d97706; }
 
 .skite-workspace-header {
     display: flex;
@@ -135,7 +129,7 @@
     width: 9px;
     height: 9px;
     border-radius: 50%;
-    background: var(--workspace-accent);
+    background: var(--workspace-coral);
 }
 
 .skite-workspace-nav {

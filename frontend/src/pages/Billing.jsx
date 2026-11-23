@@ -77,7 +77,7 @@ export default function Billing() {
     const signOut = () => { logout(); navigate('/'); };
 
     return (
-        <div className="skite-workspace billing-page" data-workspace-theme={user?.theme}>
+        <div className="skite-workspace billing-page">
             <header className="billing-toolbar">
                 <Link to="/settings"><ArrowLeft size={15} /> Settings</Link>
                 <details className="skite-workspace-tools">

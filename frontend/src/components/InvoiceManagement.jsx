@@ -752,7 +752,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                         <button
                             type="button"
                             onClick={handleWhatsApp}
-                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#25D366] hover:bg-[#1ebd5a] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
                         >
                             <MessageCircle size={14} />
                             <span>WhatsApp</span>
@@ -760,7 +760,7 @@ export default function InvoiceManagement({ onNavigateToHistory, initialTemplate
                         <button
                             type="button"
                             onClick={handleEmail}
-                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#1A73E8] hover:bg-[#155fc0] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
                         >
                             <Mail size={14} />
                             <span>Email</span>

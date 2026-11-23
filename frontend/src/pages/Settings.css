@@ -27,13 +27,10 @@
 .workspace-permissions [role='switch'][aria-checked='true'] { background: #111; }
 .workspace-permissions [role='switch'][aria-checked='true'] span { transform: translateX(18px); }
 .workspace-permissions button:disabled { opacity: .65; cursor: default; }
-.workspace-accent-options { display: flex; flex-wrap: wrap; gap: 10px; max-width: 800px; }
-.workspace-accent-options button, .workspace-settings-link, .workspace-settings-links a {
+.workspace-settings-link, .workspace-settings-links a {
     display: inline-flex; align-items: center; gap: 10px; min-height: 47px; padding: 0 14px; border-radius: 999px;
     background: #f5f5f3; cursor: pointer;
 }
-.workspace-accent-options button[aria-pressed='true'] { background: #fff; box-shadow: inset 0 0 0 2px #111; }
-.workspace-accent-options button span { width: 22px; height: 22px; border-radius: 50%; }
 .workspace-settings-card p.workspace-settings-error { margin-block: 9px; color: var(--workspace-danger); }
 .workspace-settings-profile { display: grid; gap: 10px; margin-bottom: 18px; }
 .workspace-settings-profile dd { overflow-wrap: anywhere; }

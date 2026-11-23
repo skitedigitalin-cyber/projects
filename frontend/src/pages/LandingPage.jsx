@@ -401,14 +401,14 @@ export default function LandingPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[#ff4603]/20 selection:text-[#ff4603] relative overflow-x-hidden">
+        <div className="min-h-screen bg-[#f5f5f3] text-slate-900 font-sans selection:bg-[#ff4603]/20 selection:text-[#ff4603] relative overflow-x-hidden">
             {/* Ambient Breathing Glow Orbs */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-[#ff4603]/15 via-orange-100/30 to-transparent blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
             <div className="absolute top-48 -left-32 w-96 h-96 bg-[#ff4603]/10 rounded-full blur-3xl pointer-events-none -z-10 animate-float-slow"></div>
             <div className="absolute top-96 -right-32 w-[28rem] h-[28rem] bg-orange-200/20 rounded-full blur-3xl pointer-events-none -z-10 animate-float-reverse"></div>
 
             {/* Subtle Clean Grid Texture */}
-            <div className="fixed inset-0 bg-[linear-gradient(to_right,#E2E8F0_1px,transparent_1px),linear-gradient(to_bottom,#E2E8F0_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+            <div className="fixed inset-0 bg-[linear-gradient(to_right,#e6e6e3_1px,transparent_1px),linear-gradient(to_bottom,#e6e6e3_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
             {/* 1. Header Navigation */}
             <header className="sticky top-4 z-40 px-4 max-w-6xl mx-auto animate-fade-up">
@@ -1643,7 +1643,7 @@ export default function LandingPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
                     <div className="relative w-full max-w-lg bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden text-left animate-scale-in">
                         {/* Header Banner */}
-                        <div className="bg-[#0c2340] text-white px-6 py-5 flex items-center justify-between border-b border-blue-900/40">
+                        <div className="bg-[#111111] text-white px-6 py-5 flex items-center justify-between border-b border-blue-900/40">
                             <div className="flex items-center space-x-3">
                                 <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20">
                                     <span className="text-xs font-black tracking-tighter">Rzp</span>

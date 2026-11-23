@@ -37,100 +37,52 @@ const SERVICE_CONFIG = {
     // Digital Marketing (Skite)
     'Paid Campaigns': {
         icon: <Megaphone size={24} />,
-        gradient: 'from-blue-600 to-indigo-600',
-        lightBg: 'bg-[#f0f0ee]',
-        textColor: 'text-[#3f3f3f]',
-        borderColor: 'border-[#e6e6e3]',
         description: 'Facebook & Instagram lead generation campaigns'
     },
     'Personal Branding': {
         icon: <Users size={24} />,
-        gradient: 'from-purple-600 to-pink-600',
-        lightBg: 'bg-purple-50',
-        textColor: 'text-purple-600',
-        borderColor: 'border-purple-200',
         description: 'Executive, founder & creator personal branding inquiries'
     },
     'Web Development': {
         icon: <Globe size={24} />,
-        gradient: 'from-emerald-600 to-teal-600',
-        lightBg: 'bg-emerald-50',
-        textColor: 'text-emerald-600',
-        borderColor: 'border-emerald-200',
         description: 'Websites, web applications, landing pages & digital redesigns'
     },
     'SEO': {
         icon: <Target size={24} />,
-        gradient: 'from-amber-500 to-orange-600',
-        lightBg: 'bg-amber-50',
-        textColor: 'text-amber-600',
-        borderColor: 'border-amber-200',
         description: 'Search engine optimization & organic traffic growth retainers'
     },
     'Full Digital Marketing': {
         icon: <Monitor size={24} />,
-        gradient: 'from-rose-500 to-red-600',
-        lightBg: 'bg-rose-50',
-        textColor: 'text-rose-600',
-        borderColor: 'border-rose-200',
         description: 'Full-suite 360° integrated marketing packages'
     },
 
     // Industrial Automation (Robotriq)
     'DELTA INDUSTRIAL AUTOMATION': {
         icon: <Zap size={24} />,
-        gradient: 'from-blue-600 to-indigo-700',
-        lightBg: 'bg-[#f0f0ee]',
-        textColor: 'text-[#3f3f3f]',
-        borderColor: 'border-[#e6e6e3]',
         description: 'Delta PLC, DVP/AS Series, HMI, SCADA & VFD drive systems'
     },
     'SIEMENS INDUSTRIAL AUTOMATION': {
         icon: <Cpu size={24} />,
-        gradient: 'from-teal-600 to-emerald-700',
-        lightBg: 'bg-teal-50',
-        textColor: 'text-teal-600',
-        borderColor: 'border-teal-200',
         description: 'Siemens S7-1200/1500, TIA Portal v18 & WinCC automation'
     },
     'ABB PROCESS AUTOMATION': {
         icon: <Target size={24} />,
-        gradient: 'from-red-600 to-rose-700',
-        lightBg: 'bg-red-50',
-        textColor: 'text-red-600',
-        borderColor: 'border-red-200',
         description: 'ABB Freelance DCS, 800xA distributed control & robotics'
     },
     'SCHNEIDER ELECTRIC INDUSTRIAL AUTOMATION': {
         icon: <Globe size={24} />,
-        gradient: 'from-emerald-600 to-green-700',
-        lightBg: 'bg-emerald-50',
-        textColor: 'text-emerald-600',
-        borderColor: 'border-emerald-200',
         description: 'Schneider Modicon M340/M580, EcoStruxure & Citect SCADA'
     },
     'INDUSTRIAL AUTOMATION 4.0': {
         icon: <Award size={24} />,
-        gradient: 'from-purple-600 to-pink-700',
-        lightBg: 'bg-purple-50',
-        textColor: 'text-purple-600',
-        borderColor: 'border-purple-200',
         description: 'Industry 4.0, smart factory, IIoT architecture & telemetry'
     },
     'MITSUBISHI ELECTRIC FACTORY AUTOMATION': {
         icon: <Monitor size={24} />,
-        gradient: 'from-amber-500 to-orange-700',
-        lightBg: 'bg-amber-50',
-        textColor: 'text-amber-600',
-        borderColor: 'border-amber-200',
         description: 'Mitsubishi FX5U/Q-series, GX Works3 & GOT2000 HMI'
     },
     'ALLEN BRADLEY - ROCKWELL AUTOMATION': {
         icon: <Briefcase size={24} />,
-        gradient: 'from-cyan-600 to-blue-700',
-        lightBg: 'bg-cyan-50',
-        textColor: 'text-cyan-600',
-        borderColor: 'border-cyan-200',
         description: 'Rockwell Studio 5000, ControlLogix & FactoryTalk View'
     }
 };
@@ -161,42 +113,22 @@ const getLeadLevel = (lead) => {
 const LEVEL_CONFIG = {
     'Beginner': {
         icon: <Award size={24} />,
-        gradient: 'from-blue-600 to-indigo-600',
-        lightBg: 'bg-[#f0f0ee]',
-        textColor: 'text-[#3f3f3f]',
-        borderColor: 'border-[#e6e6e3]',
         description: 'Single automation course specialization (1 Course)'
     },
     'Intermediate': {
         icon: <Cpu size={24} />,
-        gradient: 'from-teal-600 to-emerald-600',
-        lightBg: 'bg-teal-50',
-        textColor: 'text-teal-600',
-        borderColor: 'border-teal-200',
         description: 'Dual automation multi-platform package (2 Courses)'
     },
     'Advance': {
         icon: <Zap size={24} />,
-        gradient: 'from-amber-500 to-orange-600',
-        lightBg: 'bg-amber-50',
-        textColor: 'text-amber-600',
-        borderColor: 'border-amber-200',
         description: 'Triple automation comprehensive track (3 Courses)'
     },
     'Master': {
         icon: <Briefcase size={24} />,
-        gradient: 'from-purple-600 to-pink-600',
-        lightBg: 'bg-purple-50',
-        textColor: 'text-purple-600',
-        borderColor: 'border-purple-200',
         description: 'Quad-system automation engineering track (4 Courses)'
     },
     'Certified Process Automation': {
         icon: <Target size={24} />,
-        gradient: 'from-rose-500 to-red-600',
-        lightBg: 'bg-rose-50',
-        textColor: 'text-rose-600',
-        borderColor: 'border-rose-200',
         description: 'Complete process automation master certification (5+ Courses)'
     }
 };
@@ -204,10 +136,6 @@ const LEVEL_CONFIG = {
 const getServiceConfig = (name) => {
     return LEVEL_CONFIG[name] || SERVICE_CONFIG[name] || {
         icon: <Briefcase size={24} />,
-        gradient: 'from-slate-700 to-slate-900',
-        lightBg: 'bg-[#f5f5f3]',
-        textColor: 'text-slate-600',
-        borderColor: 'border-[#e6e6e3]',
         description: 'Specialized client inquiries and custom requirements'
     };
 };
@@ -646,10 +574,10 @@ export default function Sales() {
                                     <div className="bg-white rounded-[1.5rem] p-6 h-full shadow-[0_2px_20px_-8px_rgba(0,0,0,0.05)] text-left flex flex-col justify-between">
                                         <div>
                                             <div className="flex items-start justify-between mb-4">
-                                                <div className={`${cfg.lightBg} ${cfg.textColor} p-3.5 rounded-2xl transition-all group-hover:scale-110 group-hover:rotate-6 relative shadow-xs`}>
+                                                <div className="bg-[#f0f0ee] text-[#3f3f3f] p-3.5 rounded-2xl transition-all group-hover:scale-110 group-hover:rotate-6 relative shadow-xs">
                                                     {cfg.icon}
                                                     {service.alerts > 0 && (
-                                                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white animate-pulse shadow-sm flex items-center">
+                                                        <span className="absolute -top-2 -right-2 bg-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white animate-pulse shadow-sm flex items-center">
                                                             <Bell size={8} className="mr-1" /> {service.alerts}
                                                         </span>
                                                     )}
@@ -658,7 +586,7 @@ export default function Sales() {
                                                     <span className="text-3xl font-black text-[#111111] group-hover:text-[#3f3f3f] transition-colors">
                                                         {service.count}
                                                     </span>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Leads</p>
+                                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Leads</p>
                                                 </div>
                                             </div>
 
@@ -685,7 +613,7 @@ export default function Sales() {
                                                             </span>
                                                         )}
                                                         {service.statuses.Qualified > 0 && (
-                                                            <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-bold text-[10px]">
+                                                            <span className="px-2 py-0.5 rounded-md bg-[#f0f0ee] text-[#3f3f3f] font-bold text-[10px]">
                                                                 {service.statuses.Qualified} Qualified
                                                             </span>
                                                         )}

@@ -2,13 +2,10 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const modules = [['sales', 'Sales'], ['finance', 'Finance'], ['hr', 'HR'], ['calendar', 'Calendar'], ['projects', 'Team']];
-const colors = {
-    'skite-orange': '#ff6a3d', default: '#213b82', emerald: '#057b5c', purple: '#6d28d9', rose: '#be123c', amber: '#d97706',
-};
 const endpoint = 'http://localhost:5000/api/auth/workspace-access';
 const headers = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` });
 
-export default function WorkspacePermissions({ theme, themes, onThemeChange, savingTheme, themeError }) {
+export default function WorkspacePermissions() {
     const [data, setData] = useState(null);
     const [error, setError] = useState('');
     const [busyUser, setBusyUser] = useState('');
@@ -67,19 +64,6 @@ export default function WorkspacePermissions({ theme, themes, onThemeChange, sav
                         </table>
                     </div>
                 ) : !error && <p>{data ? 'No active employee accounts to configure.' : 'Loading module access…'}</p>}
-            </section>
-            <section className="workspace-settings-card" aria-labelledby="workspace-accent-title">
-                <header><h2 id="workspace-accent-title">Workspace accent</h2></header>
-                <div className="workspace-accent-options">
-                    {themes.map(option => (
-                        <button type="button" key={option.id} aria-pressed={theme === option.id} disabled={savingTheme}
-                            onClick={() => onThemeChange(option.id)}>
-                            <span aria-hidden="true" style={{ backgroundColor: colors[option.id] }} />
-                            {option.id === 'emerald' ? 'Emerald' : option.name}
-                        </button>
-                    ))}
-                </div>
-                {themeError && <p className="workspace-settings-error" role="alert">{themeError}</p>}
             </section>
         </div>
     );

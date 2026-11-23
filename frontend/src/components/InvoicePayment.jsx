@@ -420,12 +420,12 @@ export default function InvoicePayment({ onBack, initialInvoice = null }) {
                                             </td>
 
                                             {/* Paid */}
-                                            <td className="p-4 font-bold text-[#16a34a]">
+                                            <td className="p-4 font-bold text-[#3f3f3f]">
                                                 ₹ {paid.toLocaleString('en-IN')}
                                             </td>
 
                                             {/* Balance */}
-                                            <td className={`p-4 font-bold ${balance > 0 ? 'text-[#dc2626]' : 'text-slate-700'}`}>
+                                            <td className={`p-4 font-bold ${balance > 0 ? 'text-[#a8320d]' : 'text-slate-700'}`}>
                                                 ₹ {balance.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                                             </td>
 
@@ -447,7 +447,7 @@ export default function InvoicePayment({ onBack, initialInvoice = null }) {
                                                         Add Payment
                                                     </button>
                                                 ) : (
-                                                    <span className="text-[#16a34a] inline-flex items-center gap-1.5 font-bold text-xs">
+                                                    <span className="text-[#3f3f3f] inline-flex items-center gap-1.5 font-bold text-xs">
                                                         <CheckCircle size={15} />
                                                         <span>Completed</span>
                                                     </span>

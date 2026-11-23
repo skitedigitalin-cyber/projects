@@ -79,10 +79,6 @@ const HomeRedirect = () => {
   return <Navigate to="/dashboard" replace />;
 };
 
-const savedTheme = localStorage.getItem('app-theme') || 'default';
-if (savedTheme !== 'default') {
-  document.documentElement.setAttribute('data-theme', savedTheme);
-}
 const savedBgStyle = localStorage.getItem('app-bg-style') || 'solid';
 if (savedBgStyle !== 'solid') {
   document.documentElement.setAttribute('data-bg-style', savedBgStyle);

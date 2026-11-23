@@ -6,7 +6,7 @@ import WorkspacePermissions from '../components/WorkspacePermissions';
 import './Settings.css';
 import { AuthContext } from '../context/AuthContext';
 import { 
-    Palette, CheckCircle2, Monitor, Droplet, Flame, Leaf, Hexagon, 
+    Palette, CheckCircle2,
     FileText, Eye, Check, Sparkles, Download, X, ArrowRight,
     Upload, Image as ImageIcon, FileSignature, Trash2, Building2, CreditCard, ChevronDown, ChevronUp, Stamp, RotateCcw
 } from 'lucide-react';
@@ -41,12 +41,10 @@ const checkIsRobotriq = (u) => {
 };
 
 export default function Settings() {
-    const { user, updateContextUser } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const isSkite = checkIsSkite(user);
     const isRobotriq = checkIsRobotriq(user);
     const [activeTab, setActiveTab] = useState('permissions');
-    const [savingTheme, setSavingTheme] = useState(false);
-    const [themeError, setThemeError] = useState('');
 
     useEffect(() => {
         if (isRobotriq && activeTab === 'invoices') {
@@ -54,10 +52,6 @@ export default function Settings() {
         }
     }, [isRobotriq, activeTab]);
 
-    // Theme state
-    const [theme, setThemeState] = useState(() => {
-        return localStorage.getItem('app-theme') || user?.theme || (isSkite ? 'skite-orange' : 'default');
-    });
     const [bgStyle, setBgStyle] = useState(localStorage.getItem('app-bg-style') || 'glowing');
 
     // Invoice Template state
@@ -189,25 +183,6 @@ export default function Settings() {
         };
         fetchBranding();
     }, []);
-
-    const handleThemeChange = async (newTheme) => {
-        if (savingTheme || newTheme === theme) return;
-        setSavingTheme(true);
-        setThemeError('');
-        try {
-            const token = localStorage.getItem('token');
-            await axios.put('http://localhost:5000/api/auth/theme', { theme: newTheme }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setThemeState(newTheme);
-            updateContextUser({ theme: newTheme });
-        } catch (error) {
-            setThemeError('The workspace accent could not be saved.');
-            console.error('Failed to save theme', error);
-        } finally {
-            setSavingTheme(false);
-        }
-    };
 
     const handleSelectTemplate = async (templateId) => {
         setSelectedTemplate(templateId);
@@ -591,23 +566,6 @@ export default function Settings() {
         localStorage.setItem('app-bg-style', bgStyle);
     }, [bgStyle]);
 
-    const themes = [
-        { 
-            id: 'skite-orange', 
-            name: 'Skite Orange', 
-            badge: 'Official Brand',
-            icon: <Flame size={20} />, 
-            primary: 'bg-[#FF4500]', 
-            accent: 'bg-[#fff7ed]', 
-            border: 'border-[#FF4500]' 
-        },
-        { id: 'default', name: 'Midnight Blue', icon: <Monitor size={20} />, primary: 'bg-[#3b82f6]', accent: 'bg-[#eff6ff]', border: 'border-[#3b82f6]' },
-        { id: 'emerald', name: 'Emerald Forest', icon: <Leaf size={20} />, primary: 'bg-[#10b981]', accent: 'bg-[#ecfdf5]', border: 'border-[#10b981]' },
-        { id: 'purple', name: 'Royal Purple', icon: <Hexagon size={20} />, primary: 'bg-[#a855f7]', accent: 'bg-[#faf5ff]', border: 'border-[#a855f7]' },
-        { id: 'rose', name: 'Crimson Rose', icon: <Flame size={20} />, primary: 'bg-[#f43f5e]', accent: 'bg-[#fff1f2]', border: 'border-[#f43f5e]' },
-        { id: 'amber', name: 'Sunset Amber', icon: <Droplet size={20} />, primary: 'bg-[#f59e0b]', accent: 'bg-[#fffbeb]', border: 'border-[#f59e0b]' },
-    ];
-
     const availableTemplates = getInvoiceTemplates(isSkite);
     const currentTemplateObj = availableTemplates.find(t => t.id === selectedTemplate) || availableTemplates[0];
 
@@ -630,8 +588,7 @@ export default function Settings() {
                         <Link to="/billing">Plan &amp; billing</Link>
                     </nav>
                     <div className="workspace-settings-content space-y-6">
-                        {activeTab === 'appearance' && themeError && <p className="workspace-settings-error" role="alert">{themeError}</p>}
-                        {activeTab === 'permissions' && <WorkspacePermissions theme={theme} themes={themes} onThemeChange={handleThemeChange} savingTheme={savingTheme} themeError={themeError} />}
+                        {activeTab === 'permissions' && <WorkspacePermissions />}
                         {activeTab === 'company' && <section className="workspace-settings-card">
                             <header><h2>Company profile</h2></header>
                             <dl className="workspace-settings-profile">
@@ -1658,55 +1615,10 @@ export default function Settings() {
                         )}
 
                         {/* ========================================================
-                            TAB 2: APPEARANCE (THEMES & BACKGROUNDS)
+                            TAB 2: APPEARANCE
                             ======================================================== */}
                         {activeTab === 'appearance' && (
                             <>
-                                {/* Workspace Theme */}
-                                <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-slate-100">
-                                    <div className="bg-white rounded-[1.5rem] p-8 shadow-sm h-full">
-                                        <h2 className="text-xl font-bold text-[#111111] mb-2 flex items-center tracking-tight">
-                                            Workspace Theme
-                                        </h2>
-                                        <p className="text-slate-500 text-sm font-medium mb-8">
-                                            Personalize your Skite Prime experience. Theme changes are saved instantly and apply across all dashboards.
-                                        </p>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                                            {themes.map(t => (
-                                                <button
-                                                    key={t.id}
-                                                    onClick={() => handleThemeChange(t.id)}
-                                        disabled={savingTheme}
-                                                    className={`relative flex flex-col items-center justify-center p-6 rounded-[1.25rem] border-2 transition-all duration-300 group overflow-hidden cursor-pointer ${
-                                                        theme === t.id 
-                                                        ? 'border-[#111111] bg-[#f0f0ee] shadow-md scale-[1.02]'
-                                                        : 'border-slate-100 hover:border-slate-300 hover:bg-[#f5f5f3] hover:shadow-sm'
-                                                    }`}
-                                                >
-                                                    {t.badge && (
-                                                        <span className="absolute top-3 right-3 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FF4500] text-white shadow-xs">
-                                                            {t.badge}
-                                                        </span>
-                                                    )}
-                                                    <div className={`w-14 h-14 rounded-2xl ${t.accent} ${theme === t.id ? t.border + ' border-2' : 'border border-transparent'} flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110`}>
-                                                        <div className={`w-8 h-8 rounded-full ${t.primary} flex items-center justify-center text-white shadow-sm`}>
-                                                            {theme === t.id ? <CheckCircle2 size={18} /> : t.icon}
-                                                        </div>
-                                                    </div>
-                                                    <span className={`text-sm font-bold ${theme === t.id ? 'text-[#111111]' : 'text-slate-600'}`}>
-                                                        {t.name}
-                                                    </span>
-                                                    
-                                                    {theme === t.id && (
-                                                        <div className={`absolute -top-10 -right-10 w-24 h-24 ${t.primary} opacity-5 blur-2xl rounded-full`}></div>
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
                                 {/* Background Style Panel */}
                                 <div className="p-2 bg-[#f5f5f3]/80 rounded-[2rem] border border-slate-100">
                                     <div className="bg-white rounded-[1.5rem] p-8 shadow-sm h-full">

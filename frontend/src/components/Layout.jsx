@@ -109,7 +109,7 @@ export default function Layout({ children, noPadding = false, workspace = false,
         const initials = user?.name?.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
 
         return (
-            <div className="skite-workspace" data-workspace-theme={user?.theme}>
+            <div className="skite-workspace">
                 <header className="skite-workspace-header">
                     <Link to="/dashboard" className="skite-workspace-brand">
                         <span aria-hidden="true" /> skite

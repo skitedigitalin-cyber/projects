@@ -529,7 +529,7 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                                     alert('Could not load proposal template. Please configure it first.');
                                 }
                             }}
-                            className="w-full flex items-center justify-center py-3.5 bg-[#25D366] hover:bg-[#20ba56] text-white font-bold rounded-xl transition-all shadow-sm cursor-pointer active:scale-[0.98]"
+                            className="w-full flex items-center justify-center py-3.5 bg-[#111111] hover:bg-[#303030] text-white font-bold rounded-xl transition-all shadow-sm cursor-pointer active:scale-[0.98]"
                         >
                             <MessageCircle size={20} className="mr-2" /> Send Proposal (WhatsApp)
                         </button>

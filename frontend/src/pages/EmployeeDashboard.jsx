@@ -702,7 +702,7 @@ export default function EmployeeDashboard() {
                     </div>
                     <button 
                         onClick={handleLogout}
-                        className="w-full flex items-center px-3 py-2 text-sm text-[#9F2F2D] hover:bg-[#FDEBEC] rounded-[4px] transition-colors cursor-pointer"
+                        className="w-full flex items-center px-3 py-2 text-sm text-[#9F2F2D] hover:bg-[#fff0e7] rounded-[4px] transition-colors cursor-pointer"
                     >
                         <LogOut size={18} strokeWidth={1.5} className="mr-3" />
                         Log out

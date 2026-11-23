@@ -35,7 +35,7 @@
 .sales-target-history li strong { font-size: 23px; font-weight: 500; line-height: 1; }
 .sales-target-history li progress::-webkit-progress-value { background: var(--workspace-ink); }
 .sales-target-history li[data-current='true'] progress::-webkit-progress-value { background: var(--workspace-coral); }
-.sales-target-history li[data-hit='true'] progress::-webkit-progress-value { background: #15803d; }
+.sales-target-history li[data-hit='true'] progress::-webkit-progress-value { background: var(--workspace-coral); }
 @media (max-width: 720px) {
     .sales-targets { grid-template-columns: minmax(0, 1fr); }
     .sales-target-progress { min-height: 310px; padding: 20px; }
