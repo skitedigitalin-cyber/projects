@@ -1,14 +1,18 @@
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Plus, Search } from 'lucide-react';
+import '../pages/Finance.css';
+import './FinanceDocuments.css';
+import './FinanceLedger.css';
 import Layout from './Layout';
 import API_BASE_URL from '../api';
 
 const api = `${API_BASE_URL}/api/robotriq/ledger`;
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' }).format(new Date());
 const money = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
-const inputClass = 'rounded border bg-white px-3 py-2';
-const actionClass = 'rounded bg-slate-900 px-3 py-2 text-white';
+const inputClass = 'min-w-0 rounded-xl border border-[#e6e6e3] bg-[#f5f5f3] px-3 py-2 text-xs focus:bg-white';
+const actionClass = 'finance-document-primary text-xs font-semibold disabled:opacity-50';
 const tabs = [['transactions', 'Transactions'], ['income', 'Income'], ['expenses', 'Expenses'],
     ['profit', 'Profit'], ['employee', 'Employee expenses']];
 const receipt = row => row.type === 'Income' && row.desc?.startsWith('Receipt:');
@@ -49,7 +53,7 @@ function Profit({ rows }) {
     const values = [...months.values()].sort((a, b) => a.month.localeCompare(b.month));
     if (!values.length) return <p>No transactions in this period.</p>;
     const max = Math.max(1, ...values.flatMap(row => [row.Income, row.Expenses]));
-    return <div className="overflow-x-auto">
+    return <div className="robotriq-table-card robotriq-table-scroll">
         <table className="w-full text-left text-sm">
             <thead><tr>{['Month', 'Income', 'Expenses', 'Profit'].map(label => <th className="p-3" key={label}>{label}</th>)}</tr></thead>
             <tbody>{values.map(row => <tr key={row.month} className="border-t">
@@ -61,7 +65,7 @@ function Profit({ rows }) {
                             <div className={`h-full rounded ${tone}`} style={{ width: `${Math.max(0, value) / max * 100}%` }} />
                         </div>
                     </td>)}
-                <td className="p-3">{money.format(row.Income - row.Expenses)}</td>
+                <td className="p-3 whitespace-nowrap tabular-nums">{money.format(row.Income - row.Expenses)}</td>
             </tr>)}</tbody>
         </table>
     </div>;
@@ -152,19 +156,22 @@ export default function RobotriqLedger({ self = false, expenseManagement = false
         totals[2] = [filters.employeeId || self ? 'Wallet balance' : 'Combined wallet balance', balance / 100];
     }
     const content = (
-        <div className="accounts-workspace grid gap-4">
-            {!expenseManagement && <header className="accounts-page-heading">
-                {!delegated && <div><p>Robotriq</p><h1>{self ? 'My expenses' : 'Accounts Hub'}</h1></div>}
-                {!self && <nav aria-label="Ledger views">{tabs.filter(([id]) => !delegated || id !== 'employee').map(([id, label]) =>
+        <div className="finance-workspace robotriq-accounts">
+            {!expenseManagement && !delegated && <header className="finance-workspace-heading">
+                <div><p>Accounts & finance</p><h1>{self ? 'My expenses' : 'Accounts Hub'}</h1></div>
+            </header>}
+                {!self && !expenseManagement && <nav className="finance-workspace-tabs" aria-label="Ledger views">{tabs.filter(([id]) => !delegated || id !== 'employee').map(([id, label]) =>
                     <button type="button" key={id} aria-current={tab === id ? 'page' : undefined} disabled={busy}
                         onClick={() => switchTab(id)}>{label}</button>)}</nav>}
-            </header>}
-            <section className="grid gap-4">
-                <div className="flex flex-wrap items-end gap-3">
-                    <label className="grid gap-1">Search
-                        <input className={inputClass} value={filters.search}
+            <section className="finance-document-list">
+                {rows && <dl className="finance-receipt-summary finance-quote-summary robotriq-accounts-summary">{totals.map(([label, value]) =>
+                    <div key={label}><dt>{label}</dt><dd>{money.format(value)}</dd></div>)}</dl>}
+                <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-[#e6e6e3] bg-white p-4 shadow-xs">
+                    <div className="relative w-full sm:w-64">
+                        <Search size={16} aria-hidden="true" className="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
+                        <input type="search" aria-label="Search ledger" placeholder="Search ledger" className={`${inputClass} w-full pl-9`} value={filters.search}
                             onChange={event => setFilters({ ...filters, search: event.target.value })} />
-                    </label>
+                    </div>
                     {[['from', 'From'], ['to', 'To']].map(([field, label]) => <label key={field} className="grid gap-1">{label}
                         <input type="date" className={inputClass} value={filters[field]}
                             onChange={event => setFilters({ ...filters, [field]: event.target.value })} />
@@ -175,15 +182,12 @@ export default function RobotriqLedger({ self = false, expenseManagement = false
                             {employeeOptions.map(([id, name]) => <option value={id} key={id}>{name}</option>)}
                         </select>
                     </label>}
-                    {tab !== 'profit' && <button type="button" className={actionClass} disabled={!data || !!editor || busy}
-                        onClick={() => open()}>{expenseManagement ? 'Add expense or allocation' : employee ? 'Add expense' : 'Add transaction'}</button>}
+                    {tab !== 'profit' && <button type="button" className={`${actionClass} sm:ml-auto`} disabled={!data || !!editor || busy}
+                        onClick={() => open()}><Plus size={15} aria-hidden="true" />{expenseManagement ? 'Add expense or allocation' : employee ? 'Add expense' : 'Add transaction'}</button>}
                 </div>
                 {status && <p role="status">{status}</p>}
                 {loading && <p role="status">Loading ledger…</p>}
-                {rows && <dl className="grid gap-3 sm:grid-cols-3">{totals.map(([label, value]) =>
-                    <div key={label} className="rounded border bg-white p-3"><dt>{label}</dt>
-                        <dd className="text-lg font-semibold">{money.format(value)}</dd></div>)}</dl>}
-                {editor && <form className="rounded border bg-white p-4" onSubmit={event => {
+                {editor && <form className="rounded-2xl border border-[#e6e6e3] bg-white p-4" onSubmit={event => {
                     event.preventDefault();
                     const values = Object.fromEntries(new FormData(event.currentTarget));
                     mutate(editor._id ? 'put' : 'post', editor._id ? `/${editor._id}` : '',
@@ -222,9 +226,9 @@ export default function RobotriqLedger({ self = false, expenseManagement = false
                         </div>
                     </fieldset>
                 </form>}
-                {rows && tab === 'profit' && <div className="rounded border bg-white p-4"><Profit rows={rows} /></div>}
+                {rows && tab === 'profit' && <Profit rows={rows} />}
                 {tab !== 'profit' && rows?.length > 0 && <RobotriqPagedTable rows={rows}>{pageRows =>
-<table className="w-full text-left text-sm">
+                    <table className="w-full text-left text-sm">
                         <thead><tr>{['Date', ...(employee && !self ? ['Employee'] : []), 'Type', 'Description', 'Amount',
                             ...(employee ? ['Covered', 'Overdrawn', 'Wallet after'] : []), 'Status',
                             ...(!self ? ['Actions'] : [])].map(label => <th key={label} className="p-3">{label}</th>)}</tr></thead>
@@ -232,10 +236,10 @@ export default function RobotriqLedger({ self = false, expenseManagement = false
                             <td className="p-3">{row.date}</td>
                             {employee && !self && <td className="p-3">{row.employeeName}</td>}
                             <td className="p-3">{receipt(row) ? 'Student receipt' : row.type || 'Expense'}</td>
-                            <td className="p-3">{row[description]}</td>
-                            <td className="p-3">{money.format(row.amount)}</td>
+                            <td className="p-3 break-words">{row[description]}</td>
+                            <td className="p-3 whitespace-nowrap tabular-nums">{money.format(row.amount)}</td>
                             {employee && balances.timeline.get(row._id).map((value, index) =>
-                                <td className="p-3" key={index}>{money.format(value)}</td>)}
+                                <td className="p-3 whitespace-nowrap tabular-nums" key={index}>{money.format(value)}</td>)}
                             <td className="p-3">{row.status || 'Pending'}</td>
                             {!self && <td className="space-x-2 whitespace-nowrap p-3">
                                 {!employee && !receipt(row) && <button type="button" disabled={busy || !!editor} onClick={() => open(row)}>Edit</button>}
@@ -250,7 +254,7 @@ export default function RobotriqLedger({ self = false, expenseManagement = false
                             </td>}
                         </tr>)}</tbody>
                     </table>
-}</RobotriqPagedTable>}
+                }</RobotriqPagedTable>}
                 {tab !== 'profit' && rows?.length === 0 && <p>No matching entries.</p>}
             </section>
         </div>

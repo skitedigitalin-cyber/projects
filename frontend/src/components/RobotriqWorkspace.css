@@ -124,3 +124,20 @@
 .robotriq-sales-views .sales-page-actions nav button {
     white-space: nowrap;
 }
+
+.robotriq-accounts .robotriq-accounts-summary {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+
+.robotriq-accounts .robotriq-table-scroll table {
+    min-width: 38rem;
+}
+
+.robotriq-accounts .robotriq-table-scroll td.break-words {
+    min-width: 12rem;
+    overflow-wrap: anywhere;
+}
+
+.robotriq-accounts .robotriq-table-scroll th[scope="row"] {
+    background: transparent;
+}
