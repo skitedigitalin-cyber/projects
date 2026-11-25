@@ -265,7 +265,7 @@ export default function StudentTasks() {
     return (
         <div className="space-y-6 animate-fade-up">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm student-tab-header">
                 <div>
                     <div className="flex items-center gap-2">
                         <CheckSquare className="text-teal-600" size={26} />
@@ -281,7 +281,7 @@ export default function StudentTasks() {
 
                 <button 
                     onClick={openAddModal}
-                    className="flex items-center justify-center gap-2 px-5 py-3 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+                    className="student-tab-primary flex items-center justify-center gap-2 px-5 py-3 bg-[#111111] hover:bg-[#303030] text-white rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
                 >
                     <Plus size={16} />
                     <span>Assign New Task</span>
@@ -289,7 +289,7 @@ export default function StudentTasks() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 student-tab-kpis">
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
                         <CheckSquare size={22} />
@@ -332,7 +332,7 @@ export default function StudentTasks() {
             </div>
 
             {/* Filter and Search Bar */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+            <div className="student-tab-panel bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
                 <div className="relative w-full md:w-80">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                     <input 
@@ -392,7 +392,7 @@ export default function StudentTasks() {
             </div>
 
             {/* Tasks Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="student-tab-table bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="p-16 flex flex-col items-center justify-center gap-3 text-slate-400">
                         <Loader2 size={32} className="animate-spin text-teal-600" />

@@ -218,7 +218,7 @@ export default function StudentAttendance({ delegated = false }) {
     return (
         <div className="space-y-6 animate-fade-in">
             {/* Header & Action Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1 student-tab-header">
                 <div>
                     <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                         <CalendarClock size={24} className="text-teal-600" />
@@ -248,7 +248,7 @@ export default function StudentAttendance({ delegated = false }) {
                             }
                             setIsMarkModalOpen(true);
                         }}
-                        className="px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all"
+                        className="student-tab-primary px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all"
                     >
                         <Plus size={16} />
                         <span>Mark Student Attendance</span>
@@ -257,7 +257,7 @@ export default function StudentAttendance({ delegated = false }) {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 student-tab-kpis">
                 <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
                     <div className="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
                         <CalendarClock size={22} />
@@ -294,7 +294,7 @@ export default function StudentAttendance({ delegated = false }) {
             </div>
 
             {/* Filter Bar */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="student-tab-panel bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div className="relative flex-1 max-w-md">
                     <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 
@@ -356,7 +356,7 @@ export default function StudentAttendance({ delegated = false }) {
             </div>
 
             {/* Attendance Table */}
-            <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+            <div className="student-tab-table bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[950px]">
                         <thead>

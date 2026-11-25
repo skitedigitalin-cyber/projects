@@ -58,8 +58,9 @@ export default function RobotriqClassSchedule() {
 
     return (
         <section className="robotriq-schedule">
+            <header className="student-tab-header"><h2>Class schedule</h2></header>
             <form onSubmit={save}>
-                <label>
+                <label className="student-tab-panel">
                     Course
                     <select value={course} disabled={saving} onChange={event => {
                         setSlots(null);
@@ -87,7 +88,7 @@ export default function RobotriqClassSchedule() {
                     </fieldset>)}
                     <div className="robotriq-schedule-actions">
                         <button type="button" onClick={() => setSlots(current => [...current, emptySlot()])}>Add day</button>
-                        <button type="submit">{saving ? 'Saving…' : 'Save schedule'}</button>
+                        <button type="submit" className="student-tab-primary">{saving ? 'Saving…' : 'Save schedule'}</button>
                     </div>
                 </fieldset>}
                 {message && <p role="status">{message}</p>}

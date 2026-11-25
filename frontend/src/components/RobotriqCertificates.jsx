@@ -96,8 +96,9 @@ export default function RobotriqCertificates({ delegated = false }) {
     const visible = history?.filter(row => [row.studentName, row.uid, row.courseName]
         .some(value => value.toLowerCase().includes(query)));
 
-    return <section className="grid gap-4">
-        <form className="rounded border bg-white p-4" onSubmit={save}>
+    return <section className="grid gap-6">
+        {!delegated && <header className="student-tab-header"><h2>Certifications</h2></header>}
+        <form className="rounded border bg-white p-4 student-tab-panel" onSubmit={save}>
             <fieldset className="grid gap-3 sm:grid-cols-2" disabled={busy || failed}>
                 <legend className="font-semibold">Issue a certificate</legend>
                 {fields.map(([field, label, limit, required]) => <label key={field} className="grid gap-1">{label}
@@ -109,7 +110,7 @@ export default function RobotriqCertificates({ delegated = false }) {
                         onChange={event => setDraft({ ...draft, date: event.target.value })} />
                 </label>
                 <div className="flex gap-2">
-                    <button className={primary} disabled={!history}>Save certificate</button>
+                    <button className={`${primary} student-tab-primary`} disabled={!history}>Save certificate</button>
                     <button className={control} type="button" onClick={() => download(draft, true)}>Preview PDF</button>
                 </div>
             </fieldset>
@@ -118,7 +119,7 @@ export default function RobotriqCertificates({ delegated = false }) {
             <button className={control} type="button" onClick={() => setPreview('')}>Close preview</button>
             <iframe className="mt-3 h-[32rem] w-full" src={preview} title="Robotriq certificate PDF preview" />
         </section>}
-        {!delegated && <form className="flex flex-wrap items-end gap-3 rounded border bg-white p-4" onSubmit={importHistory}>
+        {!delegated && <form className="flex flex-wrap items-end gap-3 rounded border bg-white p-4 student-tab-panel" onSubmit={importHistory}>
             <label className="grid gap-1">Legacy browser history JSON
                 <input type="file" ref={upload} accept=".json,application/json" disabled={busy} required />
             </label>
@@ -126,8 +127,8 @@ export default function RobotriqCertificates({ delegated = false }) {
         </form>}
         {notice && <p role="status">{notice}</p>}
         {!history && !failed && <p role="status">Loading certificate history…</p>}
-        {history && <label className="grid max-w-sm gap-1">Search certificates
-            <input className={control} value={search} onChange={event => setSearch(event.target.value)} />
+        {history && <label className="student-tab-panel grid gap-1">Search certificates
+            <input className={`${control} w-full max-w-sm`} value={search} onChange={event => setSearch(event.target.value)} />
         </label>}
         {visible?.length > 0 && <RobotriqPagedTable rows={visible}>{pageRows =>
 <table className="w-full text-left text-sm">

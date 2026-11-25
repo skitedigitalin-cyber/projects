@@ -72,7 +72,7 @@ export default function RobotriqBookings({ studentToken = '', admin = false }) {
         ? `${Number(startTime.slice(0, 2)) + 3}${startTime.slice(2)}` : '';
 
     return <section className="grid gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="student-tab-header flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">{student ? 'My class bookings' : 'Class bookings'}</h2>
             <button className={input} type="button" onClick={() => {
                 setError('');
@@ -99,8 +99,8 @@ export default function RobotriqBookings({ studentToken = '', admin = false }) {
                 <button className={`${primary} justify-self-start`}>Request booking</button>
             </fieldset>
         </form>}
-        {records && <label className="grid max-w-xs gap-1">Status
-            <select className={input} value={status} onChange={event => setStatus(event.target.value)}>
+        {records && <label className="student-tab-panel grid gap-1">Status
+            <select className={`${input} w-full max-w-xs`} value={status} onChange={event => setStatus(event.target.value)}>
                 <option value="">All</option>
                 {['Pending', 'Confirmed', 'Rejected', 'Completed', 'Cancelled'].map(value => <option key={value}>{value}</option>)}
             </select>

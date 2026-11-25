@@ -29,13 +29,15 @@ export default function Students() {
                     </nav>
                 </header>
                 {activeTab === 'directory' && <StudentManagement key={addingStudent ? 'admission' : 'directory'} startInAdmission={addingStudent} />}
-                {activeTab === 'attendance' && <StudentAttendance />}
-                {activeTab === 'tasks' && <StudentTasks />}
-                {activeTab === 'schedule' && robotriqAdmin && <RobotriqClassSchedule />}
-                {activeTab === 'bookings' && robotriqAdmin && <RobotriqBookings admin />}
-                {activeTab === 'certificates' && robotriqAdmin && <Suspense fallback={<p role="status">Loading certifications…</p>}>
-                    <RobotriqCertificates />
-                </Suspense>}
+                {activeTab !== 'directory' && <div className={robotriqAdmin ? 'student-tab-content' : undefined}>
+                    {activeTab === 'attendance' && <StudentAttendance />}
+                    {activeTab === 'tasks' && <StudentTasks />}
+                    {activeTab === 'schedule' && robotriqAdmin && <RobotriqClassSchedule />}
+                    {activeTab === 'bookings' && robotriqAdmin && <RobotriqBookings admin />}
+                    {activeTab === 'certificates' && robotriqAdmin && <Suspense fallback={<p role="status">Loading certifications…</p>}>
+                        <RobotriqCertificates />
+                    </Suspense>}
+                </div>}
             </div>
         </Layout>
     );
