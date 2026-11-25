@@ -141,3 +141,67 @@
 .robotriq-accounts .robotriq-table-scroll th[scope="row"] {
     background: transparent;
 }
+
+.robotriq-panel {
+    min-width: 0;
+    padding: clamp(16px, 2vw, 24px);
+    border: 1px solid var(--workspace-line, #e6e6e3);
+    border-radius: var(--workspace-card-radius, 24px);
+    background: var(--workspace-surface, #fff);
+}
+
+.robotriq-field {
+    min-width: 0;
+    min-height: 42px;
+    padding: 8px 14px;
+    border: 1px solid #e6e6e3;
+    border-radius: 14px;
+    background: #f5f5f3;
+}
+
+.robotriq-field:focus {
+    background: #fff;
+}
+
+.robotriq-primary,
+.robotriq-secondary {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid #e6e6e3;
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    font-weight: 500;
+}
+
+.robotriq-primary {
+    border-color: transparent;
+    background: #111;
+    color: #fff;
+}
+
+.robotriq-primary:not(:disabled):hover { background: #303030; }
+.robotriq-secondary:not(:disabled):hover { background: #f0f0ee; }
+:is(.robotriq-primary, .robotriq-secondary):disabled { opacity: .5; }
+:is(.robotriq-field, .robotriq-primary, .robotriq-secondary):focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 2px;
+}
+
+.robotriq-portal-fees > div {
+    margin-top: 12px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #f5f5f3;
+}
+
+.robotriq-portal-fees dd {
+    margin-top: 4px;
+    font-size: clamp(21px, 4vw, 32px);
+    font-weight: 500;
+    letter-spacing: -.035em;
+}

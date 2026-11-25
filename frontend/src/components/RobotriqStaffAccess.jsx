@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -51,7 +52,7 @@ export default function RobotriqStaffAccess() {
         }
     }
 
-    return <section className="grid gap-4 rounded border bg-white p-4">
+    return <section className="grid gap-4 robotriq-panel">
         <div className="flex flex-wrap items-end justify-between gap-3">
             <label className="grid gap-1">Search staff<input className="rounded border px-3 py-2" value={search} onChange={event => setSearch(event.target.value)} /></label>
             <button type="button" className="rounded border px-3 py-2" disabled={saving} onClick={() => {
@@ -82,7 +83,7 @@ export default function RobotriqStaffAccess() {
                             onChange={event => setDraft(previous => ({ ...previous, [id]: event.target.checked }))} />{label}
                     </label>)}
                 </fieldset>)}
-                <button className="justify-self-start rounded bg-slate-900 px-3 py-2 text-white disabled:opacity-45"
+                <button className="justify-self-start robotriq-primary disabled:opacity-45"
                     disabled={saving || selected.paused || !Object.keys(changed).length}>{saving ? 'Saving…' : 'Save permissions'}</button>
             </form> : <p>Select a staff account to view its permissions.</p>}
         </div>}

@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -12,8 +13,8 @@ const endpoint = `${API_BASE_URL}/api/robotriq/fee-receipts`;
 const currency = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' }).format(new Date());
 const modes = ['Bank Transfer', 'UPI', 'Cash', 'Cheque', 'NEFT'];
-const input = 'rounded border bg-white px-3 py-2';
-const action = 'rounded bg-slate-900 px-3 py-2 text-white';
+const input = 'robotriq-field';
+const action = 'robotriq-primary';
 const formatMoney = value => value == null ? '—' : currency.format(value);
 const pdfMoney = value => value == null ? 'Unavailable' : `INR ${Number(value).toFixed(2)}`;
 
@@ -126,7 +127,7 @@ export default function RobotriqFeeReceipts({ delegated = false }) {
         {error && <p role="alert">{error}</p>}
         {message && <p role="status">{message}</p>}
         {!data && !error && <p role="status">Loading student receipts…</p>}
-        {editor && <form className="rounded border bg-white p-4" onSubmit={event => {
+        {editor && <form className="robotriq-panel" onSubmit={event => {
             event.preventDefault();
             update(editor._id ? 'put' : 'post', editor);
         }}>

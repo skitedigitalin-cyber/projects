@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -34,7 +35,7 @@ export default function RobotriqLegacyTasks({ admin = false, unresolvedOnly = fa
     const visibleRows = unresolvedOnly ? rows?.filter(row => row.ownerType === 'unresolved') : rows;
     if (unresolvedOnly && visibleRows?.length === 0) return null;
 
-    return <section className="mt-4 rounded border bg-white p-4">
+    return <section className="mt-4 robotriq-panel">
         <h2 className="font-semibold">{unresolvedOnly ? 'Historical tasks with unresolved assignees' : 'Legacy Robotriq tasks'}</h2>
         {error && <p role="alert">{error}</p>}
         {!rows && !error && <p role="status">Loading task history…</p>}

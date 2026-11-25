@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -6,7 +7,7 @@ import API_BASE_URL from '../api';
 const endpoint = `${API_BASE_URL}/api/robotriq/payroll`;
 const indiaDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' });
 const money = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
-const control = 'rounded border bg-white px-3 py-2';
+const control = 'robotriq-field';
 
 export default function RobotriqPayroll() {
     const [range, setRange] = useState(() => {

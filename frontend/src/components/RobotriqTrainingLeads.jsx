@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -16,7 +17,7 @@ const followUpFields = [
     ['followUpAction', 'Follow-up action', ['Pending', 'Completed']], ['advancePayment', 'Advance payment'],
     ['dealClosed', 'Deal closed', ['Yes', 'No']]
 ];
-const control = 'w-full rounded border bg-white px-3 py-2';
+const control = 'w-full robotriq-field';
 const action = 'rounded border px-3 py-2';
 const primary = `${action} bg-slate-900 text-white`;
 const splitCourses = value => (value || '').split(',').map(item => item.trim()).filter(Boolean);
@@ -59,7 +60,7 @@ function LeadForm({ lead, options, managers, busy, save, close }) {
         })));
     }
 
-    return <form className="grid gap-3 rounded border bg-white p-4" onSubmit={saveLead}>
+    return <form className="grid gap-3 robotriq-panel" onSubmit={saveLead}>
         <div className="flex items-center justify-between gap-3"><h2 className="font-semibold">{adding ? 'Add training lead' : lead.name}</h2>
             <button type="button" className={action} onClick={close}>Close</button></div>
         <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -137,7 +138,7 @@ export default function RobotriqTrainingLeads({ admin = false }) {
     const edit = editing === 'new' ? { date: day.format(new Date()), source: source || 'Meta Leads', callStatus: 'Pending', priority: 'Medium' }
         : related.get(editing);
 
-    return <section className="grid gap-4 rounded border bg-white p-4">
+    return <section className="grid gap-4 robotriq-panel">
         <header className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-semibold">Training Leads Hub</h2>
             <button className={primary} type="button" onClick={() => setEditing('new')}>Add lead</button>

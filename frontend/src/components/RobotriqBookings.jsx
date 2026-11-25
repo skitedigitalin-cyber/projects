@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -5,8 +6,8 @@ import API_BASE_URL from '../api';
 
 const staffUrl = `${API_BASE_URL}/api/robotriq/bookings`;
 const studentUrl = `${API_BASE_URL}/api/robotriq/student/bookings`;
-const input = 'rounded border bg-white px-3 py-2';
-const primary = 'rounded bg-slate-900 px-3 py-2 text-white';
+const input = 'robotriq-field';
+const primary = 'robotriq-primary';
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' }).format(new Date());
 
 export default function RobotriqBookings({ studentToken = '', admin = false }) {
@@ -79,7 +80,7 @@ export default function RobotriqBookings({ studentToken = '', admin = false }) {
                 setVersion(value => value + 1);
             }}>Refresh</button>
         </div>
-        {student && <form className="rounded border bg-white p-4" onSubmit={event => {
+        {student && <form className="robotriq-panel" onSubmit={event => {
             event.preventDefault();
             const form = event.currentTarget;
             change('POST', '', Object.fromEntries(new FormData(form)), 'Booking submitted for confirmation.', form);

@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -78,7 +79,7 @@ export default function RobotriqDocumentHistory({ service = false }) {
     if (!data) return <p role={error ? 'alert' : 'status'}>{error || 'Loading document history…'}</p>;
     if (service) return <section className="grid gap-4">
         {!data.length && <p>No legacy service reports.</p>}
-        {data.map(report => <details open={data.length === 1} key={report._id} className="rounded border bg-white p-4">
+        {data.map(report => <details open={data.length === 1} key={report._id} className="robotriq-panel">
             <summary className="cursor-pointer font-semibold">{report.reportNo} · {report.customer}</summary>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">{reportFields.filter(([field]) => report[field] != null && report[field] !== '')
                 .map(([field, label]) => <div key={field}><dt className="text-slate-600">{label}</dt>
@@ -97,7 +98,7 @@ export default function RobotriqDocumentHistory({ service = false }) {
         {data.quotes.length > 0 && <RobotriqPagedTable rows={data.quotes}>{pageRows => <div className="grid gap-3 p-3">{pageRows.map(row => {
             const lead = training.get(row.lead);
             const enquiry = direct.get(row.robotriqLead);
-            return <article className="rounded border bg-white p-4" key={row._id}>
+            return <article className="robotriq-panel" key={row._id}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div><h2 className="font-semibold">{row.quotationNo} · {money.format(row.netAmount || 0)}</h2>
                         <p>{row.customData?.customerName || enquiry?.customerName || lead?.name || '—'}</p>

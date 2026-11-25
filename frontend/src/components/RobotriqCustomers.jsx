@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -68,14 +69,14 @@ export default function RobotriqCustomers() {
         <section className="grid gap-4">
             <div className="flex flex-wrap items-end gap-3">
                 <label className="grid gap-1">Search customers
-                    <input className="rounded border bg-white px-3 py-2" value={search} onChange={event => setSearch(event.target.value)} />
+                    <input className="robotriq-field" value={search} onChange={event => setSearch(event.target.value)} />
                 </label>
-                <button className="rounded bg-slate-900 px-3 py-2 text-white" type="button"
+                <button className="robotriq-primary" type="button"
                     disabled={!customers || busy || !!editor} onClick={() => setEditor({})}>Add customer</button>
             </div>
             {message && <p role="status">{message}</p>}
             {editor && (
-                <form className="grid gap-3 rounded border bg-white p-4 sm:grid-cols-2" onSubmit={save}>
+                <form className="grid gap-3 robotriq-panel sm:grid-cols-2" onSubmit={save}>
                     <h2 className="font-semibold sm:col-span-2">{editor._id ? 'Edit customer' : 'New customer'}</h2>
                     {fields.map(([field, label]) => (
                         <label className="grid gap-1" key={field}>{label}
@@ -83,7 +84,7 @@ export default function RobotriqCustomers() {
                         </label>
                     ))}
                     <div className="flex gap-2 sm:col-span-2">
-                        <button className="rounded bg-slate-900 px-3 py-2 text-white" disabled={busy}>Save customer</button>
+                        <button className="robotriq-primary" disabled={busy}>Save customer</button>
                         <button className="rounded border px-3 py-2" disabled={busy} type="button" onClick={() => setEditor(null)}>Cancel</button>
                     </div>
                 </form>

@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -8,7 +9,7 @@ const audiences = [
     { id: 'students', label: 'Students', permission: 'assignTasks' }
 ];
 const api = `${API_BASE_URL}/api/robotriq/legacy-tasks/assignments`;
-const field = 'w-full rounded border bg-white px-3 py-2';
+const field = 'w-full robotriq-field';
 const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' });
 
 export function hasRobotriqTaskAccess(permissions) {
@@ -103,7 +104,7 @@ export default function RobotriqTaskAssignments({ admin = false, permissions }) 
     const active = available.find(({ id }) => id === requested) || available[0];
     if (!active) return null;
 
-    return <section className="grid gap-4 rounded border bg-white p-4">
+    return <section className="grid gap-4 robotriq-panel">
         <h2 className="text-lg font-semibold">Task assignments</h2>
         {available.length > 1 && <nav aria-label="Task assignees" className="flex flex-wrap gap-2">
             {available.map(({ id, label }) => <button type="button" key={id} disabled={id === active.id}

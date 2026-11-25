@@ -1,11 +1,12 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
 
 const endpoint = `${API_BASE_URL}/api/robotriq/leaves`;
-const control = 'rounded border bg-white px-3 py-2';
-const primary = 'rounded bg-slate-900 px-3 py-2 text-white';
+const control = 'robotriq-field';
+const primary = 'robotriq-primary';
 
 function HistoricalNotifications() {
     const [open, setOpen] = useState(false);
@@ -19,7 +20,7 @@ function HistoricalNotifications() {
         }).catch(() => { if (!controller.signal.aborted) setError(true); });
         return () => controller.abort();
     }, [open]);
-    return <details className="rounded border bg-white p-4" onToggle={event => setOpen(event.currentTarget.open)}>
+    return <details className="robotriq-panel" onToggle={event => setOpen(event.currentTarget.open)}>
         <summary className="cursor-pointer font-semibold">Historical notifications without recipients</summary>
         {error && <p role="alert">Could not load historical notifications.</p>}
         {open && !entries && !error && <p role="status">Loading historical notifications…</p>}
@@ -99,7 +100,7 @@ export default function RobotriqLeave({ studentToken = '', admin = false }) {
             }}>Refresh</button>
         </div>
         {notice && <p role="status">{notice}</p>}
-        {!admin && <form className="rounded border bg-white p-4" onSubmit={event => {
+        {!admin && <form className="robotriq-panel" onSubmit={event => {
             event.preventDefault();
             const form = event.currentTarget;
             mutate('POST', '', Object.fromEntries(new FormData(form)), 'Leave request submitted.', form);
@@ -157,7 +158,7 @@ export default function RobotriqLeave({ studentToken = '', admin = false }) {
 }</RobotriqPagedTable>}
         {leaves?.length === 0 && <p>No matching leave requests.</p>}
         {admin && <HistoricalNotifications />}
-        {!admin && data && <section className="rounded border bg-white p-4">
+        {!admin && data && <section className="robotriq-panel">
             <h3 className="font-semibold">Notifications</h3>
             {data.notifications.length ? <ul className="divide-y">{data.notifications.map(row => <li className="py-3" key={row._id}>
                 <p className="font-medium">{row.title}{!row.read && <span> · Unread</span>}</p>

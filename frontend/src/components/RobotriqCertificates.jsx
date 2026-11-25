@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
@@ -5,8 +6,8 @@ import API_BASE_URL from '../api';
 import { robotriqCertificatePdf } from '../utils/robotriqCertificatePdf';
 
 const endpoint = `${API_BASE_URL}/api/robotriq/certificates`;
-const control = 'rounded border bg-white px-3 py-2';
-const primary = 'rounded bg-slate-900 px-3 py-2 text-white';
+const control = 'robotriq-field';
+const primary = 'robotriq-primary';
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' }).format(new Date());
 const blank = () => ({ studentName: '', uid: '', courseName: '', brand: '', products: '', date: today() });
 const fields = [
@@ -98,7 +99,7 @@ export default function RobotriqCertificates({ delegated = false }) {
 
     return <section className="grid gap-6">
         {!delegated && <header className="student-tab-header"><h2>Certifications</h2></header>}
-        <form className="rounded border bg-white p-4 student-tab-panel" onSubmit={save}>
+        <form className="robotriq-panel student-tab-panel" onSubmit={save}>
             <fieldset className="grid gap-3 sm:grid-cols-2" disabled={busy || failed}>
                 <legend className="font-semibold">Issue a certificate</legend>
                 {fields.map(([field, label, limit, required]) => <label key={field} className="grid gap-1">{label}
@@ -115,11 +116,11 @@ export default function RobotriqCertificates({ delegated = false }) {
                 </div>
             </fieldset>
         </form>
-        {preview && <section className="rounded border bg-white p-3">
+        {preview && <section className="robotriq-panel">
             <button className={control} type="button" onClick={() => setPreview('')}>Close preview</button>
             <iframe className="mt-3 h-[32rem] w-full" src={preview} title="Robotriq certificate PDF preview" />
         </section>}
-        {!delegated && <form className="flex flex-wrap items-end gap-3 rounded border bg-white p-4 student-tab-panel" onSubmit={importHistory}>
+        {!delegated && <form className="flex flex-wrap items-end gap-3 robotriq-panel student-tab-panel" onSubmit={importHistory}>
             <label className="grid gap-1">Legacy browser history JSON
                 <input type="file" ref={upload} accept=".json,application/json" disabled={busy} required />
             </label>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
 import DashboardNumbers, { compactRupees } from '../components/DashboardNumbers';
@@ -12,10 +12,18 @@ import RobotriqDashboard from './RobotriqDashboard';
 
 export default function Dashboard() {
     const { user } = useAuth();
-    return getWorkspaceBrand(user) === 'robotriq' && user.role === 'Admin' ? <RobotriqDashboard /> : <DashboardOverview />;
+    const [params, setParams] = useSearchParams();
+    if (getWorkspaceBrand(user) !== 'robotriq' || user?.role !== 'Admin') return <DashboardOverview />;
+
+    const legacy = params.get('view') === 'legacy';
+    const viewSwitch = <div className="dashboard-periods" role="group" aria-label="Dashboard view">
+        <button type="button" aria-pressed={!legacy} onClick={() => setParams({})}>Modern</button>
+        <button type="button" aria-pressed={legacy} onClick={() => setParams({ view: 'legacy' })}>Legacy</button>
+    </div>;
+    return legacy ? <RobotriqDashboard viewSwitch={viewSwitch} /> : <DashboardOverview viewSwitch={viewSwitch} />;
 }
 
-function DashboardOverview() {
+function DashboardOverview({ viewSwitch }) {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -54,6 +62,7 @@ function DashboardOverview() {
     return (
         <Layout workspace pendingCount={actionItems}>
             <div className="skite-dashboard">
+                {viewSwitch && <div className="dashboard-intro-actions mb-4">{viewSwitch}</div>}
                 <section className="dashboard-intro">
                     <div>
                         <time className="dashboard-intro-date" dateTime={now.toISOString()}>{dateLabel}</time>

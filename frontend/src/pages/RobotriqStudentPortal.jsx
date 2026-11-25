@@ -1,3 +1,7 @@
+import { Link } from 'react-router-dom';
+import './PublicPages.css';
+import './Students.css';
+import '../components/RobotriqWorkspace.css';
 import { useRef, useState } from 'react';
 import API_BASE_URL from '../api';
 import RobotriqLeave from '../components/RobotriqLeave';
@@ -71,22 +75,34 @@ export default function RobotriqStudentPortal() {
 
     if (!profile) {
         return (
-            <main className="mx-auto max-w-md px-6 py-16">
-                <form onSubmit={signIn} className="grid gap-4 rounded-lg border bg-white p-6">
-                    <h1 className="text-2xl font-semibold">Robotriq Student Login</h1>
-                    <label className="grid gap-1">
-                        Student ID or email
-                        <input className="rounded border p-2" name="identifier" autoComplete="username" maxLength={254} required />
-                    </label>
-                    <label className="grid gap-1">
-                        Password
-                        <input className="rounded border p-2" name="password" type="password" autoComplete="current-password" required />
-                    </label>
-                    {message && <p role="alert">{message}</p>}
-                    <button className="rounded bg-slate-900 p-2 text-white" type="submit" disabled={busy}>
-                        {busy ? 'Signing in…' : 'Sign in'}
-                    </button>
-                </form>
+            <main className="public-page login-page">
+                <section className="login-brand-panel" aria-label="Skite">
+                    <Link to="/" className="public-brand"><span aria-hidden="true" /> skite</Link>
+                    <p className="login-tagline">Robotriq student portal</p>
+                    <ul className="public-mono login-modules">
+                        <li>Attendance</li><li>Class schedule</li><li>Assignments</li>
+                    </ul>
+                </section>
+                <section className="login-form-panel" aria-labelledby="student-login-heading">
+                    <div className="login-form-content">
+                        <h1 id="student-login-heading">Student sign-in</h1>
+                        <p>Sign in to your Robotriq student account.</p>
+                        <form onSubmit={signIn} className="login-form">
+                            {message && <p className="login-error" role="alert">{message}</p>}
+                            <div>
+                                <label htmlFor="student-identifier">Student ID or email</label>
+                                <input id="student-identifier" name="identifier" autoComplete="username" maxLength={254} required />
+                            </div>
+                            <div>
+                                <label htmlFor="student-password">Password</label>
+                                <input id="student-password" name="password" type="password" autoComplete="current-password" required />
+                            </div>
+                            <button className="public-button" type="submit" disabled={busy}>
+                                {busy ? 'Signing in…' : <>Sign in <span aria-hidden="true">→</span></>}
+                            </button>
+                        </form>
+                    </div>
+                </section>
             </main>
         );
     }
@@ -95,13 +111,13 @@ export default function RobotriqStudentPortal() {
     const records = showLegacyAttendance ? legacyAttendance : attendance;
     const currency = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
     return (
-        <main className="mx-auto grid max-w-4xl gap-6 px-6 py-10">
-            <header className="flex items-start justify-between gap-4">
+        <main className="robotriq-workflow mx-auto grid max-w-6xl gap-6 px-6 py-10">
+            <header className="students-page-heading flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold">{student.fullName}</h1>
                     <p>{student.studentId} · {student.course}</p>
                 </div>
-                <button className="rounded border px-3 py-2" type="button" onClick={() => {
+                <button className="robotriq-secondary" type="button" onClick={() => {
                     portalRequest.current?.abort();
                     setPortalBusy(false);
                     setTopic('');
@@ -111,14 +127,14 @@ export default function RobotriqStudentPortal() {
                     setProfile(null);
                 }}>Sign out</button>
             </header>
-            <section className="rounded-lg border bg-white p-4">
+            <section className="robotriq-panel">
                 <h2 className="font-semibold">Fees</h2>
-                <dl className="grid gap-3 sm:grid-cols-3">
+                <dl className="robotriq-portal-fees grid gap-3 sm:grid-cols-3">
                     {[['Total fees', student.fees], ['Paid', student.paidAmount], ['Balance', student.pendingAmount]].map(([label, amount]) =>
                         <div key={label}><dt>{label}</dt><dd>{currency.format(amount || 0)}</dd></div>)}
                 </dl>
             </section>
-            <section className="rounded-lg border bg-white p-4">
+            <section className="robotriq-panel">
                 <h2 className="font-semibold">Attendance</h2>
                 <div className="my-3 flex flex-wrap items-start gap-3">
                     {activeAttendance ? <form className="grid gap-2" onSubmit={event => {
@@ -127,18 +143,18 @@ export default function RobotriqStudentPortal() {
                     }}>
                         <p>Checked in at {activeAttendance.checkIn}</p>
                         <label className="grid gap-1">Today’s topic
-                            <textarea className="rounded border p-2" autoComplete="off" required minLength={5} maxLength={2000}
+                            <textarea className="robotriq-field" autoComplete="off" required minLength={5} maxLength={2000}
                                 value={topic} onChange={event => setTopic(event.target.value)} />
                         </label>
-                        <button className="justify-self-start rounded bg-slate-900 px-3 py-2 text-white" disabled={portalBusy}>Check out</button>
-                    </form> : <button className="rounded bg-slate-900 px-3 py-2 text-white" type="button" disabled={portalBusy}
+                        <button className="justify-self-start robotriq-primary" disabled={portalBusy}>Check out</button>
+                    </form> : <button className="robotriq-primary" type="button" disabled={portalBusy}
                         onClick={() => updatePortal('attendance/check-in', 'POST', undefined, 'Checked in.')}>Check in</button>}
-                    <button className="rounded border px-3 py-2" type="button" disabled={portalBusy}
+                    <button className="robotriq-secondary" type="button" disabled={portalBusy}
                         onClick={() => updatePortal()}>Refresh records</button>
                 </div>
                 {notice && <p role="status">{notice}</p>}
                 <label className="mb-3 grid max-w-xs gap-1">Attendance history
-                    <select className="rounded border p-2" value={showLegacyAttendance ? 'legacy' : 'current'}
+                    <select className="robotriq-field" value={showLegacyAttendance ? 'legacy' : 'current'}
                         onChange={event => setShowLegacyAttendance(event.target.value === 'legacy')}>
                         <option value="current">SkiteCRM records</option>
                         <option value="legacy">Legacy Robotriq records</option>
@@ -151,7 +167,7 @@ export default function RobotriqStudentPortal() {
                     </li>
                 )}</ul> : <p>No attendance recorded.</p>}
             </section>
-            <section className="rounded-lg border bg-white p-4">
+            <section className="robotriq-panel">
                 <h2 className="font-semibold">Class schedule</h2>
                 {schedule.length ? <ul className="divide-y">{schedule.map((slot, index) =>
                     <li key={slot._id || index} className="py-2">
@@ -162,14 +178,14 @@ export default function RobotriqStudentPortal() {
                     </li>
                 )}</ul> : <p>No schedule published for this course.</p>}
             </section>
-            <section className="rounded-lg border bg-white p-4">
+            <section className="robotriq-panel">
                 <h2 className="font-semibold">Assigned tasks</h2>
                 {tasks.length ? <ul className="divide-y">{tasks.map(task =>
                     <li key={`${task.legacy ? 'legacy' : 'current'}-${task._id}`} className="py-2">
                         <p>{task.title} · {task.status}{task.dueDate ? ` · Due ${task.dueDate}` : ''}</p>
                         {task.description && <p>{task.description}</p>}
                         {task.status !== 'Completed' && <button type="button" disabled={portalBusy}
-                            className="mt-2 rounded border px-3 py-1" onClick={() => updatePortal(
+                            className="mt-2 robotriq-secondary" onClick={() => updatePortal(
                                 `tasks/${task._id}/complete${task.legacy ? '?source=legacy' : ''}`, 'PATCH', undefined, 'Task completed.'
                             )}>Mark completed</button>}
                     </li>

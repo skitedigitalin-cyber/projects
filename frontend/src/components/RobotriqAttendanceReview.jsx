@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -5,8 +6,8 @@ import API_BASE_URL from '../api';
 const api = `${API_BASE_URL}/api/robotriq/attendance`;
 const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' });
 const time = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
-const control = 'rounded border bg-white px-3 py-2';
-const primary = 'rounded bg-slate-900 px-3 py-2 text-white';
+const control = 'robotriq-field';
+const primary = 'robotriq-primary';
 const statuses = ['Present', 'Absent', 'Half Day', 'On Leave', 'In Office'];
 
 export default function RobotriqAttendanceReview({ admin = false }) {
@@ -47,7 +48,7 @@ export default function RobotriqAttendanceReview({ admin = false }) {
     const rows = source?.filter(row => !query || [row.userName, row.date, row.status, row.reason]
         .some(value => value?.toLowerCase().includes(query)));
 
-    return <section className="mt-4 grid gap-4 rounded border bg-white p-4">
+    return <section className="mt-4 grid gap-4 robotriq-panel">
         <div className="flex flex-wrap items-start justify-between gap-3">
             <h2 className="font-semibold">{admin ? 'Robotriq attendance review' : 'My checkout requests'}</h2>
             <button type="button" className={control} onClick={() => {

@@ -1,10 +1,11 @@
+import './RobotriqWorkspace.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
 
 const endpoint = `${API_BASE_URL}/api/robotriq/reminders`;
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' }).format(new Date());
-const input = 'rounded border bg-white px-3 py-2';
+const input = 'robotriq-field';
 const views = [['active', 'Active'], ['today', 'Today'], ['missed', 'Missed'], ['completed', 'Completed']];
 
 export default function RobotriqReminders({ canDelete }) {
@@ -72,12 +73,12 @@ export default function RobotriqReminders({ canDelete }) {
             <label className="grid gap-1">Search reminders
                 <input className={input} value={search} onChange={event => setSearch(event.target.value)} />
             </label>
-            <button type="button" className="rounded bg-slate-900 px-3 py-2 text-white" disabled={!data?.leads.length || busy || !!editor}
+            <button type="button" className="robotriq-primary" disabled={!data?.leads.length || busy || !!editor}
                 onClick={() => setEditor({ date: day, type: 'note' })}>Add reminder</button>
         </div>
         {message && <p role="status">{message}</p>}
         {!data && !message && <p role="status">Loading reminders…</p>}
-        {editor && <form className="rounded border bg-white p-4" onSubmit={save}>
+        {editor && <form className="robotriq-panel" onSubmit={save}>
             <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-2">
                 <legend className="font-semibold">{editor._id ? 'Edit reminder' : 'New reminder'}</legend>
                 {editor._id ? <p className="sm:col-span-2">{editor.leadName}</p> : <label className="grid gap-1 sm:col-span-2">Lead
@@ -100,12 +101,12 @@ export default function RobotriqReminders({ canDelete }) {
                     <textarea className={input} name="text" required maxLength={2000} defaultValue={editor.text || ''} />
                 </label>
                 <div className="flex gap-3">
-                    <button className="rounded bg-slate-900 px-3 py-2 text-white">Save reminder</button>
+                    <button className="robotriq-primary">Save reminder</button>
                     <button className={input} type="button" onClick={() => setEditor(null)}>Cancel</button>
                 </div>
             </fieldset>
         </form>}
-        {rows?.length ? <div className="overflow-x-auto rounded border bg-white">
+        {rows?.length ? <div className="robotriq-table-card robotriq-table-scroll">
             <table className="w-full text-left text-sm">
                 <thead><tr>{['Date', 'Lead', 'Type', 'Reminder', 'Actions'].map(label => <th className="p-3" key={label}>{label}</th>)}</tr></thead>
                 <tbody>{rows.map(row => <tr className="border-t" key={row._id}>

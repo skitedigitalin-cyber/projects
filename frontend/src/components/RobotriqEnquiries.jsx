@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
@@ -13,8 +14,8 @@ const contactFields = [['customerName', 'Customer name'], ['companyName', 'Compa
 const money = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
 const indiaDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', dateStyle: 'short' });
 const dateValue = value => value?.slice(0, 10) || '';
-const inputClass = 'rounded border bg-white px-3 py-2';
-const actionClass = 'rounded bg-slate-900 px-3 py-2 text-white';
+const inputClass = 'robotriq-field';
+const actionClass = 'robotriq-primary';
 
 function daysOpen(row) {
     const start = dateValue(row.saleCreatedDate || row.createdAt);
@@ -135,7 +136,7 @@ export default function RobotriqEnquiries({ mode, canDelete, personal = false, i
         </div>
         {message && <p role="status">{message}</p>}
         {loading && <p role="status">Loading enquiries…</p>}
-        {editor && <form className="rounded border bg-white p-4" onSubmit={save}>
+        {editor && <form className="robotriq-panel" onSubmit={save}>
             <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-2">
                 <h2 className="font-semibold sm:col-span-2">{accounts ? 'Edit sale account' : editor._id ? 'Edit enquiry' : 'New enquiry'}</h2>
                 {!accounts && <label className="grid gap-1">Linked customer
