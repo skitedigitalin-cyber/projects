@@ -6,11 +6,28 @@ import AttendanceManagement from '../components/AttendanceManagement';
 import LeaveManagement from '../components/LeaveManagement';
 import TaskManagement from '../components/TaskManagement';
 import PayrollManagement from '../components/PayrollManagement';
+import RobotriqPayroll from '../components/RobotriqPayroll';
+import RobotriqLeave from '../components/RobotriqLeave';
+import RobotriqLegacyTasks from '../components/RobotriqLegacyTasks';
+import RobotriqTaskAssignments from '../components/RobotriqTaskAssignments';
+import RobotriqAttendanceReview from '../components/RobotriqAttendanceReview';
+import RobotriqStaffAccess from '../components/RobotriqStaffAccess';
+import { useAuth } from '../context/AuthContext';
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
+import { useRobotriqView } from '../utils/useRobotriqView';
 import HRWorkspace, { HRWorkspaceHeading } from '../components/HRWorkspace';
 import './HR.css';
 
+const sharedViews = [
+    ['overview', 'Overview'], ['dashboard', 'Metrics'], ['employees', 'Employees'], ['attendance', 'Attendance'],
+    ['leaves', 'Leaves'], ['tasks', 'Assign tasks'], ['payroll', 'Payroll'],
+];
+
 export default function HR() {
-    const [activeTab, setActiveTab] = useState('overview');
+    const { user } = useAuth();
+    const robotriqAdmin = getWorkspaceBrand(user) === 'robotriq' && user?.role === 'Admin';
+    const views = robotriqAdmin ? [...sharedViews, ['staff-access', 'Staff Access']] : sharedViews;
+    const [activeTab, setActiveTab] = useRobotriqView(robotriqAdmin, 'overview', views.map(([id]) => id));
     const [summary, setSummary] = useState(null);
 
     const renderTabContent = () => {
@@ -19,14 +36,16 @@ export default function HR() {
                 return <HRDashboard />;
             case 'employees':
                 return <EmployeeManagement />;
+            case 'staff-access':
+                return robotriqAdmin && <RobotriqStaffAccess />;
             case 'attendance':
-                return <AttendanceManagement />;
+                return <><AttendanceManagement />{robotriqAdmin && <RobotriqAttendanceReview admin />}</>;
             case 'leaves':
-                return <LeaveManagement />;
+                return robotriqAdmin ? <RobotriqLeave admin /> : <LeaveManagement />;
             case 'tasks':
-                return <TaskManagement />;
+                return robotriqAdmin ? <><RobotriqTaskAssignments admin /><RobotriqLegacyTasks admin unresolvedOnly /></> : <TaskManagement />;
             case 'payroll':
-                return <PayrollManagement />;
+                return robotriqAdmin ? <RobotriqPayroll /> : <PayrollManagement />;
             case 'reports':
                 return (
                     <div className="p-2 bg-slate-50/80 rounded-[2rem] border border-slate-100 group animate-fade-up delay-200">
@@ -39,11 +58,6 @@ export default function HR() {
                 return <HRDashboard />;
         }
     };
-
-    const views = [
-        ['overview', 'Overview'], ['dashboard', 'Metrics'], ['employees', 'Employees'], ['attendance', 'Attendance'],
-        ['leaves', 'Leaves'], ['tasks', 'Assign tasks'], ['payroll', 'Payroll'],
-    ];
 
     return (
         <Layout workspace compactTools>

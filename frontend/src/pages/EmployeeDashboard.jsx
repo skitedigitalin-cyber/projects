@@ -1,7 +1,8 @@
-import { useState, useEffect, useContext } from 'react';
+import { lazy, Suspense, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import { 
     LayoutDashboard, Calendar, CalendarClock, CheckSquare, LogOut, Clock, 
     CalendarPlus, StopCircle, PlayCircle, Plus, Briefcase, FileText, 
@@ -12,8 +13,27 @@ import {
 
 import MyAttendance from '../components/MyAttendance';
 import MyLeaves from '../components/MyLeaves';
+import RobotriqLeave from '../components/RobotriqLeave';
+import RobotriqBookings from '../components/RobotriqBookings';
+import RobotriqLegacyTasks from '../components/RobotriqLegacyTasks';
+import RobotriqTaskAssignments, { hasRobotriqTaskAccess } from '../components/RobotriqTaskAssignments';
+import RobotriqAttendanceReview from '../components/RobotriqAttendanceReview';
+import RobotriqStaffTools, { hasRobotriqStaffTools } from '../components/RobotriqStaffTools';
+import API_BASE_URL from '../api';
 import MyTasks from '../components/MyTasks';
 import EmployeeMobileHome from '../components/EmployeeMobileHome';
+import RobotriqLedger from '../components/RobotriqLedger';
+import StudentAttendance from '../components/StudentAttendance';
+
+const RobotriqTrainingLeads = lazy(() => import('../components/RobotriqTrainingLeads'));
+const RobotriqFeeReceipts = lazy(() => import('../components/RobotriqFeeReceipts'));
+const RobotriqCertificates = lazy(() => import('../components/RobotriqCertificates'));
+const delegatedViews = [
+    { id: 'studentAttendance', name: 'Student Attendance', Icon: CalendarDays, Page: StudentAttendance },
+    { id: 'accountsHub', name: 'Accounts Hub', Icon: Landmark, Page: RobotriqLedger },
+    { id: 'paymentReceipt', name: 'Payment Receipt', Icon: FileText, Page: RobotriqFeeReceipts },
+    { id: 'certifications', name: 'Certifications', Icon: FileText, Page: RobotriqCertificates }
+];
 
 const isProjectChecklistTask = (task) => {
     if (!task) return false;
@@ -24,6 +44,8 @@ const isProjectChecklistTask = (task) => {
 
 export default function EmployeeDashboard() {
     const { user, logout } = useContext(AuthContext);
+    const isRobotriq = getWorkspaceBrand(user) === 'robotriq';
+    const [robotriqPermissions, setRobotriqPermissions] = useState(null);
     const navigate = useNavigate();
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -37,6 +59,17 @@ export default function EmployeeDashboard() {
     const [myTasks, setMyTasks] = useState([]);
     const [myFollowUps, setMyFollowUps] = useState(null);
     const salesEnabled = user?.activeModules?.includes('sales');
+    const canUseRobotriqTools = isRobotriq && hasRobotriqStaffTools(robotriqPermissions, user?.role);
+    const canAssignRobotriqTasks = isRobotriq && hasRobotriqTaskAccess(robotriqPermissions);
+    const canManageTrainingLeads = isRobotriq && robotriqPermissions?.manageLeads === true;
+
+    useEffect(() => {
+        if (!isRobotriq) return;
+        const controller = new AbortController();
+        axios.get(`${API_BASE_URL}/api/robotriq/staff-access/me`, { signal: controller.signal })
+            .then(({ data }) => { if (!controller.signal.aborted) setRobotriqPermissions(data.permissions); }).catch(() => {});
+        return () => controller.abort();
+    }, [isRobotriq, user?.id]);
     
     // Dashboard Overview States
     const [attendance, setAttendance] = useState(null);
@@ -164,8 +197,13 @@ export default function EmployeeDashboard() {
 
     const handleCheckOutSubmit = async (e) => {
         e.preventDefault();
+        if (isRobotriq && taskDescription.trim().length < 5) {
+            alert('Enter a work summary of at least five characters.');
+            return;
+        }
         try {
-            await axios.post('http://localhost:5000/api/hr/attendance/check-out', { notes: taskDescription }, {
+            const report = isRobotriq ? { notes: taskDescription.trim(), attendanceId: attendance?._id } : { notes: taskDescription };
+            await axios.post('http://localhost:5000/api/hr/attendance/check-out', report, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             setIsCheckOutModalOpen(false);
@@ -259,11 +297,19 @@ export default function EmployeeDashboard() {
         return `${h}:${m}:${s}`;
     };
 
+    const availableViews = isRobotriq ? delegatedViews.filter(({ id }) => robotriqPermissions?.[id] === true) : [];
     const navItems = [
         { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard size={18} strokeWidth={1.5} /> },
         { id: 'attendance', name: 'My Attendance', icon: <CalendarClock size={18} strokeWidth={1.5} /> },
         { id: 'leaves', name: 'My Leaves', icon: <Calendar size={18} strokeWidth={1.5} /> },
+        ...(getWorkspaceBrand(user) === 'robotriq' ? [{ id: 'robotriq-bookings', name: 'Class Bookings',
+            icon: <CalendarDays size={18} strokeWidth={1.5} /> }] : []),
+        ...(canUseRobotriqTools ? [{ id: 'robotriq-sales-tools', name: 'Robotriq Sales',
+            icon: <Briefcase size={18} strokeWidth={1.5} /> }] : []),
         { id: 'tasks', name: 'My Tasks', icon: <CheckSquare size={18} strokeWidth={1.5} /> },
+        ...(canAssignRobotriqTasks ? [{ id: 'robotriq-assign-tasks', name: 'Assign Tasks', icon: <ListChecks size={18} strokeWidth={1.5} /> }] : []),
+        ...(canManageTrainingLeads ? [{ id: 'robotriq-training-leads', name: 'Training Leads', icon: <FileText size={18} strokeWidth={1.5} /> }] : []),
+        ...availableViews.map(({ id, name, Icon }) => ({ id, name, icon: <Icon size={18} strokeWidth={1.5} /> })),
         { id: 'project-tasks', name: 'Project Tasks', icon: <ListChecks size={18} strokeWidth={1.5} /> },
     ];
 
@@ -281,10 +327,22 @@ export default function EmployeeDashboard() {
     };
 
     const renderContent = () => {
+        const delegated = availableViews.find(({ id }) => activeTab === id);
+        if (delegated) return <Suspense fallback={<p role="status">Loading {delegated.name}…</p>}>
+            <delegated.Page delegated />
+        </Suspense>;
         switch(activeTab) {
-            case 'attendance': return <MyAttendance />;
-            case 'leaves': return <MyLeaves />;
-            case 'tasks': return <MyTasks initialTaskType="general" />;
+            case 'attendance': return <><MyAttendance timeZone={isRobotriq ? 'Asia/Kolkata' : undefined} />{isRobotriq && <RobotriqAttendanceReview />}</>;
+            case 'leaves': return getWorkspaceBrand(user) === 'robotriq' ? <RobotriqLeave /> : <MyLeaves />;
+            case 'robotriq-bookings': return getWorkspaceBrand(user) === 'robotriq' ? <RobotriqBookings /> : null;
+            case 'robotriq-sales-tools': return canUseRobotriqTools ? <RobotriqStaffTools permissions={robotriqPermissions} role={user.role} /> : null;
+            case 'robotriq-assign-tasks': return canAssignRobotriqTasks ? <RobotriqTaskAssignments permissions={robotriqPermissions} /> : null;
+            case 'robotriq-training-leads': return canManageTrainingLeads ? <Suspense fallback={<p role="status">Loading training leads…</p>}>
+                <RobotriqTrainingLeads />
+            </Suspense> : null;
+            case 'tasks': return <><MyTasks initialTaskType="general" />
+                {getWorkspaceBrand(user) === 'robotriq' && <RobotriqLegacyTasks />}
+            </>;
             case 'project-tasks': return <MyTasks initialTaskType="project" />;
             default: return (
                 <div className="space-y-6">
@@ -368,9 +426,9 @@ export default function EmployeeDashboard() {
                                                 <StopCircle size={18} strokeWidth={1.5} className="mr-2" /> Complete Missed Check-Out
                                             </button>
                                         </div>
-                                    ) : isCheckedOut ? (
+                                    ) : isCheckedOut && !isRobotriq ? (
                                         <div className="py-4 text-sm text-[#6b6b6b] font-medium">Shift completed for today. Great job!</div>
-                                    ) : isCheckedIn ? (
+                                    ) : isCheckedIn && !isCheckedOut ? (
                                         <div className="w-full flex flex-col items-center">
                                             <div className="text-4xl sm:text-5xl font-light tracking-tight text-[#111111] mb-6 tabular-nums relative">
                                                 {calculateDuration(attendance.checkInTime)}
@@ -391,7 +449,7 @@ export default function EmployeeDashboard() {
                                             onClick={handleCheckIn}
                                             className="w-full flex items-center justify-center px-6 py-4 text-sm font-medium rounded-2xl text-white bg-[#111111] hover:bg-[#303030] hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-[0.98] active:translate-y-0 cursor-pointer"
                                         >
-                                            <PlayCircle size={18} strokeWidth={1.5} className="mr-2" /> Start Shift
+                                            <PlayCircle size={18} strokeWidth={1.5} className="mr-2" /> {isCheckedOut ? 'Start Another Shift' : 'Start Shift'}
                                         </button>
                                     )}
                                 </div>
@@ -591,6 +649,10 @@ export default function EmployeeDashboard() {
                                     {item.name}
                                 </button>
                             ))}
+                            {getWorkspaceBrand(user) === 'robotriq' && ['Employee', 'Manager', 'Sales'].includes(user.role) &&
+                                <Link to="/robotriq/my-expenses" className="flex items-center rounded px-3 py-2 text-sm text-[#787774] hover:bg-[#F7F6F3]">
+                                    <Landmark size={18} className="mr-3" /> My expenses
+                                </Link>}
                         </nav>
                     </div>
 
@@ -738,7 +800,7 @@ export default function EmployeeDashboard() {
                         {activeTab === 'dashboard' && (
                             <EmployeeMobileHome name={user?.name} now={currentTime} attendance={attendance}
                                 shift={shift} pendingPrevious={pendingPrevious} duration={calculateDuration(attendance?.checkInTime)}
-                                taskSummary={taskSummary} followUps={myFollowUps} salesEnabled={salesEnabled}
+                                taskSummary={taskSummary} followUps={myFollowUps} salesEnabled={salesEnabled} multiShift={isRobotriq}
                                 loading={loading} onOpenProfile={() => setMobileMenuOpen(true)}
                                 onCheckIn={handleCheckIn} onCheckOut={() => setIsCheckOutModalOpen(true)}
                                 onMissedCheckOut={() => setIsPreviousCheckoutModalOpen(true)} />
@@ -836,12 +898,12 @@ export default function EmployeeDashboard() {
                     <div className="fixed inset-0 bg-[#111111]/40" onClick={() => setIsCheckOutModalOpen(false)}></div>
                     <div className="employee-dialog relative z-10 w-full max-w-md bg-white border border-[#EAEAEA] rounded-[6px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
                         <div className="p-6">
-                            <h3 className="text-lg font-medium text-[#111111] mb-1">End of Day Report</h3>
-                            <p className="text-sm text-[#787774] mb-4">Please log your completed tasks for today.</p>
+                            <h3 className="text-lg font-medium text-[#111111] mb-1">{isRobotriq ? 'Shift Report' : 'End of Day Report'}</h3>
+                            <p className="text-sm text-[#787774] mb-4">{isRobotriq ? 'Summarize what you worked on during this shift.' : 'Please log your completed tasks for today.'}</p>
                             
                             <form id="checkOutForm" onSubmit={handleCheckOutSubmit}>
                                 <textarea 
-                                    required 
+                                    required minLength={isRobotriq ? 5 : undefined}
                                     rows="4" 
                                     placeholder="Briefly describe what you worked on..." 
                                     value={taskDescription} 

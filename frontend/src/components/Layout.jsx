@@ -141,7 +141,9 @@ export default function Layout({ children, noPadding = false, workspace = false,
                         </details>
                     </div>
                 </header>
-                <main className={noPadding ? undefined : 'skite-workspace-main'}>{children}</main>
+            <main className={noPadding ? undefined : 'skite-workspace-main'}>
+                {children}
+            </main>
             </div>
         );
     }

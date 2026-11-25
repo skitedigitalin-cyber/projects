@@ -47,17 +47,22 @@ const studentAttendanceSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Present', 'Absent', 'Half Day', 'Late', 'Excused'],
+        enum: ['Present', 'Absent', 'Half Day', 'Late', 'Excused', 'In Office'],
         default: 'Present'
     },
     workSummary: {
         type: String,
         trim: true,
         default: ''
-    }
+    },
+    portalCheckInAt: Date,
+    portalActive: Boolean
 }, { timestamps: true });
 
 studentAttendanceSchema.index({ tenantId: 1, date: 1 });
 studentAttendanceSchema.index({ tenantId: 1, studentCode: 1, date: 1 });
+studentAttendanceSchema.index({ tenantId: 1, studentId: 1, dateObj: 1 }, {
+    unique: true, partialFilterExpression: { portalActive: true }
+});
 
 module.exports = mongoose.model('StudentAttendance', studentAttendanceSchema);

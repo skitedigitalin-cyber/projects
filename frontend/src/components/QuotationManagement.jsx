@@ -1,4 +1,5 @@
 import { getWorkspaceBrand } from '../utils/workspaceBrand';
+import API_BASE_URL from '../api';
 import './FinanceDocuments.css';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -52,6 +53,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         quotationSign: '',
         quotationBankDetails: {}
     });
+    const [robotriqOptions, setRobotriqOptions] = useState(null);
+    const [robotriqOptionsFailed, setRobotriqOptionsFailed] = useState(false);
 
     // Letterhead quotation state
     const [letterheadData, setLetterheadData] = useState({
@@ -355,6 +358,15 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     }, [isRobotriq]);
 
     useEffect(() => {
+        if (!isRobotriq) return;
+        const controller = new AbortController();
+        axios.get(`${API_BASE_URL}/api/quotes/robotriq-options`, { signal: controller.signal })
+            .then(({ data }) => { if (!controller.signal.aborted) setRobotriqOptions(data); })
+            .catch(() => { if (!controller.signal.aborted) setRobotriqOptionsFailed(true); });
+        return () => controller.abort();
+    }, [isRobotriq]);
+
+    useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, gstFilter]);
 
@@ -482,7 +494,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                 totalAmount: 0,
                 totalAmountStr: '0.00',
                 transportLabel: 'Transport',
-                transportPercent: 1,
+                transportPercent: isRobotriq ? 5 : 1,
                 transportAmount: 0,
                 transportAmountStr: '0.00',
                 gstLabel: 'GST 18%',
@@ -580,6 +592,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
             const cData = quote.customData || {};
             setLetterheadData(recalculateLetterheadTotals({
                 ...cData,
+                ...(isRobotriq ? { robotriqLink: Object.hasOwn(quote, 'robotriqLink') ? quote.robotriqLink : undefined } : {}),
                 quotationNo: quote.quoteNo || cData.quotationNo || '',
                 date: cData.date || (quote.date ? new Date(quote.date).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')),
                 customerName: cData.customerName || quote.clientDetails?.name || '',
@@ -751,6 +764,34 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         notes
     };
 
+    const linkedParty = letterheadData.robotriqLink === undefined
+        ? robotriqOptions?.historicalLinks[editId] : letterheadData.robotriqLink;
+
+    function selectRobotriqParty(value) {
+        const party = robotriqOptions?.parties.find(row => `${row.kind}:${row.id}` === value);
+        setLetterheadData(current => ({
+            ...current,
+            robotriqLink: party ? { kind: party.kind, recordId: party.id } : null,
+            ...(party ? { customerName: party.name || '', reference: party.company || '', phone: party.phone || '' } : {})
+        }));
+    }
+
+    function addRobotriqCatalogItem(id) {
+        const item = robotriqOptions?.items.find(row => row._id === id);
+        if (!item) return;
+        setLetterheadData(current => {
+            const rows = current.items || [];
+            const blank = rows.length === 1 && !rows[0].componentText?.trim();
+            const line = {
+                catalogItemId: item._id, componentText: [item.componentName, item.description].filter(Boolean).join('\n'),
+                make: item.brand || '', specifics: item.specification || '', qty: 1,
+                price: Number(item.salePrice || 0).toFixed(2), amountStr: Number(item.salePrice || 0).toFixed(2)
+            };
+            const next = blank ? [line] : [...rows, line];
+            return recalculateLetterheadTotals({ ...current, items: next.map((row, i) => ({ ...row, sno: i + 1 })) });
+        });
+    }
+
     // Save Quotation Handler
     const handleSaveQuote = async () => {
         if (quoteFormat === 'letterhead') {
@@ -777,7 +818,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                         hsn: it.make || '',
                         price: Number(it.price) || 0,
                         qty: Number(it.qty) || 1,
-                        total: Number(it.amountStr) || ((Number(it.price) || 0) * (Number(it.qty) || 1))
+                        total: Number(it.amountStr) || ((Number(it.price) || 0) * (Number(it.qty) || 1)),
+                        ...(isRobotriq && it.catalogItemId ? { catalogItemId: it.catalogItemId } : {})
                     })),
                     subtotal: Number(letterheadData.totalAmount) || 0,
                     taxRate: Number(letterheadData.gstPercent) || 18,
@@ -787,6 +829,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                     grandTotal: Number(letterheadData.netAmount) || 0,
                     templateType: 'letterhead',
                     customData: letterheadData,
+                    ...(isRobotriq ? { robotriqLink: linkedParty } : {}),
                     notes: letterheadData.specNote || '',
                     status: quoteStatus || 'Sent'
                 };
@@ -1231,12 +1274,39 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                         </span>
                                     </div>
 
+                                    {isRobotriq && <div className="grid gap-3 sm:grid-cols-2">
+                                        <label className="grid gap-1 text-sm">Linked lead, enquiry, or customer
+                                            <select className="rounded border bg-white p-2" disabled={!robotriqOptions}
+                                                value={linkedParty?.kind ? `${linkedParty.kind}:${linkedParty.recordId}` : ''}
+                                                onChange={event => selectRobotriqParty(event.target.value)}>
+                                                <option value="">Enter client details manually</option>
+                                                {[
+                                                    ['training', 'Training leads'], ['legacy-training', 'Legacy training leads'],
+                                                    ['enquiry', 'Robotriq enquiries'], ['customer', 'Customers']
+                                                ].map(([kind, label]) => <optgroup label={label} key={kind}>
+                                                    {robotriqOptions?.parties.filter(row => row.kind === kind).map(row =>
+                                                        <option key={row.id} value={`${row.kind}:${row.id}`}>{[row.code, row.name, row.company]
+                                                            .filter(Boolean).join(' · ')}</option>)}
+                                                </optgroup>)}
+                                            </select>
+                                        </label>
+                                        <label className="grid gap-1 text-sm">Add a catalog item
+                                            <select className="rounded border bg-white p-2" disabled={!robotriqOptions} value=""
+                                                onChange={event => addRobotriqCatalogItem(event.target.value)}>
+                                                <option value="">Select an item</option>
+                                                {robotriqOptions?.items.map(row => <option value={row._id} key={row._id}>{row.componentName}</option>)}
+                                            </select>
+                                        </label>
+                                        {robotriqOptionsFailed && <p className="text-sm sm:col-span-2" role="alert">Could not load Robotriq links or catalog items.</p>}
+                                    </div>}
+
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                                         <div>
                                             <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Quotation No</label>
                                             <input 
                                                 type="text" 
                                                 value={letterheadData.quotationNo || ''} 
+                                                readOnly={isRobotriq}
                                                 onChange={(e) => handleLetterheadChange('quotationNo', e.target.value)} 
                                                 placeholder={isSkite ? "e.g. SKT79" : undefined}
                                                 className="w-full px-3 py-2 border border-[#e6e6e3] rounded-xl font-mono text-[#111111] font-bold focus:outline-none focus:border-teal-500"

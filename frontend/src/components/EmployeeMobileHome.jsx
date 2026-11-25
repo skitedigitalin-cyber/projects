@@ -8,7 +8,7 @@ const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digi
 
 export default function EmployeeMobileHome({
     name, now, attendance, shift, pendingPrevious, duration, taskSummary, followUps, salesEnabled,
-    loading, onOpenProfile, onCheckIn, onCheckOut, onMissedCheckOut
+    loading, multiShift, onOpenProfile, onCheckIn, onCheckOut, onMissedCheckOut
 }) {
     const firstName = name?.trim().split(/\s+/)[0];
     const initials = name?.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'ME';
@@ -33,7 +33,7 @@ export default function EmployeeMobileHome({
                 <p>{status}<span aria-hidden="true" /></p>
                 <h2>{pendingPrevious ? 'Previous shift' : attendance?.checkOutTime ? `Out at ${time.format(new Date(attendance.checkOutTime))}` : attendance?.checkInTime ? duration : `${shift || 'Today’s'} shift`}</h2>
                 {pendingPrevious ? <button type="button" onClick={onMissedCheckOut}>Complete missed check-out</button>
-                    : attendance?.checkOutTime ? null
+                    : attendance?.checkOutTime ? (multiShift && <button type="button" onClick={onCheckIn}>Start another shift</button>)
                     : attendance?.checkInTime ? <button type="button" onClick={onCheckOut}>Check out</button>
                     : <button type="button" onClick={onCheckIn} disabled={loading}>Check in</button>}
             </section>

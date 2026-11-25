@@ -6,7 +6,8 @@ const quoteItemSchema = new mongoose.Schema({
     hsn: { type: String, default: '' },
     price: { type: Number, required: true, default: 0 },
     qty: { type: Number, required: true, default: 1 },
-    total: { type: Number, required: true, default: 0 }
+    total: { type: Number, required: true, default: 0 },
+    catalogItemId: { type: mongoose.Schema.Types.ObjectId }
 });
 
 const quoteSchema = new mongoose.Schema({
@@ -37,6 +38,10 @@ const quoteSchema = new mongoose.Schema({
     },
     templateType: { type: String, default: 'standard' },
     customData: { type: mongoose.Schema.Types.Mixed, default: {} },
+    robotriqLink: {
+        kind: { type: String, enum: ['training', 'legacy-training', 'enquiry', 'customer'] },
+        recordId: { type: mongoose.Schema.Types.ObjectId }
+    },
     notes: { type: String, default: '' }
 }, { timestamps: true });
 

@@ -1,6 +1,18 @@
 const Student = require('../models/Student');
 const StudentAttendance = require('../models/StudentAttendance');
 const StudentTask = require('../models/StudentTask');
+const bcrypt = require('bcryptjs');
+const { tenantId: robotriqTenantId } = require('../middleware/robotriqStaff');
+
+const studentDirectoryFields = Object.keys(Student.schema.paths)
+    .filter(field => !['_id', 'tenantId', 'createdAt', 'updatedAt', '__v'].includes(field));
+const validStudentPassword = value => typeof value === 'string' && value.trim() && Buffer.byteLength(value) <= 72;
+
+function directoryRecord(record, tenantId) {
+    if (tenantId !== robotriqTenantId) return record;
+    const { password, ...fields } = record.toObject();
+    return fields;
+}
 
 // @desc    Get all students for tenant with summary
 // @route   GET /api/students
@@ -31,10 +43,10 @@ exports.getStudents = async (req, res) => {
             query.status = status;
         }
 
-        const students = await Student.find(query).sort({ createdAt: -1 });
+        const students = await Student.find(query).select(tenantId === robotriqTenantId ? '-password' : '').sort({ createdAt: -1 });
 
         // Calculate summary metrics across all students of this tenant
-        const allStudents = await Student.find({ tenantId });
+        const allStudents = await Student.find({ tenantId }).select('fees paidAmount pendingAmount course');
         const summary = allStudents.reduce((acc, s) => {
             acc.totalStudents += 1;
             acc.totalFees += Number(s.fees) || 0;
@@ -64,7 +76,7 @@ exports.getStudents = async (req, res) => {
 exports.getStudentById = async (req, res) => {
     try {
         const tenantId = req.user?.tenantId;
-        const student = await Student.findOne({ _id: req.params.id, tenantId });
+        const student = await Student.findOne({ _id: req.params.id, tenantId }).select(tenantId === robotriqTenantId ? '-password' : '');
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
@@ -104,6 +116,10 @@ exports.createStudent = async (req, res) => {
         if (!fullName || (!course && (!selectedCourses || selectedCourses.length === 0))) {
             return res.status(400).json({ message: 'Student name and course are required' });
         }
+        if (tenantId === robotriqTenantId && password != null && password !== '' && !validStudentPassword(password)) {
+            return res.status(400).json({ message: 'Enter a student password within 72 bytes.' });
+        }
+        const storedPassword = tenantId === robotriqTenantId && password ? await bcrypt.hash(password, 10) : password || '';
 
         // Auto-generate student ID if not provided
         let generatedStudentId = (studentId || '').trim();
@@ -122,7 +138,7 @@ exports.createStudent = async (req, res) => {
             studentId: generatedStudentId,
             fullName,
             email: email || `${generatedStudentId.toLowerCase().replace(/[^a-z0-9]/g, '')}@robotriq.com`,
-            password: password || '',
+            password: storedPassword,
             dob: dob || '',
             photo: photo || '',
             selectedCourses: Array.isArray(selectedCourses) ? selectedCourses : (course ? [course] : []),
@@ -142,7 +158,7 @@ exports.createStudent = async (req, res) => {
         });
 
         await newStudent.save();
-        res.status(201).json({ success: true, message: 'Student created successfully', student: newStudent });
+        res.status(201).json({ success: true, message: 'Student created successfully', student: directoryRecord(newStudent, tenantId) });
     } catch (error) {
         console.error('Error creating student:', error);
         res.status(500).json({ message: 'Error creating student', error: error.message });
@@ -154,7 +170,13 @@ exports.createStudent = async (req, res) => {
 exports.updateStudent = async (req, res) => {
     try {
         const tenantId = req.user?.tenantId;
-        const updateData = { ...req.body };
+        const robotriq = tenantId === robotriqTenantId;
+        const updateData = robotriq ? Object.fromEntries(Object.entries(req.body || {})
+            .filter(([field]) => studentDirectoryFields.includes(field))) : { ...req.body };
+        if (robotriq && 'password' in updateData) {
+            if (!validStudentPassword(updateData.password)) return res.status(400).json({ message: 'Enter a student password within 72 bytes.' });
+            updateData.password = await bcrypt.hash(updateData.password, 10);
+        }
 
         if (updateData.fees !== undefined || updateData.paidAmount !== undefined) {
             const fees = updateData.fees !== undefined ? parseFloat(updateData.fees) : undefined;
@@ -172,7 +194,7 @@ exports.updateStudent = async (req, res) => {
 
         const updatedStudent = await Student.findOneAndUpdate(
             { _id: req.params.id, tenantId },
-            updateData,
+            robotriq ? { $set: updateData } : updateData,
             { new: true }
         );
 
@@ -180,7 +202,7 @@ exports.updateStudent = async (req, res) => {
             return res.status(404).json({ message: 'Student not found' });
         }
 
-        res.json({ success: true, message: 'Student updated successfully', student: updatedStudent });
+        res.json({ success: true, message: 'Student updated successfully', student: directoryRecord(updatedStudent, tenantId) });
     } catch (error) {
         console.error('Error updating student:', error);
         res.status(500).json({ message: 'Error updating student', error: error.message });

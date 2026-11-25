@@ -7,6 +7,9 @@ import ClientsAnalytics from '../components/ClientsAnalytics';
 import AccountsOverview from '../components/AccountsOverview';
 import { compactRupees } from '../components/DashboardNumbers';
 import { summarizeAccounts } from '../utils/accountSummary';
+import { useAuth } from '../context/AuthContext';
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
+import RobotriqLedger from '../components/RobotriqLedger';
 import './Accounts.css';
 
 const tabs = [
@@ -14,6 +17,11 @@ const tabs = [
 ];
 
 export default function Accounts() {
+    const { user } = useAuth();
+    return getWorkspaceBrand(user) === 'robotriq' && user.role === 'Admin' ? <RobotriqLedger /> : <AccountsWorkspace />;
+}
+
+function AccountsWorkspace() {
     const [activeTab, setActiveTab] = useState('income-expense');
     const [records, setRecords] = useState(null);
     const summary = useMemo(() => records && !records.failed ? summarizeAccounts(records.invoices, records.payments) : null, [records]);

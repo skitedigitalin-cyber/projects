@@ -20,6 +20,8 @@ import LeadForm from './pages/LeadForm';
 import AssignTaskPage from './pages/AssignTaskPage';
 import EmployeeFormPage from './pages/EmployeeFormPage';
 import Students from './pages/Students';
+import RobotriqStudentPortal from './pages/RobotriqStudentPortal';
+import RobotriqLedger from './components/RobotriqLedger';
 import LandingPage from './pages/LandingPage';
 
 // Global Axios Interceptor for 402 Payment Required
@@ -103,10 +105,14 @@ function App() {
             <Route path="/employee-dashboard" element={<ProtectedRoute employeeOnly><EmployeeDashboard /></ProtectedRoute>} />
             <Route path="/sales" element={<ProtectedRoute requiredModule="sales"><Sales /></ProtectedRoute>} />
             <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
+            <Route path="/robotriq/student" element={<RobotriqStudentPortal />} />
             <Route path="/sales/lead/add" element={<ProtectedRoute requiredModule="sales"><LeadForm /></ProtectedRoute>} />
             <Route path="/sales/lead/edit/:id" element={<ProtectedRoute requiredModule="sales"><LeadForm /></ProtectedRoute>} />
             <Route path="/finance" element={<ProtectedRoute requiredModule="finance"><Finance /></ProtectedRoute>} />
             <Route path="/accounts" element={<ProtectedRoute requiredModule="finance"><Accounts /></ProtectedRoute>} />
+            <Route path="/robotriq/my-expenses" element={<ProtectedRoute employeeOnly workspaceBrand="robotriq">
+              <RobotriqLedger self />
+            </ProtectedRoute>} />
             <Route path="/hr" element={<ProtectedRoute requiredModule="hr"><HR /></ProtectedRoute>} />
             <Route path="/hr/employee/add" element={<ProtectedRoute requiredModule="hr"><EmployeeFormPage /></ProtectedRoute>} />
             <Route path="/hr/employee/edit/:id" element={<ProtectedRoute requiredModule="hr"><EmployeeFormPage /></ProtectedRoute>} />

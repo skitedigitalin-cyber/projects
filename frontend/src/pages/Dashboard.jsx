@@ -6,8 +6,16 @@ import DashboardNumbers, { compactRupees } from '../components/DashboardNumbers'
 import DashboardActivity from '../components/DashboardActivity';
 import DashboardSalesSnapshot from '../components/DashboardSalesSnapshot';
 import { Plus } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { getWorkspaceBrand } from '../utils/workspaceBrand';
+import RobotriqDashboard from './RobotriqDashboard';
 
 export default function Dashboard() {
+    const { user } = useAuth();
+    return getWorkspaceBrand(user) === 'robotriq' && user.role === 'Admin' ? <RobotriqDashboard /> : <DashboardOverview />;
+}
+
+function DashboardOverview() {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);

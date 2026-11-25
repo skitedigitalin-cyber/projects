@@ -2,6 +2,7 @@ const Employee = require('../models/Employee');
 const Attendance = require('../models/Attendance');
 const Leave = require('../models/Leave');
 const User = require('../models/User');
+const { tenantId: robotriqTenantId } = require('../middleware/robotriqStaff');
 
 exports.getHRWorkspace = async (req, res) => {
     try {
@@ -41,13 +42,16 @@ exports.getHRDashboardStats = async (req, res) => {
         const endOfToday = new Date(`${todayStr}T23:59:59.999+05:30`);
 
         // 3. Present Today
-        const presentToday = await Attendance.countDocuments({ 
+        const attendanceToday = {
             tenantId, 
             $or: [
                 { date: { $gte: startOfToday, $lte: endOfToday } },
                 { checkInTime: { $gte: startOfToday, $lte: endOfToday } }
             ]
-        });
+        };
+        const presentToday = tenantId === robotriqTenantId
+            ? (await Attendance.distinct('employeeId', attendanceToday)).length
+            : await Attendance.countDocuments(attendanceToday);
 
         // 4. On Leave Today
         const onLeaveToday = await Leave.countDocuments({

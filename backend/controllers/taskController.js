@@ -3,11 +3,16 @@ const Employee = require('../models/Employee');
 const SocialMediaProject = require('../models/SocialMediaProject');
 const WebDevProject = require('../models/WebDevProject');
 const SEOProject = require('../models/SEOProject');
+const User = require('../models/User');
+const { tenantId: robotriqTenantId } = require('../middleware/robotriqStaff');
 
 // HR API: Create a new task
 exports.createTask = async (req, res) => {
     try {
         const { employeeId, title, description, priority, dueDate } = req.body;
+        if (req.user.tenantId === robotriqTenantId && !await Employee.exists({ _id: employeeId, tenantId: robotriqTenantId })) {
+            return res.status(404).json({ message: 'Employee not found in Robotriq.' });
+        }
         
         const task = new Task({
             tenantId: req.user.tenantId,
@@ -41,7 +46,7 @@ exports.getAllTasks = async (req, res) => {
 // Employee API: Get My Tasks (Enriched with Project Checklists)
 exports.getMyTasks = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user.userId });
+        const employee = await Employee.findOne({ userId: req.user.userId, tenantId: req.user.tenantId });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const tasks = await Task.find({ tenantId: req.user.tenantId, employeeId: employee._id }).sort({ createdAt: -1 }).lean();
@@ -148,6 +153,15 @@ exports.updateTaskStatus = async (req, res) => {
         const { status } = req.body;
         const task = await Task.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
         if (!task) return res.status(404).json({ message: 'Task not found' });
+
+        if (req.user.tenantId === robotriqTenantId) {
+            const scope = { tenantId: robotriqTenantId };
+            const [isAdmin, isOwner] = await Promise.all([
+                User.exists({ ...scope, _id: req.user.userId, role: 'Admin', isActive: true }),
+                Employee.exists({ ...scope, _id: task.employeeId, userId: req.user.userId })
+            ]);
+            if (!isAdmin && !isOwner) return res.status(404).json({ message: 'Task not found' });
+        }
 
         task.status = status;
         await task.save();

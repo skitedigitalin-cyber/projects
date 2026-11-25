@@ -8,6 +8,12 @@ const { createTask, getAllTasks, getMyTasks, updateTaskStatus } = require('../co
 const { getPayroll, updateEmployeeSalary, getMyPayroll } = require('../controllers/payrollController');
 const { applyPermission, getMyPermissions, getAllPermissions, updatePermissionStatus, deletePermission } = require('../controllers/permissionController');
 const auth = require('../middleware/authMiddleware');
+const { tenantId: robotriqTenantId, requireRobotriqRole } = require('../middleware/robotriqStaff');
+
+const robotriqAdmin = requireRobotriqRole('Admin');
+const robotriqStaff = requireRobotriqRole('Admin', 'Employee', 'Manager', 'Sales');
+const requireAdminForRobotriq = (req, res, next) => req.user.tenantId === robotriqTenantId ? robotriqAdmin(req, res, next) : next();
+const requireStaffForRobotriq = (req, res, next) => req.user.tenantId === robotriqTenantId ? robotriqStaff(req, res, next) : next();
 
 router.use(auth);
 
@@ -20,15 +26,15 @@ router.route('/employees').get(getEmployees).post(createEmployee);
 router.route('/employees/:id').put(updateEmployee).delete(deleteEmployee);
 
 // Attendance routes
-router.get('/attendance', getAllAttendance); // HR Route
-router.get('/attendance/my-records', getMyAttendanceRecords); // Employee Route
-router.get('/attendance/today', getTodayStatus); // Employee Route
-router.post('/attendance/check-in', checkIn);
-router.post('/attendance/check-out', checkOut);
-router.post('/attendance/break-start', startBreak);
-router.post('/attendance/break-end', endBreak);
-router.delete('/attendance/:id', deleteAttendance); // Single delete
-router.post('/attendance/bulk-delete', bulkDeleteAttendance); // Bulk delete filtered/selected records
+router.get('/attendance', requireAdminForRobotriq, getAllAttendance);
+router.get('/attendance/my-records', requireStaffForRobotriq, getMyAttendanceRecords);
+router.get('/attendance/today', requireStaffForRobotriq, getTodayStatus);
+router.post('/attendance/check-in', requireStaffForRobotriq, checkIn);
+router.post('/attendance/check-out', requireStaffForRobotriq, checkOut);
+router.post('/attendance/break-start', requireStaffForRobotriq, startBreak);
+router.post('/attendance/break-end', requireStaffForRobotriq, endBreak);
+router.delete('/attendance/:id', requireAdminForRobotriq, deleteAttendance);
+router.post('/attendance/bulk-delete', requireAdminForRobotriq, bulkDeleteAttendance);
 
 // Leave routes (HR)
 router.get('/leaves', getAllLeaves);
@@ -45,11 +51,11 @@ router.post('/permissions/apply', applyPermission); // Employee
 router.get('/permissions/my-permissions', getMyPermissions); // Employee
 
 // Task routes (HR)
-router.post('/tasks', createTask);
-router.get('/tasks', getAllTasks);
+router.post('/tasks', requireAdminForRobotriq, createTask);
+router.get('/tasks', requireAdminForRobotriq, getAllTasks);
 // Task routes (Employee)
-router.get('/tasks/my-tasks', getMyTasks);
-router.put('/tasks/:id/status', updateTaskStatus);
+router.get('/tasks/my-tasks', requireStaffForRobotriq, getMyTasks);
+router.put('/tasks/:id/status', requireStaffForRobotriq, updateTaskStatus);
 
 // Payroll routes (HR & Employee)
 router.get('/payroll', getPayroll);

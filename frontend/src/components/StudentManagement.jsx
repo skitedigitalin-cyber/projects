@@ -25,7 +25,7 @@ const LEVEL_LIMITS = {
     "Certified Process Automation": COURSE_OPTIONS.length
 };
 
-export default function StudentManagement() {
+export default function StudentManagement({ startInAdmission = false }) {
     const [students, setStudents] = useState([]);
     const [summary, setSummary] = useState({ totalStudents: 0, totalFees: 0, totalPaid: 0, totalPending: 0 });
     const [courses, setCourses] = useState(COURSE_OPTIONS);
@@ -37,7 +37,7 @@ export default function StudentManagement() {
     const [selectedStatus, setSelectedStatus] = useState('All');
 
     // Modals
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(startInAdmission);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
@@ -64,7 +64,7 @@ export default function StudentManagement() {
         course: '',
         collegeOrCompany: '',
         preferredType: 'Offline',
-        joiningDate: '',
+        joiningDate: startInAdmission ? new Date().toISOString().split('T')[0] : '',
         endingDate: '',
         fees: '',
         paidAmount: '',

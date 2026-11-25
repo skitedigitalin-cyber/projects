@@ -12,11 +12,12 @@ const attendanceSchema = new mongoose.Schema({
     
     checkInTime: { type: Date },
     checkOutTime: { type: Date },
+    robotriqOpenDay: { type: String },
     breaks: [breakSchema],
     
     status: { 
         type: String, 
-        enum: ['Present', 'Absent', 'Half Day', 'On Leave', 'Holiday', 'Week Off', 'WFH'], 
+        enum: ['Present', 'Absent', 'Half Day', 'On Leave', 'Holiday', 'Week Off', 'WFH', 'In Office'],
         default: 'Absent' 
     },
     
@@ -36,7 +37,11 @@ const attendanceSchema = new mongoose.Schema({
     notes: { type: String }
 }, { timestamps: true });
 
-// Ensure an employee can only have one attendance record per day
+// Skite stores one midnight record per day. Robotriq records each shift at its check-in time.
 attendanceSchema.index({ tenantId: 1, employeeId: 1, date: 1 }, { unique: true });
+attendanceSchema.index({ tenantId: 1, employeeId: 1, robotriqOpenDay: 1 }, {
+    unique: true,
+    partialFilterExpression: { robotriqOpenDay: { $exists: true } }
+});
 
 module.exports = mongoose.model('Attendance', attendanceSchema);

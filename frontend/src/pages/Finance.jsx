@@ -1,9 +1,10 @@
 import { getWorkspaceBrand } from '../utils/workspaceBrand';
-import { useState, useContext, useEffect } from 'react';
+import { lazy, Suspense, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import { Plus } from 'lucide-react';
 import CustomerManagement from '../components/CustomerManagement';
+import RobotriqCustomers from '../components/RobotriqCustomers';
 import VendorManagement from '../components/VendorManagement';
 import InvoiceManagement from '../components/InvoiceManagement';
 import InvoiceHistory from '../components/InvoiceHistory';
@@ -13,11 +14,15 @@ import FixedTemplates from '../components/FixedTemplates';
 import PurchaseManagement from '../components/PurchaseManagement';
 import PaymentManagement from '../components/PaymentManagement';
 import FinanceDashboard from '../components/FinanceDashboard';
+import { useRobotriqView } from '../utils/useRobotriqView';
 import './Finance.css';
 
 const amount = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2, trailingZeroDisplay: 'stripIfInteger' });
 const monthName = new Intl.DateTimeFormat('en-GB', { month: 'long', timeZone: 'Asia/Kolkata' });
 const monthKey = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', timeZone: 'Asia/Kolkata' });
+const RobotriqFeeReceipts = lazy(() => import('../components/RobotriqFeeReceipts'));
+const RobotriqDocumentHistory = lazy(() => import('../components/RobotriqDocumentHistory'));
+const RobotriqSalesQuotes = lazy(() => import('../components/RobotriqSalesQuotes'));
 
 export default function Finance() {
     const { user } = useContext(AuthContext);
@@ -25,17 +30,14 @@ export default function Finance() {
     const workspaceBrand = getWorkspaceBrand(user);
     const isRobotriq = workspaceBrand === 'robotriq';
 
-    const [activeTab, setActiveTab] = useState(() => isRobotriq ? 'quotations' : 'workspace');
+    const robotriqViews = ['quotations', 'receipts', 'customers', 'vendors', 'purchases'];
+    if (user?.role === 'Admin') robotriqViews.push('legacy-quotations');
+    const [activeTab, setActiveTab] = useRobotriqView(isRobotriq, isRobotriq ? 'quotations' : 'workspace', robotriqViews);
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [invoices, setInvoices] = useState(null);
     const [prefilledTemplateForQuote, setPrefilledTemplateForQuote] = useState(null);
     const [prefilledTemplateForInvoice, setPrefilledTemplateForInvoice] = useState(null);
 
-    useEffect(() => {
-        if (isRobotriq && (activeTab === 'dashboard' || activeTab === 'invoices' || activeTab === 'invoice-history' || activeTab === 'fixed-templates')) {
-            setActiveTab('quotations');
-        }
-    }, [isRobotriq, activeTab]);
 
     // Fixed Templates feature is exclusive to Skite Digital Agency
     const isSkite = workspaceBrand === 'skite';
@@ -45,15 +47,24 @@ export default function Finance() {
         if (isRobotriq) {
             switch (activeTab) {
                 case 'receipts':
-                    return <PaymentManagement />;
+                    return user.role === 'Admin' ? <Suspense fallback={<p role="status">Loading receipts…</p>}>
+                        <RobotriqFeeReceipts />
+                    </Suspense> : <PaymentManagement />;
+                case 'legacy-quotations':
+                    return user.role === 'Admin' && <Suspense fallback={<p role="status">Loading quotation history…</p>}>
+                        <RobotriqDocumentHistory />
+                    </Suspense>;
                 case 'customers':
-                    return <CustomerManagement />;
+                    return ['Admin', 'Sales'].includes(user?.role) ? <RobotriqCustomers /> : <CustomerManagement />;
                 case 'vendors':
                     return <VendorManagement />;
                 case 'purchases':
                     return <PurchaseManagement />;
                 case 'quotations':
                 default:
+                    if (user.role !== 'Admin') return user.role === 'Sales' ? <Suspense fallback={<p role="status">Loading quotations…</p>}>
+                        <RobotriqSalesQuotes />
+                    </Suspense> : <p>Robotriq quotation access is required.</p>;
                     return (
                         <QuotationManagement 
                             initialTemplate={prefilledTemplateForQuote}
@@ -127,6 +138,7 @@ export default function Finance() {
     const tabs = [
         ...(!isRobotriq ? [['workspace', 'Invoices']] : []),
         ['quotations', 'Quotations'], ['receipts', 'Receipts'], ['customers', 'Customers'], ['vendors', 'Vendors'], ['purchases', 'Purchases'],
+        ...(isRobotriq && user?.role === 'Admin' ? [['legacy-quotations', 'Legacy quotations']] : []),
         ...(!isRobotriq && isSkite ? [['fixed-templates', 'Templates']] : []),
         ...(!isRobotriq ? [['dashboard', 'Dashboard'], ['invoice-history', 'Invoice history']] : []),
     ];
@@ -134,6 +146,7 @@ export default function Finance() {
     const viewTitle = {
         dashboard: 'Financial overview', 'invoice-history': 'Invoice history', vendors: 'Vendors', purchases: 'Purchase bills',
         receipts: 'Payment receipts', customers: 'Customers', quotations: 'Quotations', 'fixed-templates': 'Fixed client templates',
+        'legacy-quotations': 'Legacy admin quotations',
     }[activeTab];
 
     return (

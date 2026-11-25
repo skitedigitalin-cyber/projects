@@ -9,7 +9,7 @@ import {
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-export default function StudentAttendance() {
+export default function StudentAttendance({ delegated = false }) {
     const [attendanceList, setAttendanceList] = useState([]);
     const [summary, setSummary] = useState({ totalRecords: 0, presentCount: 0, absentCount: 0 });
     const [loading, setLoading] = useState(true);
@@ -45,8 +45,8 @@ export default function StudentAttendance() {
 
     useEffect(() => {
         fetchAttendance();
-        fetchStudentsList();
-    }, [fromDate, toDate, selectedStatus]);
+        if (!delegated) fetchStudentsList();
+    }, [fromDate, toDate, selectedStatus, delegated]);
 
     const fetchAttendance = async () => {
         try {
@@ -240,7 +240,7 @@ export default function StudentAttendance() {
                         <span>Download PDF</span>
                     </button>
 
-                    <button 
+                    {!delegated && <button
                         type="button"
                         onClick={() => {
                             if (students.length > 0) {
@@ -252,7 +252,7 @@ export default function StudentAttendance() {
                     >
                         <Plus size={16} />
                         <span>Mark Student Attendance</span>
-                    </button>
+                    </button>}
                 </div>
             </div>
 
@@ -459,14 +459,15 @@ export default function StudentAttendance() {
 
                                             {/* Action */}
                                             <td className="p-4 pr-6 text-center">
-                                                <button 
+                                                {!delegated && !item.legacy && <button
                                                     type="button" 
                                                     onClick={() => handleDeleteRecord(item._id)}
                                                     className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                                                     title="Delete log"
                                                 >
                                                     <Trash2 size={14} />
-                                                </button>
+                                                </button>}
+                                                {item.legacy && <span>Legacy</span>}
                                             </td>
                                         </tr>
                                     );

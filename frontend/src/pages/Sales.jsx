@@ -1,5 +1,11 @@
 import { getWorkspaceBrand } from '../utils/workspaceBrand';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import RobotriqItems from '../components/RobotriqItems';
+import RobotriqBoms from '../components/RobotriqBoms';
+import RobotriqEnquiries from '../components/RobotriqEnquiries';
+import RobotriqReminders from '../components/RobotriqReminders';
+import RobotriqSalesOverview from '../components/RobotriqSalesOverview';
+import RobotriqLedger from '../components/RobotriqLedger';
+import { lazy, Suspense, useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
@@ -149,14 +155,31 @@ const normalizeLeadStage = lead => {
     return lead;
 };
 
+const RobotriqSalesQuotes = lazy(() => import('../components/RobotriqSalesQuotes'));
+const RobotriqTrainingLeads = lazy(() => import('../components/RobotriqTrainingLeads'));
+const RobotriqDocumentHistory = lazy(() => import('../components/RobotriqDocumentHistory'));
+
 export default function Sales() {
     const navigate = useNavigate();
     const { user } = useAuth();
     const workspaceBrand = getWorkspaceBrand(user);
     const isRobotriq = workspaceBrand === 'robotriq';
+    const canManageRobotriqSales = isRobotriq && ['Admin', 'Sales'].includes(user?.role);
 
     const [params, setParams] = useSearchParams();
-    const activeTab = params.get('view') || 'leads';
+    const requestedTab = params.get('view');
+    const robotriqTabs = [
+        ['training-leads', 'Training Leads Hub', true],
+        ['mine-power-dashboard', 'Mine Power Dashboard'],
+        ['mine-power', 'Mine Power Enquiries'], ['direct-enquiries', 'Robotriq Enquiries', true],
+        ['items', 'Items Master'], ['boms', 'Bills of Materials'], ['sales-quotes', 'Mine Power Quotations'],
+        ['mine-power-expenses', 'Mine Power Expenses'], ['mine-power-accounts', 'Mine Power Accounts'], ['robotriq-reminders', 'Lead Reminders'],
+        ['service-report-history', 'Service Report History', true]
+    ];
+    const availableRobotriqTabs = canManageRobotriqSales
+        ? robotriqTabs.filter(([, , adminOnly]) => !adminOnly || user.role === 'Admin') : [];
+    const robotriqTitle = availableRobotriqTabs.find(([id]) => id === requestedTab)?.[1];
+    const activeTab = !robotriqTitle && robotriqTabs.some(([id]) => id === requestedTab) ? 'leads' : requestedTab || 'leads';
     const setActiveTab = view => setParams(view === 'leads' ? {} : { view });
     const [leads, setLeads] = useState([]);
     const [leadStatus, setLeadStatus] = useState('loading');
@@ -454,21 +477,38 @@ export default function Sales() {
             <header className="sales-page-heading">
                 <div>
                     <p>Sales &amp; Leads</p>
-                    <h1>{activeTab === 'targets' ? 'Sales targets' : leadStatus === 'loading' ? 'Loading leads…' : `${leads.length} ${leads.length === 1 ? 'lead' : 'leads'}`}
-                        {activeTab !== 'targets' && leadStatus === 'ready' && <span> · {compactRupees(openValue)} open</span>}
+                    <h1>{robotriqTitle || (activeTab === 'targets' ? 'Sales targets' : leadStatus === 'loading' ? 'Loading leads…' : `${leads.length} ${leads.length === 1 ? 'lead' : 'leads'}`)}
+                        {!robotriqTitle && activeTab !== 'targets' && leadStatus === 'ready' && <span> · {compactRupees(openValue)} open</span>}
                     </h1>
                 </div>
                 <div className="sales-page-actions">
                     <nav aria-label="Sales views">
-                        {[['dashboard', 'Dashboard'], ['leads', 'Leads'], ['targets', 'Targets']].map(([id, label]) => (
+                        {[['dashboard', 'Dashboard'], ['leads', 'Leads'], ['targets', 'Targets'],
+                            ...availableRobotriqTabs].map(([id, label]) => (
                             <button type="button" key={id} aria-current={activeTab === id || (id === 'leads' && activeTab === 'list') ? 'page' : undefined}
                                 onClick={() => setActiveTab(id)}>{label}</button>
                         ))}
                     </nav>
-                    {!selectedSource && <button type="button" onClick={() => navigate('/sales/lead/add')}><Plus size={15} /> Add lead</button>}
+                    {!robotriqTitle && !selectedSource && <button type="button" onClick={() => navigate('/sales/lead/add')}><Plus size={15} /> Add lead</button>}
                 </div>
             </header>
 
+            {activeTab === 'items' && <RobotriqItems canDelete={user.role === 'Admin'} />}
+            {activeTab === 'boms' && <RobotriqBoms canDelete={user.role === 'Admin'} />}
+            {activeTab === 'mine-power-dashboard' && <RobotriqSalesOverview openEnquiries={status => setParams({ view: 'mine-power', status })} />}
+            {activeTab === 'mine-power' && <RobotriqEnquiries key={params.get('status') || 'mine-power'} mode="sales"
+                initialStatus={params.get('status') || ''} canDelete={user.role === 'Admin'} />}
+            {activeTab === 'direct-enquiries' && <RobotriqEnquiries key="direct-enquiries" mode="direct" canDelete />}
+            {activeTab === 'mine-power-accounts' && <RobotriqEnquiries key="mine-power-accounts" mode="accounts" />}
+            {activeTab === 'mine-power-expenses' && <RobotriqLedger expenseManagement />}
+            {activeTab === 'robotriq-reminders' && <RobotriqReminders canDelete={user.role === 'Admin'} />}
+            {activeTab === 'training-leads' && <Suspense fallback={<p role="status">Loading training leads…</p>}><RobotriqTrainingLeads admin /></Suspense>}
+            {activeTab === 'service-report-history' && <Suspense fallback={<p role="status">Loading service reports…</p>}>
+                <RobotriqDocumentHistory service />
+            </Suspense>}
+            {activeTab === 'sales-quotes' && <Suspense fallback={<p role="status">Loading quotations…</p>}>
+                <RobotriqSalesQuotes canDelete={user.role === 'Admin'} />
+            </Suspense>}
             {activeTab === 'list' && <SalesLeadList leads={leads} loading={leadStatus === 'loading'} failed={leadStatus === 'error'}
                 onView={openViewModal} onBrowseSources={() => setActiveTab('leads')} />}
 

@@ -1,21 +1,20 @@
 const Attendance = require('../models/Attendance');
 const Employee = require('../models/Employee');
+const { tenantId: robotriqTenantId } = require('../middleware/robotriqStaff');
 
 // Helper to get today's calendar date string in IST (YYYY-MM-DD)
 const getISTDateString = (d = new Date()) => {
     return new Date(d).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 };
 
-// Helper to get today's date normalized to IST midnight in UTC
-const getTodayDate = () => {
-    const todayStr = getISTDateString();
-    return new Date(`${todayStr}T00:00:00+05:30`);
-};
+function robotriqShiftQuery(employeeId, start, end) {
+    return { tenantId: robotriqTenantId, employeeId, date: { $gte: start, $lte: end } };
+}
 
 // Check current status for the logged-in employee
 exports.getTodayStatus = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user.userId });
+        const employee = await Employee.findOne({ userId: req.user.userId, tenantId: req.user.tenantId });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const todayStr = getISTDateString();
@@ -23,21 +22,23 @@ exports.getTodayStatus = async (req, res) => {
         const todayEnd = new Date(`${todayStr}T23:59:59.999+05:30`);
 
         // Check if there is an unclosed shift from any previous day (before today 00:00 IST)!
-        const pendingPreviousCheckout = await Attendance.findOne({
+        const pendingPreviousCheckout = req.user.tenantId === robotriqTenantId ? null : await Attendance.findOne({
             tenantId: req.user.tenantId,
             employeeId: employee._id,
             checkInTime: { $lt: todayStart, $exists: true },
             $or: [{ checkOutTime: null }, { checkOutTime: { $exists: false } }]
         }).sort({ checkInTime: -1 });
 
-        const attendance = await Attendance.findOne({
-            tenantId: req.user.tenantId,
-            employeeId: employee._id,
-            $or: [
-                { date: { $gte: todayStart, $lte: todayEnd } },
-                { checkInTime: { $gte: todayStart, $lte: todayEnd } }
-            ]
-        });
+        const attendance = req.user.tenantId === robotriqTenantId
+            ? await Attendance.findOne(robotriqShiftQuery(employee._id, todayStart, todayEnd)).sort({ checkInTime: -1, _id: -1 })
+            : await Attendance.findOne({
+                tenantId: req.user.tenantId,
+                employeeId: employee._id,
+                $or: [
+                    { date: { $gte: todayStart, $lte: todayEnd } },
+                    { checkInTime: { $gte: todayStart, $lte: todayEnd } }
+                ]
+            });
 
         res.json({ attendance, pendingPreviousCheckout, shift: employee.shift });
     } catch (error) {
@@ -47,14 +48,32 @@ exports.getTodayStatus = async (req, res) => {
 
 exports.checkIn = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user.userId });
+        const employee = await Employee.findOne({ userId: req.user.userId, tenantId: req.user.tenantId });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const todayStr = getISTDateString();
         const todayStart = new Date(`${todayStr}T00:00:00+05:30`);
         const todayEnd = new Date(`${todayStr}T23:59:59.999+05:30`);
 
-        // Check for any unclosed shifts from previous days - must check out those first!
+        const robotriq = req.user.tenantId === robotriqTenantId;
+        if (robotriq) {
+            const today = robotriqShiftQuery(employee._id, todayStart, todayEnd);
+            const active = await Attendance.exists({ ...today, checkInTime: { $ne: null }, checkOutTime: null });
+            if (active) return res.status(409).json({ message: 'Already checked in.' });
+
+            await Attendance.init();
+            const now = new Date();
+            if (now > todayEnd) return res.status(409).json({ message: 'The attendance date changed. Please check in again.' });
+            const shift = { checkInTime: now, status: 'In Office', robotriqOpenDay: todayStr };
+            const placeholder = await Attendance.findOneAndUpdate({ ...today, checkInTime: null, checkOutTime: null },
+                { $set: shift }, { returnDocument: 'after' });
+            const attendance = placeholder || await Attendance.create({
+                ...shift, tenantId: robotriqTenantId, employeeId: employee._id, date: now
+            });
+            return res.json({ message: 'Checked in successfully', attendance });
+        }
+
+        // Skite requires employees to close the previous shift before checking in.
         const pendingPrevious = await Attendance.findOne({
             tenantId: req.user.tenantId,
             employeeId: employee._id,
@@ -99,6 +118,9 @@ exports.checkIn = async (req, res) => {
         await attendance.save();
         res.json({ message: 'Checked in successfully', attendance });
     } catch (error) {
+        if (req.user.tenantId === robotriqTenantId && error.code === 11000) {
+            return res.status(409).json({ message: 'Already checked in.' });
+        }
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
@@ -106,17 +128,18 @@ exports.checkIn = async (req, res) => {
 exports.checkOut = async (req, res) => {
     try {
         const { notes, attendanceId } = req.body;
-        if (!notes || notes.trim() === '') {
+        if (typeof notes !== 'string' || notes.trim() === '') {
             return res.status(400).json({ message: 'Task description / reason is required for check out' });
         }
 
-        const employee = await Employee.findOne({ userId: req.user.userId });
+        const employee = await Employee.findOne({ userId: req.user.userId, tenantId: req.user.tenantId });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const todayStr = getISTDateString();
         const todayStart = new Date(`${todayStr}T00:00:00+05:30`);
         const todayEnd = new Date(`${todayStr}T23:59:59.999+05:30`);
 
+        const robotriq = req.user.tenantId === robotriqTenantId;
         let attendance = null;
 
         if (attendanceId) {
@@ -125,6 +148,9 @@ exports.checkOut = async (req, res) => {
                 tenantId: req.user.tenantId,
                 employeeId: employee._id
             });
+        } else if (robotriq) {
+            attendance = await Attendance.findOne({ ...robotriqShiftQuery(employee._id, todayStart, todayEnd),
+                checkInTime: { $ne: null }, checkOutTime: null });
         } else {
             // First check if there is an unclosed previous shift
             attendance = await Attendance.findOne({
@@ -158,6 +184,9 @@ exports.checkOut = async (req, res) => {
         const now = new Date();
         const shiftDateStr = getISTDateString(attendance.checkInTime || attendance.date);
         const isPreviousDay = shiftDateStr < todayStr;
+        if (robotriq && shiftDateStr !== getISTDateString(now)) {
+            return res.status(409).json({ message: 'Use a check-out request for a previous date.' });
+        }
 
         attendance.checkOutTime = now;
         attendance.notes = notes;
@@ -165,7 +194,9 @@ exports.checkOut = async (req, res) => {
 
         // Calculate working hours
         const workingMs = attendance.checkOutTime - attendance.checkInTime;
-        attendance.totalWorkingMinutes = Math.floor(workingMs / 60000);
+        attendance.totalWorkingMinutes = robotriq
+            ? Math.floor(now.getTime() / 60000) - Math.floor(attendance.checkInTime.getTime() / 60000)
+            : Math.floor(workingMs / 60000);
 
         if (isPreviousDay) {
             // Next-day checkout: mark as Absent penalty per company policy
@@ -182,9 +213,8 @@ exports.checkOut = async (req, res) => {
             });
         }
 
-        // Same-day normal checkout:
-        // Rule: < 3 hours -> Absent, 3h to < 6h -> Half Day, >= 6h -> Present
-        if (attendance.totalWorkingMinutes < 180) {
+        // Robotriq uses a four-hour minimum for a half day. Other workspaces use three hours.
+        if (attendance.totalWorkingMinutes < (robotriq ? 240 : 180)) {
             attendance.status = 'Absent';
         } else if (attendance.totalWorkingMinutes < 360) {
             attendance.status = 'Half Day';
@@ -193,6 +223,15 @@ exports.checkOut = async (req, res) => {
         }
         attendance.markedAbsentDueToLateCheckout = false;
         attendance.isLateCheckout = false;
+        if (robotriq) {
+            const checkedOut = await Attendance.findOneAndUpdate({ _id: attendance._id, tenantId: robotriqTenantId, checkOutTime: null },
+                { $set: {
+                    checkOutTime: now, notes, checkoutReason: notes, totalWorkingMinutes: attendance.totalWorkingMinutes,
+                    status: attendance.status, markedAbsentDueToLateCheckout: false, isLateCheckout: false
+                }, $unset: { robotriqOpenDay: 1 } }, { returnDocument: 'after' });
+            if (!checkedOut) return res.status(409).json({ message: 'Already checked out for this shift.' });
+            return res.json({ message: 'Checked out successfully', attendance: checkedOut, wasPreviousDay: false });
+        }
         await attendance.save();
 
         res.json({ message: 'Checked out successfully', attendance, wasPreviousDay: false });
@@ -204,21 +243,24 @@ exports.checkOut = async (req, res) => {
 
 exports.startBreak = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user.userId });
+        const employee = await Employee.findOne({ userId: req.user.userId, tenantId: req.user.tenantId });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const todayStr = getISTDateString();
         const todayStart = new Date(`${todayStr}T00:00:00+05:30`);
         const todayEnd = new Date(`${todayStr}T23:59:59.999+05:30`);
 
-        const attendance = await Attendance.findOne({ 
-            tenantId: req.user.tenantId, 
-            employeeId: employee._id, 
-            $or: [
-                { date: { $gte: todayStart, $lte: todayEnd } },
-                { checkInTime: { $gte: todayStart, $lte: todayEnd } }
-            ]
-        });
+        const attendance = req.user.tenantId === robotriqTenantId
+            ? await Attendance.findOne({ ...robotriqShiftQuery(employee._id, todayStart, todayEnd),
+                checkInTime: { $ne: null }, checkOutTime: null })
+            : await Attendance.findOne({
+                tenantId: req.user.tenantId,
+                employeeId: employee._id,
+                $or: [
+                    { date: { $gte: todayStart, $lte: todayEnd } },
+                    { checkInTime: { $gte: todayStart, $lte: todayEnd } }
+                ]
+            });
         if (!attendance || !attendance.checkInTime) return res.status(400).json({ message: 'Must check in first' });
         if (attendance.checkOutTime) return res.status(400).json({ message: 'Cannot take break after check out' });
 
@@ -233,21 +275,24 @@ exports.startBreak = async (req, res) => {
 
 exports.endBreak = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user.userId });
+        const employee = await Employee.findOne({ userId: req.user.userId, tenantId: req.user.tenantId });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const todayStr = getISTDateString();
         const todayStart = new Date(`${todayStr}T00:00:00+05:30`);
         const todayEnd = new Date(`${todayStr}T23:59:59.999+05:30`);
 
-        const attendance = await Attendance.findOne({ 
-            tenantId: req.user.tenantId, 
-            employeeId: employee._id, 
-            $or: [
-                { date: { $gte: todayStart, $lte: todayEnd } },
-                { checkInTime: { $gte: todayStart, $lte: todayEnd } }
-            ]
-        });
+        const attendance = req.user.tenantId === robotriqTenantId
+            ? await Attendance.findOne({ ...robotriqShiftQuery(employee._id, todayStart, todayEnd),
+                checkInTime: { $ne: null }, checkOutTime: null })
+            : await Attendance.findOne({
+                tenantId: req.user.tenantId,
+                employeeId: employee._id,
+                $or: [
+                    { date: { $gte: todayStart, $lte: todayEnd } },
+                    { checkInTime: { $gte: todayStart, $lte: todayEnd } }
+                ]
+            });
         if (!attendance) return res.status(400).json({ message: 'No active attendance record' });
 
         const currentBreak = attendance.breaks[attendance.breaks.length - 1];
@@ -276,8 +321,11 @@ exports.getAllAttendance = async (req, res) => {
 
             const records = await Attendance.find({ 
                 tenantId: req.user.tenantId, 
-                date: queryDate 
-            }).populate('employeeId', 'firstName lastName employeeId department');
+                date: req.user.tenantId === robotriqTenantId
+                    ? { $gte: new Date(`${date}T00:00:00+05:30`), $lte: new Date(`${date}T23:59:59.999+05:30`) }
+                    : queryDate
+            }).populate('employeeId', 'firstName lastName employeeId department').sort(
+                req.user.tenantId === robotriqTenantId ? { checkInTime: -1 } : {});
 
             const employees = await Employee.find({ tenantId: req.user.tenantId, status: 'Active' });
 
@@ -328,7 +376,7 @@ exports.getAllAttendance = async (req, res) => {
 // Employee API: Get all historical attendance records for the logged-in employee
 exports.getMyAttendanceRecords = async (req, res) => {
     try {
-        const employee = await Employee.findOne({ userId: req.user.userId });
+        const employee = await Employee.findOne({ userId: req.user.userId, tenantId: req.user.tenantId });
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
         const records = await Attendance.find({ 
