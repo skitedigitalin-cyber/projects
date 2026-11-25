@@ -1,0 +1,126 @@
+.robotriq-table-card,
+.robotriq-schedule-day {
+    min-width: 0;
+    border: 1px solid #e2e2de;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.robotriq-table-scroll {
+    overflow-x: auto;
+    border-radius: inherit;
+}
+
+.robotriq-table-scroll table {
+    min-width: max-content;
+}
+
+.robotriq-table-scroll th {
+    background: #f5f5f3;
+    text-align: left;
+}
+
+.robotriq-table-scroll tr {
+    border-color: #e9e9e6;
+}
+
+.robotriq-table-scroll tr:hover td {
+    background: #fafaf9;
+}
+
+.robotriq-table-scroll td:first-child {
+    white-space: nowrap;
+}
+
+.robotriq-table-scroll td button,
+.robotriq-schedule button,
+.robotriq-pagination button {
+    border: 1px solid #deded9;
+    border-radius: .65rem;
+    background: #fff;
+    padding: .45rem .75rem;
+}
+
+.robotriq-table-scroll td button:hover,
+.robotriq-schedule button:hover,
+.robotriq-pagination button:not(:disabled):hover {
+    background: #f0f0ee;
+}
+
+.robotriq-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+    border-top: 1px solid #e9e9e6;
+    padding: .75rem;
+}
+
+.robotriq-pagination button:disabled {
+    opacity: .45;
+}
+
+.robotriq-schedule form,
+.robotriq-schedule label {
+    display: grid;
+    gap: .5rem;
+}
+
+.robotriq-schedule form {
+    gap: 1rem;
+}
+
+.robotriq-schedule select,
+.robotriq-schedule input {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #deded9;
+    border-radius: .65rem;
+    background: #fff;
+    padding: .6rem .75rem;
+}
+
+.robotriq-schedule select {
+    max-width: 32rem;
+}
+
+.robotriq-schedule-days {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: 1rem;
+    min-width: 0;
+}
+
+.robotriq-schedule-day {
+    display: grid;
+    gap: .75rem;
+    padding: 1rem;
+}
+
+.robotriq-schedule-day legend {
+    padding: 0 .4rem;
+    font-weight: 600;
+}
+
+.robotriq-schedule-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    gap: .5rem;
+    grid-column: 1 / -1;
+}
+
+.robotriq-schedule-actions button[type="submit"] {
+    background: #111;
+    color: #fff;
+}
+
+.robotriq-sales-views .sales-page-actions nav {
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+
+.robotriq-sales-views .sales-page-actions nav button {
+    white-space: nowrap;
+}

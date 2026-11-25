@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
@@ -163,11 +164,11 @@ export default function RobotriqFeeReceipts({ delegated = false }) {
                 </div>
             </fieldset>
         </form>}
-        {rows?.length > 0 && <div className="overflow-x-auto rounded border bg-white">
-            <table className="w-full text-left text-sm">
+        {rows?.length > 0 && <RobotriqPagedTable rows={rows}>{pageRows =>
+<table className="w-full text-left text-sm">
                 <thead><tr>{['Date', 'Receipt', 'Student', 'Order', 'Amount', 'Balance', 'Actions'].map(label =>
                     <th className="p-3" key={label}>{label}</th>)}</tr></thead>
-                <tbody>{rows.map(row => <tr key={row._id} className="border-t">
+                <tbody>{pageRows.map(row => <tr key={row._id} className="border-t">
                     {[row.date, row.number, row.studentName, row.orderId, formatMoney(row.amount), formatMoney(row.balance)]
                         .map((value, index) => <td className="p-3" key={index}>{value || '—'}</td>)}
                     <td className="space-x-2 whitespace-nowrap p-3">
@@ -181,7 +182,7 @@ export default function RobotriqFeeReceipts({ delegated = false }) {
                     </td>
                 </tr>)}</tbody>
             </table>
-        </div>}
+}</RobotriqPagedTable>}
         {rows?.length === 0 && <p>No matching student receipts.</p>}
     </section>;
 }

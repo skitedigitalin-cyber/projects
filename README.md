@@ -59,6 +59,8 @@ Rehearsal writes use one transaction and verify the stored records before commit
 
 For an authorized one-time production copy, use `--apply-robotriq-copy` with the plan ID from a fresh preview against the SkiteCRM Atlas destination. It inserts records into the dedicated Robotriq collections in one verified transaction. The legacy CRM can stay online. Entries made after the copy require a separate reconciliation. Copying the data is independent of deploying the application or switching users to SkiteCRM. Configure `ROBOTRIQ_STUDENT_JWT_SECRET` with a separate secret of at least 32 characters on the deployed backend before verifying Student Login.
 
+Legacy certificates were saved in browser storage. On each browser profile used to issue certificates, open the original Robotriq CRM and open Chrome DevTools. In **Application → Local Storage**, select the legacy site's origin and copy the value of `robotriqCertHistory` into a `.json` file. Leave the legacy value in place. Sign in to SkiteCRM as a Robotriq admin and use **Certifications → Import history**. Each file can contain up to 500 records and must be smaller than 2 MB. Importing the same file again skips records that were already copied.
+
 ### 2. Frontend Setup
 ```bash
 cd frontend

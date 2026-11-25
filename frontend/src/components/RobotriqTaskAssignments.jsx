@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -80,10 +81,10 @@ function TaskAssignments({ audience }) {
                 <label>Assigned from<input type="date" className={field} value={start} max={end || undefined} onChange={event => setStart(event.target.value)} /></label>
                 <label>Assigned through<input type="date" className={field} value={end} min={start || undefined} onChange={event => setEnd(event.target.value)} /></label>
             </div>
-            {rows.length ? <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
+            {rows.length ? <RobotriqPagedTable rows={rows}>{pageRows =>
+<table className="w-full text-left text-sm">
                     <thead><tr>{['Task', 'Assignee', 'Assigned', 'Due', 'Status'].map(label => <th scope="col" className="p-2" key={label}>{label}</th>)}</tr></thead>
-                    <tbody>{rows.map(task => <tr className="border-t" key={task._id}>
+                    <tbody>{pageRows.map(task => <tr className="border-t" key={task._id}>
                         <td className="p-2"><strong>{task.title}</strong>{task.description && <p className="whitespace-pre-wrap">{task.description}</p>}</td>
                         <td className="p-2">{task.userName}</td>
                         <td className="p-2 whitespace-nowrap">{task.createdAt ? day.format(new Date(task.createdAt)) : '—'}</td>
@@ -91,7 +92,7 @@ function TaskAssignments({ audience }) {
                         <td className="p-2">{task.status}</td>
                     </tr>)}</tbody>
                 </table>
-            </div> : <p>No matching assignments.</p>}
+}</RobotriqPagedTable> : <p>No matching assignments.</p>}
         </>}
     </div>;
 }

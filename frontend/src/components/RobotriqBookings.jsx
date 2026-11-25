@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -107,11 +108,11 @@ export default function RobotriqBookings({ studentToken = '', admin = false }) {
         {error && <p role="alert">{error}</p>}
         {message && <p role="status">{message}</p>}
         {!records && !error && <p role="status">Loading bookings…</p>}
-        {visible?.length > 0 && <div className="overflow-x-auto rounded border bg-white">
-            <table className="w-full text-left text-sm">
+        {visible?.length > 0 && <RobotriqPagedTable rows={visible}>{pageRows =>
+<table className="w-full text-left text-sm">
                 <thead><tr>{['Date', 'Time (IST)', ...(student || admin ? ['Instructor'] : []), ...(!student ? ['Student'] : []),
                     'Subject', 'Status', ...(!student && !admin ? ['Actions'] : [])].map(label => <th key={label} className="p-3">{label}</th>)}</tr></thead>
-                <tbody>{visible.map(row => <tr key={row._id} className="border-t">
+                <tbody>{pageRows.map(row => <tr key={row._id} className="border-t">
                     <td className="p-3">{row.date}</td>
                     <td className="whitespace-nowrap p-3">{row.startTime} – {row.endTime || '—'}</td>
                     {(student || admin) && <td className="p-3">{row.teacherName}{row.unresolvedTeacher && ' · Legacy instructor'}</td>}
@@ -124,7 +125,7 @@ export default function RobotriqBookings({ studentToken = '', admin = false }) {
                         </button>)}</td>}
                 </tr>)}</tbody>
             </table>
-        </div>}
+}</RobotriqPagedTable>}
         {visible?.length === 0 && <p>No matching bookings.</p>}
     </section>;
 }

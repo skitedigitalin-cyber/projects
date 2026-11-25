@@ -22,7 +22,6 @@ const monthName = new Intl.DateTimeFormat('en-GB', { month: 'long', timeZone: 'A
 const monthKey = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', timeZone: 'Asia/Kolkata' });
 const RobotriqFeeReceipts = lazy(() => import('../components/RobotriqFeeReceipts'));
 const RobotriqDocumentHistory = lazy(() => import('../components/RobotriqDocumentHistory'));
-const RobotriqSalesQuotes = lazy(() => import('../components/RobotriqSalesQuotes'));
 
 export default function Finance() {
     const { user } = useContext(AuthContext);
@@ -62,9 +61,7 @@ export default function Finance() {
                     return <PurchaseManagement />;
                 case 'quotations':
                 default:
-                    if (user.role !== 'Admin') return user.role === 'Sales' ? <Suspense fallback={<p role="status">Loading quotations…</p>}>
-                        <RobotriqSalesQuotes />
-                    </Suspense> : <p>Robotriq quotation access is required.</p>;
+                    if (user.role !== 'Admin') return <p>Robotriq quotation access is required.</p>;
                     return (
                         <QuotationManagement 
                             initialTemplate={prefilledTemplateForQuote}

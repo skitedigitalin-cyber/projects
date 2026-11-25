@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -128,11 +129,11 @@ export default function RobotriqCertificates({ delegated = false }) {
         {history && <label className="grid max-w-sm gap-1">Search certificates
             <input className={control} value={search} onChange={event => setSearch(event.target.value)} />
         </label>}
-        {visible?.length > 0 && <div className="overflow-x-auto rounded border bg-white">
-            <table className="w-full text-left text-sm">
+        {visible?.length > 0 && <RobotriqPagedTable rows={visible}>{pageRows =>
+<table className="w-full text-left text-sm">
                 <thead><tr>{['UID', 'Student', 'Course', 'Issue date', 'Actions'].map(label =>
                     <th key={label} className="p-3">{label}</th>)}</tr></thead>
-                <tbody>{visible.map(row => <tr key={row._id} className="border-t">
+                <tbody>{pageRows.map(row => <tr key={row._id} className="border-t">
                     {[row.uid, row.studentName, row.courseName, row.date].map((value, index) => <td key={index} className="p-3">{value}</td>)}
                     <td className="space-x-2 whitespace-nowrap p-3">
                         <button type="button" disabled={busy} onClick={() => download(row, true)}>Preview</button>
@@ -147,7 +148,7 @@ export default function RobotriqCertificates({ delegated = false }) {
                     </td>
                 </tr>)}</tbody>
             </table>
-        </div>}
+}</RobotriqPagedTable>}
         {visible?.length === 0 && <p>No matching certificates.</p>}
     </section>;
 }

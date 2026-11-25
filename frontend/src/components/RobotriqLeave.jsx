@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -130,11 +131,11 @@ export default function RobotriqLeave({ studentToken = '', admin = false }) {
                 }}>Delete matching requests</button>}
         </div>}
         {!data && !notice && <p role="status">Loading leave requests…</p>}
-        {leaves?.length > 0 && <div className="overflow-x-auto rounded border bg-white">
-            <table className="w-full text-left text-sm">
+        {leaves?.length > 0 && <RobotriqPagedTable rows={leaves}>{pageRows =>
+<table className="w-full text-left text-sm">
                 <thead><tr>{[...(admin ? ['Requester'] : []), 'From', 'To', 'Reason', 'Status', ...(admin ? ['Actions'] : [])]
                     .map(label => <th className="p-3" key={label}>{label}</th>)}</tr></thead>
-                <tbody>{leaves.map(row => <tr key={row._id} className="border-t">
+                <tbody>{pageRows.map(row => <tr key={row._id} className="border-t">
                     {admin && <td className="p-3">{row.userName}<br />{row.role}
                         {row.ownerType === 'unresolved' && <p>Recipient link unavailable</p>}</td>}
                     {[row.fromDate, row.toDate, row.reason, row.status]
@@ -153,7 +154,7 @@ export default function RobotriqLeave({ studentToken = '', admin = false }) {
                     </td>}
                 </tr>)}</tbody>
             </table>
-        </div>}
+}</RobotriqPagedTable>}
         {leaves?.length === 0 && <p>No matching leave requests.</p>}
         {admin && <HistoricalNotifications />}
         {!admin && data && <section className="rounded border bg-white p-4">

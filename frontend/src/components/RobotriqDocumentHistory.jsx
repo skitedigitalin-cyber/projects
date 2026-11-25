@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -93,7 +94,7 @@ export default function RobotriqDocumentHistory({ service = false }) {
     return <section className="grid gap-3">
         {error && <p role="alert">{error}</p>}
         {!data.quotes.length && <p>No legacy admin quotations.</p>}
-        {data.quotes.map(row => {
+        {data.quotes.length > 0 && <RobotriqPagedTable rows={data.quotes}>{pageRows => <div className="grid gap-3 p-3">{pageRows.map(row => {
             const lead = training.get(row.lead);
             const enquiry = direct.get(row.robotriqLead);
             return <article className="rounded border bg-white p-4" key={row._id}>
@@ -117,6 +118,6 @@ export default function RobotriqDocumentHistory({ service = false }) {
                     <div><dt>Validity</dt><dd>{row.validityDays ?? '—'} days</dd></div>
                 </dl>}
             </article>;
-        })}
+        })}</div>}</RobotriqPagedTable>}
     </section>;
 }

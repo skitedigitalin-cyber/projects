@@ -76,7 +76,7 @@ export default function RobotriqStaffAccess() {
                 {['Dashboard', 'Sales'].map(group => <fieldset key={group} disabled={saving || selected.paused} className="grid gap-2 rounded border p-3">
                     <legend className="px-1 font-medium">{group}</legend>
                     {group === 'Sales' && selected.role === 'Sales' && <p>Provided by the Sales role.</p>}
-                    {data.modules.filter(module => module.group === group).map(({ id, label }) => <label className="flex items-center gap-2" key={id}>
+                    {data.modules.filter(module => module.group === group && (group !== 'Sales' || module.id === 'salesCustomers')).map(({ id, label }) => <label className="flex items-center gap-2" key={id}>
                         <input type="checkbox" checked={draft[id] ?? selected.permissions[id]}
                             disabled={group === 'Sales' && selected.role === 'Sales'}
                             onChange={event => setDraft(previous => ({ ...previous, [id]: event.target.checked }))} />{label}

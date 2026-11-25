@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -88,10 +89,10 @@ export default function RobotriqCustomers() {
                 </form>
             )}
             {visible?.length > 0 && (
-                <div className="overflow-x-auto rounded border bg-white">
-                    <table className="w-full text-left text-sm">
+                <RobotriqPagedTable rows={visible}>{pageRows =>
+<table className="w-full text-left text-sm">
                         <thead><tr>{fields.map(([field, label]) => <th className="p-3" key={field}>{label}</th>)}<th className="p-3">Actions</th></tr></thead>
-                        <tbody>{visible.map(customer => <tr className="border-t" key={customer._id}>
+                        <tbody>{pageRows.map(customer => <tr className="border-t" key={customer._id}>
                             {fields.map(([field]) => <td className="p-3" key={field}>{customer[field] || '—'}</td>)}
                             <td className="space-x-2 whitespace-nowrap p-3">
                                 <button type="button" disabled={busy || !!editor} onClick={() => setEditor(customer)}>Edit</button>
@@ -99,7 +100,7 @@ export default function RobotriqCustomers() {
                             </td>
                         </tr>)}</tbody>
                     </table>
-                </div>
+}</RobotriqPagedTable>
             )}
             {visible?.length === 0 && <p>No matching customers.</p>}
             {!customers && !message && <p role="status">Loading customers…</p>}

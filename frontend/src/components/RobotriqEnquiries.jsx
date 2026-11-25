@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -190,11 +191,11 @@ export default function RobotriqEnquiries({ mode, canDelete, personal = false, i
                 </div>
             </fieldset>
         </form>}
-        {visible?.length > 0 && <div className="overflow-x-auto rounded border bg-white">
-            <table className="w-full text-left text-sm">
+        {visible?.length > 0 && <RobotriqPagedTable rows={visible}>{pageRows =>
+<table className="w-full text-left text-sm">
                 <thead><tr>{['Enquiry', 'Customer', ...(accounts ? ['Full payment', 'Advance', 'Balance', 'Commitment', 'Days'] :
                     ['Type', 'Status', 'Priority', 'Assigned staff']), 'Actions'].map(label => <th className="p-3" key={label}>{label}</th>)}</tr></thead>
-                <tbody>{visible.map(row => <tr key={row._id} className="border-t">
+                <tbody>{pageRows.map(row => <tr key={row._id} className="border-t">
                     <td className="p-3">{row.enquiryId}</td>
                     <td className="p-3">{row.customerName}<br />{row.companyName}{accounts && row.phone && <><br />{row.phone}</>}</td>
                     {(accounts ? [money.format(row.fullPayment || 0), money.format(row.advancePayment || 0),
@@ -218,7 +219,7 @@ export default function RobotriqEnquiries({ mode, canDelete, personal = false, i
                     </td>
                 </tr>)}</tbody>
             </table>
-        </div>}
+}</RobotriqPagedTable>}
         {visible?.length === 0 && <p>{accounts ? 'No matching sale accounts.' : 'No matching enquiries.'}</p>}
     </section>;
 }

@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -162,9 +163,10 @@ export default function RobotriqTrainingLeads({ admin = false }) {
                 <option value="">All statuses</option>{options.calls.map(option => <option key={option}>{option}</option>)}
             </select></label>
         </div>
-        {rows.length ? <div className="max-h-[34rem] overflow-auto"><table className="w-full text-left text-sm">
+        {rows.length ? <RobotriqPagedTable rows={rows}>{pageRows =>
+<table className="w-full text-left text-sm">
             <thead><tr>{['Lead', 'Contact', 'Training', 'Managed by', 'Call status', 'Actions'].map(label => <th key={label} className="p-2">{label}</th>)}</tr></thead>
-            <tbody>{rows.map(row => <tr className="border-t" key={row._id}>
+            <tbody>{pageRows.map(row => <tr className="border-t" key={row._id}>
                 <td className="p-2"><button type="button" className="font-semibold underline" onClick={() => setEditing(row._id)}>{row.name}</button>
                     <p>{[row.codeNo, row.date].filter(Boolean).join(' · ')}</p></td>
                 <td className="p-2 whitespace-nowrap">{row.mobile && <a href={`tel:${row.mobile.replace(/[^+\d]/g, '')}`}>{row.mobile}</a>}<p>{row.company || row.location}</p></td>
@@ -181,7 +183,8 @@ export default function RobotriqTrainingLeads({ admin = false }) {
                     }}>Remove</button>}
                 </div></td>
             </tr>)}</tbody>
-        </table></div> : <p>No training leads match these filters.</p>}
+        </table>
+}</RobotriqPagedTable> : <p>No training leads match these filters.</p>}
         {related.has(reminding) && <form className="grid gap-3 rounded border p-4" key={reminding} onSubmit={event => {
             event.preventDefault();
             update('POST', `/${reminding}/reminders`, Object.fromEntries(new FormData(event.currentTarget)), 'Reminder added.', () => setReminding(''));

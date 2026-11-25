@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -73,11 +74,11 @@ export default function RobotriqPayroll() {
         {!entries && !error && !invalidRange && <p role="status">Loading payroll…</p>}
         {rows?.length > 0 && <>
             <p>Total payroll <strong>{money.format(rows.reduce((sum, row) => sum + row.total, 0))}</strong></p>
-            <div className="overflow-x-auto rounded border bg-white">
-                <table className="w-full text-left text-sm">
+            <RobotriqPagedTable rows={rows}>{pageRows =>
+<table className="w-full text-left text-sm">
                     <thead><tr>{['Employee', 'Daily rate', 'Present days', 'Day adjustment', 'Payable days', 'Total'].map(label =>
                         <th scope="col" className="p-3" key={label}>{label}</th>)}</tr></thead>
-                    <tbody>{rows.map(row => <tr key={row._id} className="border-t">
+                    <tbody>{pageRows.map(row => <tr key={row._id} className="border-t">
                         <th scope="row" className="p-3">{row.name}<br /><span className="font-normal">{row.employeeCode}</span></th>
                         <td className="p-3"><input aria-label={`Daily rate for ${row.name}`} type="number" min="0" step="any"
                             className="w-28 rounded border p-2" value={row.rate} onChange={event => {
@@ -94,7 +95,7 @@ export default function RobotriqPayroll() {
                         <td className="p-3">{row.days}</td><td className="p-3 font-semibold">{money.format(row.total)}</td>
                     </tr>)}</tbody>
                 </table>
-            </div>
+}</RobotriqPagedTable>
         </>}
         {rows?.length === 0 && <p>No payroll records found for this source.</p>}
     </section>;

@@ -1,3 +1,4 @@
+import './RobotriqWorkspace.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../api';
@@ -56,7 +57,7 @@ export default function RobotriqClassSchedule() {
     }
 
     return (
-        <section className="students-workspace">
+        <section className="robotriq-schedule">
             <form onSubmit={save}>
                 <label>
                     Course
@@ -69,8 +70,8 @@ export default function RobotriqClassSchedule() {
                     </select>
                 </label>
                 {!slots && !message && <p role="status">Loading class schedule…</p>}
-                {slots && <fieldset disabled={saving}>
-                    {slots.map((slot, index) => <fieldset key={index}>
+                {slots && <fieldset className="robotriq-schedule-days" disabled={saving}>
+                    {slots.map((slot, index) => <fieldset className="robotriq-schedule-day" key={index}>
                         <legend>Day {index + 1}</legend>
                         {fields.map(field => <label key={field}>
                             {field[0].toUpperCase() + field.slice(1)}
@@ -84,8 +85,10 @@ export default function RobotriqClassSchedule() {
                             Remove day
                         </button>
                     </fieldset>)}
-                    <button type="button" onClick={() => setSlots(current => [...current, emptySlot()])}>Add day</button>
-                    <button type="submit">{saving ? 'Saving…' : 'Save schedule'}</button>
+                    <div className="robotriq-schedule-actions">
+                        <button type="button" onClick={() => setSlots(current => [...current, emptySlot()])}>Add day</button>
+                        <button type="submit">{saving ? 'Saving…' : 'Save schedule'}</button>
+                    </div>
                 </fieldset>}
                 {message && <p role="status">{message}</p>}
             </form>

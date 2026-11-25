@@ -1,3 +1,4 @@
+import RobotriqPagedTable from './RobotriqPagedTable';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Layout from './Layout';
@@ -222,12 +223,12 @@ export default function RobotriqLedger({ self = false, expenseManagement = false
                     </fieldset>
                 </form>}
                 {rows && tab === 'profit' && <div className="rounded border bg-white p-4"><Profit rows={rows} /></div>}
-                {tab !== 'profit' && rows?.length > 0 && <div className="overflow-x-auto rounded border bg-white">
-                    <table className="w-full text-left text-sm">
+                {tab !== 'profit' && rows?.length > 0 && <RobotriqPagedTable rows={rows}>{pageRows =>
+<table className="w-full text-left text-sm">
                         <thead><tr>{['Date', ...(employee && !self ? ['Employee'] : []), 'Type', 'Description', 'Amount',
                             ...(employee ? ['Covered', 'Overdrawn', 'Wallet after'] : []), 'Status',
                             ...(!self ? ['Actions'] : [])].map(label => <th key={label} className="p-3">{label}</th>)}</tr></thead>
-                        <tbody>{rows.map(row => <tr key={row._id} className="border-t">
+                        <tbody>{pageRows.map(row => <tr key={row._id} className="border-t">
                             <td className="p-3">{row.date}</td>
                             {employee && !self && <td className="p-3">{row.employeeName}</td>}
                             <td className="p-3">{receipt(row) ? 'Student receipt' : row.type || 'Expense'}</td>
@@ -249,7 +250,7 @@ export default function RobotriqLedger({ self = false, expenseManagement = false
                             </td>}
                         </tr>)}</tbody>
                     </table>
-                </div>}
+}</RobotriqPagedTable>}
                 {tab !== 'profit' && rows?.length === 0 && <p>No matching entries.</p>}
             </section>
         </div>

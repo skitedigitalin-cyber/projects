@@ -37,16 +37,6 @@ const sections = [
         ['Accounts Hub', '/accounts', Landmark],
         ['Payment Receipt', '/finance?view=receipts', ReceiptText]
     ]],
-    ['Mine Power', [
-        ['Sales Dashboard', '/sales?view=mine-power-dashboard', BriefcaseBusiness],
-        ['Enquiries', '/sales?view=mine-power', BriefcaseBusiness],
-        ['Items Master', '/sales?view=items', Package],
-        ['Bills of Materials', '/sales?view=boms', ListChecks],
-        ['Sales Quotations', '/sales?view=sales-quotes', FileText],
-        ['Expenses', '/sales?view=mine-power-expenses', Landmark],
-        ['Sale Accounts', '/sales?view=mine-power-accounts', Landmark],
-        ['Service Report History', '/sales?view=service-report-history', ClipboardCheck]
-    ]]
 ];
 
 export default function RobotriqDashboard() {
