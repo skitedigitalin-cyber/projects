@@ -768,7 +768,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
         ? robotriqOptions?.historicalLinks[editId] : letterheadData.robotriqLink;
 
     function selectRobotriqParty(value) {
-        const party = robotriqOptions?.parties.find(row => `${row.kind}:${row.id}` === value);
+        const party = robotriqOptions?.parties.find(row => row.kind === 'customer' && `customer:${row.id}` === value);
         setLetterheadData(current => ({
             ...current,
             robotriqLink: party ? { kind: party.kind, recordId: party.id } : null,
@@ -1275,19 +1275,16 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                     </div>
 
                                     {isRobotriq && <div className="grid gap-3 sm:grid-cols-2">
-                                        <label className="grid gap-1 text-sm">Linked lead, enquiry, or customer
+                                        <label className="grid gap-1 text-sm">Linked customer
                                             <select className="rounded border bg-white p-2" disabled={!robotriqOptions}
                                                 value={linkedParty?.kind ? `${linkedParty.kind}:${linkedParty.recordId}` : ''}
                                                 onChange={event => selectRobotriqParty(event.target.value)}>
                                                 <option value="">Enter client details manually</option>
-                                                {[
-                                                    ['training', 'Training leads'], ['legacy-training', 'Legacy training leads'],
-                                                    ['enquiry', 'Robotriq enquiries'], ['customer', 'Customers']
-                                                ].map(([kind, label]) => <optgroup label={label} key={kind}>
-                                                    {robotriqOptions?.parties.filter(row => row.kind === kind).map(row =>
-                                                        <option key={row.id} value={`${row.kind}:${row.id}`}>{[row.code, row.name, row.company]
-                                                            .filter(Boolean).join(' · ')}</option>)}
-                                                </optgroup>)}
+                                                {linkedParty?.kind && linkedParty.kind !== 'customer' &&
+                                                    <option hidden value={`${linkedParty.kind}:${linkedParty.recordId}`}>Existing quotation link</option>}
+                                                {robotriqOptions?.parties.filter(row => row.kind === 'customer').map(row =>
+                                                    <option key={row.id} value={`customer:${row.id}`}>{[row.name, row.company]
+                                                        .filter(Boolean).join(' · ')}</option>)}
                                             </select>
                                         </label>
                                         <label className="grid gap-1 text-sm">Add a catalog item
