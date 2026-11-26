@@ -1,7 +1,7 @@
 import { getWorkspaceBrand } from '../utils/workspaceBrand';
 import API_BASE_URL from '../api';
 import './FinanceDocuments.css';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -30,6 +30,64 @@ const PRESET_SERVICES = [
     { name: 'SEO & LOCAL CITATIONS', hsn: '998319', defaultSub: '• On-Page & Technical SEO Audit\n• Google Business Profile Optimization\n• High DA Backlinks & Keyword Ranking' },
     { name: 'BRAND IDENTITY & LOGO', hsn: '998392', defaultSub: '• 3 Unique Logo Concepts & Vector Assets\n• Color Palette & Typography Guidelines\n• Business Card & Letterhead Stationery' }
 ];
+
+function QuotationPicker({ label, placeholder, selectedLabel, options, onSelect, allowManualEntry }) {
+    const id = useId();
+    const inputRef = useRef(null);
+    const [search, setSearch] = useState('');
+    const [open, setOpen] = useState(false);
+    const terms = search.trim().toLowerCase().split(/\s+/);
+    const matches = open ? options?.filter(option => terms.every(term => option.searchText.includes(term))) ?? [] : [];
+
+    function choose(value) {
+        onSelect(value);
+        inputRef.current.focus();
+        setSearch('');
+        setOpen(false);
+    }
+
+    return <div className="relative" onBlur={event => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+            setSearch('');
+            setOpen(false);
+        }
+    }} onKeyDown={event => {
+        if (event.key === 'Escape' && open) {
+            inputRef.current.focus();
+            setSearch('');
+            setOpen(false);
+            event.stopPropagation();
+        }
+    }}>
+        <label htmlFor={id} className="mb-1 block text-[11px] font-bold uppercase text-slate-500">{label}</label>
+        <div className="relative">
+            <Search aria-hidden="true" size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input ref={inputRef} id={id} type="text" autoComplete="off" disabled={!options}
+                aria-controls={open ? `${id}-results` : undefined}
+                className="w-full rounded-xl border border-[#e6e6e3] bg-[#f5f5f3] py-2.5 pl-9 pr-4 text-xs font-medium outline-none transition-colors focus:border-[#111111] focus:bg-white"
+                placeholder={placeholder} value={open ? search : selectedLabel || ''}
+                onFocus={() => setOpen(true)} onClick={() => setOpen(true)}
+                onChange={event => { setSearch(event.target.value); setOpen(true); }}
+                onKeyDown={event => {
+                    if (event.key === 'Enter' && open) {
+                        event.preventDefault();
+                        if (matches.length) choose(matches[0].id);
+                    }
+                }} />
+        </div>
+        {open && <div id={`${id}-results`} className="workspace-scroll-list absolute inset-x-0 top-full z-30 mt-1 max-h-52 rounded-xl border border-[#e6e6e3] bg-white shadow-xl">
+            {allowManualEntry && <button type="button" className="block w-full px-3 py-2 text-left text-xs hover:bg-[#f0f0ee] focus:bg-[#f0f0ee]"
+                onClick={() => choose('')}>Enter client details manually</button>}
+            {matches.map(option => <button key={option.id} type="button"
+                className="block w-full border-t border-[#f0f0ee] px-3 py-2 text-left text-xs hover:bg-[#f0f0ee] focus:bg-[#f0f0ee]"
+                onClick={() => choose(option.id)}>
+                <span className="block font-semibold text-[#111111]">{option.label}</span>
+                {option.detail && <span className="text-slate-500">{option.detail}</span>}
+            </button>)}
+            {!matches.length && <p role="status" className="px-3 py-2 text-xs text-slate-500">No matches found</p>}
+        </div>}
+    </div>;
+}
 
 export default function QuotationManagement({ initialTemplate, onClearInitialTemplate }) {
     const { user } = useAuth();
@@ -767,8 +825,17 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
     const linkedParty = letterheadData.robotriqLink === undefined
         ? robotriqOptions?.historicalLinks[editId] : letterheadData.robotriqLink;
 
-    function selectRobotriqParty(value) {
-        const party = robotriqOptions?.parties.find(row => row.kind === 'customer' && `customer:${row.id}` === value);
+    const customerOptions = robotriqOptions?.parties.filter(row => row.kind === 'customer').map(row => ({
+        id: row.id, label: row.name || row.company, detail: row.company === row.name ? '' : row.company,
+        searchText: [row.name, row.company, row.phone].join(' ').toLowerCase()
+    }));
+    const catalogOptions = robotriqOptions?.items.map(row => ({
+        id: row._id, label: row.componentName, detail: [row.brand, row.specification].filter(Boolean).join(' · '),
+        searchText: [row.componentName, row.brand, row.specification, row.description].join(' ').toLowerCase()
+    }));
+
+    function selectRobotriqParty(id) {
+        const party = robotriqOptions?.parties.find(row => row.kind === 'customer' && row.id === id);
         setLetterheadData(current => ({
             ...current,
             robotriqLink: party ? { kind: party.kind, recordId: party.id } : null,
@@ -1275,18 +1342,11 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                     </div>
 
                                     {isRobotriq && <div className="grid gap-3 sm:grid-cols-2">
-                                        <label className="grid gap-1 text-sm">Linked customer
-                                            <select className="rounded border bg-white p-2" disabled={!robotriqOptions}
-                                                value={linkedParty?.kind ? `${linkedParty.kind}:${linkedParty.recordId}` : ''}
-                                                onChange={event => selectRobotriqParty(event.target.value)}>
-                                                <option value="">Enter client details manually</option>
-                                                {linkedParty?.kind && linkedParty.kind !== 'customer' &&
-                                                    <option hidden value={`${linkedParty.kind}:${linkedParty.recordId}`}>Existing quotation link</option>}
-                                                {robotriqOptions?.parties.filter(row => row.kind === 'customer').map(row =>
-                                                    <option key={row.id} value={`customer:${row.id}`}>{[row.name, row.company]
-                                                        .filter(Boolean).join(' · ')}</option>)}
-                                            </select>
-                                        </label>
+                                        <QuotationPicker label="Linked customer" placeholder="Search saved customers"
+                                            options={customerOptions} onSelect={selectRobotriqParty} allowManualEntry
+                                            selectedLabel={linkedParty?.kind === 'customer'
+                                                ? customerOptions?.find(row => row.id === linkedParty.recordId)?.label
+                                                : linkedParty?.kind && 'Existing quotation link'} />
                                         {robotriqOptionsFailed && <p className="text-sm sm:col-span-2" role="alert">Could not load Robotriq customers.</p>}
                                     </div>}
 
@@ -1373,13 +1433,8 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                     </div>
 
                                     {isRobotriq && <div className="grid gap-3 sm:grid-cols-2">
-                                        <label className="grid gap-1 text-sm">Add a catalog item
-                                            <select className="rounded border bg-white p-2" disabled={!robotriqOptions} value=""
-                                                onChange={event => addRobotriqCatalogItem(event.target.value)}>
-                                                <option value="">Select an item</option>
-                                                {robotriqOptions?.items.map(row => <option value={row._id} key={row._id}>{row.componentName}</option>)}
-                                            </select>
-                                        </label>
+                                        <QuotationPicker label="Add a catalog item" placeholder="Search components, brands, or specs"
+                                            options={catalogOptions} onSelect={addRobotriqCatalogItem} />
                                         {robotriqOptionsFailed && <p className="text-sm sm:col-span-2" role="alert">Could not load catalog items.</p>}
                                     </div>}
 
