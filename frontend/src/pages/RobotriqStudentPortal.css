@@ -1,0 +1,81 @@
+.student-portal {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding: clamp(1rem, 4vw, 3rem);
+}
+
+.student-portal-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+    border-radius: 1.75rem;
+    background: #111;
+    color: #fff;
+}
+
+.student-portal-hero h1 {
+    margin-block: .45rem .25rem;
+    font-size: clamp(1.85rem, 5vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -.04em;
+    overflow-wrap: anywhere;
+}
+
+.student-portal-hero p { color: #deded9; }
+
+.student-portal-eyebrow,
+.student-portal .robotriq-panel > h2 {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-weight: 650;
+}
+
+.student-portal .student-portal-id {
+    margin-top: .5rem;
+    font-size: .8rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.student-portal-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+}
+
+.student-portal-nav a {
+    padding: .55rem .85rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #222;
+}
+
+.student-portal-nav a:hover,
+.student-portal-nav a:focus-visible { background: #e6e6e3; }
+
+.student-portal-stack,
+.student-portal-columns {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+    min-width: 0;
+}
+
+.student-portal [id] { scroll-margin-top: 1rem; }
+.student-portal .robotriq-panel { min-width: 0; }
+.student-portal .robotriq-panel > h2 { margin-bottom: .75rem; }
+.student-portal .robotriq-portal-fees > div:last-child { background: #e6efec; }
+.student-portal .robotriq-panel > p { color: #545454; }
+.student-portal .robotriq-panel li { overflow-wrap: anywhere; }
+
+@media (min-width: 60rem) {
+    .student-portal-columns {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+    }
+}

@@ -1,0 +1,35 @@
+.robotriq-legacy-receipt {
+    box-sizing: border-box;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    background: #fff;
+    color: #1e293b;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: normal;
+    overflow-wrap: anywhere;
+}
+
+.robotriq-legacy-receipt img { display: inline-block; }
+
+.robotriq-receipt-rule {
+    width: 100%;
+    margin: 10px 0;
+    border-top: 4px solid #0d9488;
+}
+
+.robotriq-receipt-table td {
+    border: 1.5px solid #0d9488;
+    padding: 10px 14px;
+    font-size: 13.5px;
+}
+
+.robotriq-receipt-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-radius: 8px;
+    background: #0d9488;
+    color: #fff;
+}
