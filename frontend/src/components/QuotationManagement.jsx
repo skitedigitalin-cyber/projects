@@ -1287,14 +1287,7 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                                         .filter(Boolean).join(' · ')}</option>)}
                                             </select>
                                         </label>
-                                        <label className="grid gap-1 text-sm">Add a catalog item
-                                            <select className="rounded border bg-white p-2" disabled={!robotriqOptions} value=""
-                                                onChange={event => addRobotriqCatalogItem(event.target.value)}>
-                                                <option value="">Select an item</option>
-                                                {robotriqOptions?.items.map(row => <option value={row._id} key={row._id}>{row.componentName}</option>)}
-                                            </select>
-                                        </label>
-                                        {robotriqOptionsFailed && <p className="text-sm sm:col-span-2" role="alert">Could not load Robotriq links or catalog items.</p>}
+                                        {robotriqOptionsFailed && <p className="text-sm sm:col-span-2" role="alert">Could not load Robotriq customers.</p>}
                                     </div>}
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -1378,6 +1371,17 @@ export default function QuotationManagement({ initialTemplate, onClearInitialTem
                                             <span>Add Component</span>
                                         </button>
                                     </div>
+
+                                    {isRobotriq && <div className="grid gap-3 sm:grid-cols-2">
+                                        <label className="grid gap-1 text-sm">Add a catalog item
+                                            <select className="rounded border bg-white p-2" disabled={!robotriqOptions} value=""
+                                                onChange={event => addRobotriqCatalogItem(event.target.value)}>
+                                                <option value="">Select an item</option>
+                                                {robotriqOptions?.items.map(row => <option value={row._id} key={row._id}>{row.componentName}</option>)}
+                                            </select>
+                                        </label>
+                                        {robotriqOptionsFailed && <p className="text-sm sm:col-span-2" role="alert">Could not load catalog items.</p>}
+                                    </div>}
 
                                     <div className="space-y-3">
                                         {(letterheadData.items || []).map((item, idx) => (
