@@ -258,6 +258,27 @@ exports.updateLead = async (req, res) => {
             }
         }
 
+        // FITS Options Validation Guard:
+        // When setting callStatus to 'Called', all 4 FITS dropdowns (Familiarity, Intention, Time, Spend) must be selected
+        if (updates.callStatus === 'Called') {
+            const fam = updates.fits?.familiarity;
+            const intent = updates.fits?.intention;
+            const time = updates.fits?.time;
+            const spend = updates.fits?.spend;
+            if (!fam || !intent || !time || !spend) {
+                const existing = await Lead.findOne(filter).select('fits').lean();
+                const finalFam = fam || existing?.fits?.familiarity;
+                const finalIntent = intent || existing?.fits?.intention;
+                const finalTime = time || existing?.fits?.time;
+                const finalSpend = spend || existing?.fits?.spend;
+                if (!finalFam || !finalIntent || !finalTime || !finalSpend) {
+                    return res.status(400).json({
+                        message: 'All FITS dropdown options (Familiarity, Intention, Time, and Spend) must be selected before saving Call Status as Called.'
+                    });
+                }
+            }
+        }
+
         const callHistoryEntry = typeof updates.callStatus === 'string'
             ? { status: updates.callStatus, date: new Date() } : null;
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { X, Zap, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import { X, Zap, CheckCircle2, AlertCircle, ArrowRight, PhoneOutgoing } from 'lucide-react';
+import { calculateFitsScore, isFitsQualified as checkFitsQualified } from '../utils/fitsScore';
 
 export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
     if (!isOpen || !lead) return null;
@@ -19,16 +20,20 @@ export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
     // Intention in [yes, Yes] AND
     // Time in [Fast, Move] AND
     // Spend in [Speed, Slow]
-    const isQualified =
-        ['Medium', 'High'].includes(familiarity) &&
-        (intention || '').toLowerCase() === 'yes' &&
-        ['Fast', 'Move'].includes(time) &&
-        ['Speed', 'Slow'].includes(spend);
+    const isIncomplete = !familiarity || !intention || !time || !spend;
+    const isQualified = checkFitsQualified({ familiarity, intention, time, spend });
+    const fitsScore = calculateFitsScore({ familiarity, intention, time, spend });
 
     const handleSave = async (e) => {
         e.preventDefault();
-        setIsSaving(true);
         setError('');
+
+        if (isIncomplete) {
+            setError('Please select all FITS dropdown options (Familiarity, Intention, Time, and Spend) before saving.');
+            return;
+        }
+
+        setIsSaving(true);
 
         try {
             const token = localStorage.getItem('token');
@@ -40,8 +45,10 @@ export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
                 spend
             };
 
+            const isIntentionNo = (intention || '').toLowerCase() === 'no';
+
             const payload = {
-                callStatus: 'Called',
+                callStatus: isIntentionNo ? 'Callback (1)' : 'Called',
                 fits: fitsData
             };
 
@@ -50,6 +57,18 @@ export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
                 payload.leadStage = 'Qualified';
                 payload.qualifiedAlertDate = new Date().toISOString().split('T')[0];
                 payload.qualifiedNotes = `Qualified via FITS (F: ${familiarity}, I: ${intention}${intentionReason ? ` - ${intentionReason}` : ''}, T: ${time}, S: ${spend})`;
+            } else if (isIntentionNo) {
+                // If Intention is 'No', automatically move to Callback (1)
+                payload.leadStatus = 'Contacted';
+                payload.leadStage = 'Lead';
+                if (intentionReason && intentionReason.trim()) {
+                    payload.callback1Description = lead.callback1Description
+                        ? `${lead.callback1Description} | Intention: No (${intentionReason.trim()})`
+                        : `Intention: No (${intentionReason.trim()})`;
+                }
+            } else {
+                payload.leadStatus = 'New';
+                payload.leadStage = 'Lead';
             }
 
             const res = await axios.put(`http://localhost:5000/api/leads/${lead._id}`, payload, {
@@ -99,6 +118,40 @@ export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
                             <span>{error}</span>
                         </div>
                     )}
+
+                    {/* Live FITS Percentage Score Gauge */}
+                    <div className="p-4 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl text-white shadow-md">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                <Zap size={15} className="text-yellow-400 fill-yellow-400" />
+                                FITS Score Percentage
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-xl font-black text-white">{fitsScore.score}%</span>
+                                <span className="text-[10px] text-slate-400 font-semibold">(Max 70%)</span>
+                            </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full bg-slate-700/80 rounded-full h-2.5 overflow-hidden border border-slate-600/50">
+                            <div 
+                                className={`h-full rounded-full transition-all duration-300 ${fitsScore.barColor}`}
+                                style={{ width: `${Math.min(100, (fitsScore.score / 70) * 100)}%` }}
+                            />
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-[10px] text-slate-300 mt-2 font-medium">
+                            <span>Fam: +{fitsScore.breakdown.familiarity}%</span>
+                            <span>Intent: +{fitsScore.breakdown.intention}%</span>
+                            <span>Time: +{fitsScore.breakdown.time}%</span>
+                            <span>Spend: +{fitsScore.breakdown.spend}%</span>
+                            <span className={`px-2 py-0.5 rounded-full font-bold ${
+                                fitsScore.score === 70 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-700 text-slate-300'
+                            }`}>
+                                {fitsScore.label}
+                            </span>
+                        </div>
+                    </div>
 
                     {/* 1. Familiarity */}
                     <div>
@@ -187,7 +240,12 @@ export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
 
                     {/* Live Qualification Status Banner */}
                     <div className="pt-2">
-                        {isQualified ? (
+                        {isIncomplete ? (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-2.5 text-xs text-red-700 font-semibold">
+                                <AlertCircle size={15} className="text-red-500 shrink-0" />
+                                <span>Please select all 4 dropdowns (Familiarity, Intention, Time, and Spend) to save.</span>
+                            </div>
+                        ) : isQualified ? (
                             <div className="p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl flex items-start gap-3">
                                 <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
                                     <CheckCircle2 size={16} />
@@ -197,6 +255,18 @@ export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
                                         ✨ Qualified Criteria Matched!
                                     </strong>
                                     Familiarity ({familiarity}) + Intention (Yes) + Time ({time}) + Spend ({spend}) matched. This lead will automatically move to the <strong>Qualified</strong> stage upon saving.
+                                </div>
+                            </div>
+                        ) : (intention || '').toLowerCase() === 'no' ? (
+                            <div className="p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                                <div className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                                    <PhoneOutgoing size={16} />
+                                </div>
+                                <div className="text-xs text-amber-900 leading-relaxed">
+                                    <strong className="block text-amber-800 text-[13px] font-bold mb-0.5">
+                                        📞 Intention: No &rarr; Auto-move to Callback (1)
+                                    </strong>
+                                    Since Intention is set to <strong>No</strong>, saving will automatically move this lead to the <strong>Callback (1)</strong> column.
                                 </div>
                             </div>
                         ) : (
@@ -220,14 +290,14 @@ export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
                         </button>
                         <button
                             type="submit"
-                            disabled={isSaving}
+                            disabled={isSaving || isIncomplete}
                             className={`px-5 py-2.5 text-xs font-bold rounded-xl text-white shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
                                 isQualified
                                     ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-200'
                                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-200'
                             }`}
                         >
-                            {isSaving ? 'Saving...' : isQualified ? (
+                            {isSaving ? 'Saving...' : isIncomplete ? 'Select all options to save' : isQualified ? (
                                 <>
                                     Save &amp; Move to Qualified <ArrowRight size={14} />
                                 </>

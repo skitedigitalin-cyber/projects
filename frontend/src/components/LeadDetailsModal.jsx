@@ -3,7 +3,8 @@ import axios from 'axios';
 import { API_BASE_URL } from '../api';
 import { proposalConfigUrl } from '../utils/salesPipeline';
 import { getLeadCallbackProgress } from '../utils/callbackProgress';
-import { X, Calendar, Clock, CheckCircle, ArrowRight, Building, PhoneOutgoing, FileText, CheckSquare, Briefcase, IndianRupee, MessageCircle, Eye, Zap } from 'lucide-react';
+import { calculateFitsScore, isFitsQualified as checkFitsQualified } from '../utils/fitsScore';
+import { X, Calendar, Clock, CheckCircle, ArrowRight, Building, PhoneOutgoing, FileText, CheckSquare, Briefcase, IndianRupee, MessageCircle, Eye, Zap, RotateCcw } from 'lucide-react';
 
 export default function LeadDetailsModal({ lead, draftCallStatus, proposalService, onClose, onUpdate, onEdit }) {
     const [isSaving, setIsSaving] = useState(false);
@@ -15,7 +16,9 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
 
     // Build selectable statuses with locked state for sequential callbacks
     const callStatusOptions = useMemo(() => {
-        const statuses = ['Lead', 'Called', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Not Attend', 'Rejected', 'Waiting List'];
+        const statuses = lead?.leadStatus === 'Qualified'
+            ? ['Qualified', 'Called', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Not Attend', 'Rejected', 'Waiting List']
+            : ['Lead', 'Called', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Not Attend', 'Rejected', 'Waiting List'];
         
         return statuses.map(s => {
             const match = s.match(/Callback\s*\(?(\d)\)?/i);
@@ -86,11 +89,21 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
     const [fitsTime, setFitsTime] = useState(existingFits.time || '');
     const [fitsSpend, setFitsSpend] = useState(existingFits.spend || '');
 
-    const isFitsQualified =
-        ['Medium', 'High'].includes(fitsFamiliarity) &&
-        (fitsIntention || '').toLowerCase() === 'yes' &&
-        ['Fast', 'Move'].includes(fitsTime) &&
-        ['Speed', 'Slow'].includes(fitsSpend);
+    const isFitsQualified = checkFitsQualified({
+        familiarity: fitsFamiliarity,
+        intention: fitsIntention,
+        time: fitsTime,
+        spend: fitsSpend
+    });
+
+    const liveFitsScore = calculateFitsScore({
+        familiarity: fitsFamiliarity,
+        intention: fitsIntention,
+        time: fitsTime,
+        spend: fitsSpend
+    });
+
+    const existingFitsScore = calculateFitsScore(lead.fits);
 
     const needsReminder = /Callback|Not Attend|Waiting List/i.test(callStatus);
     const fitsChanged = callStatus === 'Called' && (
@@ -110,6 +123,7 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
 
     // Stage Move States
     const [pendingStage, setPendingStage] = useState(null);
+    const [stageCallStatus, setStageCallStatus] = useState('Called');
     const [stageNotes, setStageNotes] = useState('');
     const [stageAlertDate, setStageAlertDate] = useState('');
     const [stageAlertTime, setStageAlertTime] = useState('');
@@ -151,6 +165,15 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                 return;
             }
         }
+
+        // Enforce all 4 FITS dropdowns selected when Call Status is Called
+        if (callStatus === 'Called') {
+            if (!fitsFamiliarity || !fitsIntention || !fitsTime || !fitsSpend) {
+                alert('Please select all FITS dropdown options (Familiarity, Intention, Time, and Spend) before saving.');
+                return;
+            }
+        }
+
         setIsSaving(true);
         try {
             const payload = {
@@ -170,8 +193,19 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
             
             if (callStatus === 'Rejected') {
                 payload.leadStatus = 'Lost';
-                if (!lead.rejectedFromStage) {
-                    payload.rejectedFromStage = 'Lead';
+                payload.rejectedFromStage = lead.leadStatus || 'Lead';
+            } else if (lead.leadStatus === 'Qualified') {
+                // Keep leadStatus as Qualified for qualified leads updating their call status!
+                payload.leadStatus = 'Qualified';
+                payload.leadStage = 'Qualified';
+                if (callStatus === 'Called') {
+                    payload.fits = {
+                        familiarity: fitsFamiliarity,
+                        intention: fitsIntention,
+                        intentionReason: fitsIntentionReason,
+                        time: fitsTime,
+                        spend: fitsSpend
+                    };
                 }
             } else if (callStatus === 'Called') {
                 payload.fits = {
@@ -186,6 +220,16 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                     payload.leadStage = 'Qualified';
                     payload.qualifiedAlertDate = new Date().toISOString().split('T')[0];
                     payload.qualifiedNotes = `Qualified via FITS (F: ${fitsFamiliarity}, I: ${fitsIntention}${fitsIntentionReason ? ` - ${fitsIntentionReason}` : ''}, T: ${fitsTime}, S: ${fitsSpend})`;
+                } else if ((fitsIntention || '').toLowerCase() === 'no') {
+                    // Intention is 'No' -> Auto-move to Callback (1)
+                    payload.callStatus = 'Callback (1)';
+                    payload.leadStatus = 'Contacted';
+                    payload.leadStage = 'Lead';
+                    if (fitsIntentionReason && fitsIntentionReason.trim()) {
+                        payload.callback1Description = descriptions['Callback (1)']
+                            ? `${descriptions['Callback (1)']} | Intention: No (${fitsIntentionReason.trim()})`
+                            : `Intention: No (${fitsIntentionReason.trim()})`;
+                    }
                 } else {
                     payload.leadStatus = 'New';
                 }
@@ -201,6 +245,7 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             onUpdate(res.data);
+            if (onClose) onClose();
         } catch (error) {
             console.error(error);
             alert('Error saving status');
@@ -218,11 +263,26 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
         setIsSaving(true);
         try {
             const payload = { 
-                leadStatus: pendingStage === 'Rejected' ? 'Lost' : pendingStage,
-                leadStage: pendingStage === 'Converted' ? 'Convert' : pendingStage === 'Rejected' ? 'Lead' : pendingStage
+                leadStatus: pendingStage === 'Rejected' ? 'Lost' : pendingStage === 'Lead' ? 'New' : pendingStage,
+                leadStage: pendingStage === 'Converted' ? 'Convert' : 'Lead'
             };
             
-            if (pendingStage === 'Qualified') {
+            if (pendingStage === 'Lead') {
+                payload.leadStatus = 'New';
+                payload.leadStage = 'Lead';
+                payload.callStatus = stageCallStatus || 'Called';
+                payload.qualifiedAlertDate = '';
+                payload.qualifiedAlertTime = '';
+                payload.qualifiedNotes = '';
+                payload.qualifiedDetails = '';
+                payload.appointmentAlertDate = '';
+                payload.appointmentAlertTime = '';
+                payload.appointmentNotes = '';
+                payload.appointmentDetails = '';
+                if (stageNotes && stageNotes.trim()) {
+                    payload.notes = lead.notes ? `${lead.notes}\n[Reverted from ${lead.leadStatus}]: ${stageNotes.trim()}` : `[Reverted from ${lead.leadStatus}]: ${stageNotes.trim()}`;
+                }
+            } else if (pendingStage === 'Qualified') {
                 payload.qualifiedDetails = stageDetails;
                 payload.qualifiedNotes = stageNotes;
                 payload.qualifiedAlertDate = stageAlertDate;
@@ -275,6 +335,7 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
             setStageAlertDate('');
             setStageAlertTime('');
             setScreenshotFile(null);
+            if (onClose) onClose();
             
         } catch (error) {
             console.error(error);
@@ -395,6 +456,33 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                             </span>
                         </div>
 
+                        {/* Live FITS Percentage Score Gauge */}
+                        <div className="p-3 bg-slate-900 rounded-xl text-white shadow-xs">
+                            <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                                    <Zap size={13} className="text-yellow-400 fill-yellow-400" />
+                                    FITS Score Percentage
+                                </span>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-base font-black text-white">{liveFitsScore.score}%</span>
+                                    <span className="text-[9px] text-slate-400 font-medium">(Max 70%)</span>
+                                </div>
+                            </div>
+                            <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                                <div 
+                                    className={`h-full rounded-full transition-all duration-300 ${liveFitsScore.barColor}`}
+                                    style={{ width: `${Math.min(100, (liveFitsScore.score / 70) * 100)}%` }}
+                                />
+                            </div>
+                            <div className="flex items-center justify-between text-[9px] text-slate-300 mt-1.5">
+                                <span>F: +{liveFitsScore.breakdown.familiarity}%</span>
+                                <span>I: +{liveFitsScore.breakdown.intention}%</span>
+                                <span>T: +{liveFitsScore.breakdown.time}%</span>
+                                <span>S: +{liveFitsScore.breakdown.spend}%</span>
+                                <span className="font-bold text-emerald-400">{liveFitsScore.label}</span>
+                            </div>
+                        </div>
+
                         {/* 1. Familiarity */}
                         <div>
                             <label className="text-xs font-bold text-slate-700 block mb-1">
@@ -475,10 +563,20 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                         </div>
 
                         {/* Status preview */}
-                        {isFitsQualified ? (
+                        {callStatus === 'Called' && (!fitsFamiliarity || !fitsIntention || !fitsTime || !fitsSpend) ? (
+                            <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-semibold flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+                                <span>Please select all 4 FITS options (Familiarity, Intention, Time, Spend) to save.</span>
+                            </div>
+                        ) : isFitsQualified ? (
                             <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                                 <span>✨ Matched! Saving will automatically qualify this lead and move to <strong>Qualified</strong>.</span>
+                            </div>
+                        ) : (fitsIntention || '').toLowerCase() === 'no' ? (
+                            <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs font-medium flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                                <span>📞 Intention is <strong>No</strong>: Saving will automatically move this lead to <strong>Callback (1)</strong>.</span>
                             </div>
                         ) : (
                             <div className="p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs">
@@ -491,10 +589,10 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                 <div className="pt-2">
                     <button 
                         onClick={handleCallStatusSave}
-                        disabled={isSaving || !callChanged}
+                        disabled={isSaving || !callChanged || (callStatus === 'Called' && (!fitsFamiliarity || !fitsIntention || !fitsTime || !fitsSpend))}
                         className="w-full py-3 bg-[#111111] text-white font-medium rounded-lg hover:bg-[#303030] transition-colors disabled:opacity-50 cursor-pointer"
                     >
-                        {isSaving ? 'Saving...' : 'Save Call Status'}
+                        {isSaving ? 'Saving...' : (callStatus === 'Called' && (!fitsFamiliarity || !fitsIntention || !fitsTime || !fitsSpend)) ? 'Select all FITS options to Save' : 'Save Call Status'}
                     </button>
                 </div>
             </div>
@@ -519,6 +617,45 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                             <textarea className="mt-2 w-full rounded-lg border border-slate-200 p-3"
                                 value={rejectReason} onChange={event => setRejectReason(event.target.value)} />
                         </label>
+                    ) : pendingStage === 'Lead' ? (
+                        <div className="space-y-4">
+                            <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs">
+                                <p className="font-bold text-sm mb-1 flex items-center gap-1.5">
+                                    <RotateCcw size={15} className="text-amber-700" /> Revert back to Leads
+                                </p>
+                                <p className="text-amber-800">
+                                    This will move <strong>{lead.customerName}</strong> from <strong>{lead.leadStatus}</strong> back to the main Leads board.
+                                </p>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-700 block mb-1">
+                                    Target Column in Leads board:
+                                </label>
+                                <select
+                                    value={stageCallStatus}
+                                    onChange={e => setStageCallStatus(e.target.value)}
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl outline-none focus:border-[#111111] text-sm font-semibold text-slate-800"
+                                >
+                                    <option value="Called">Called</option>
+                                    <option value="Lead">Lead (Fresh)</option>
+                                    <option value="Callback (1)">Callback</option>
+                                    <option value="Not Attend">Not Attend</option>
+                                    <option value="Waiting List">Waiting List</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-700 block mb-1">
+                                    Note / Reason (Optional):
+                                </label>
+                                <textarea
+                                    rows="2"
+                                    value={stageNotes}
+                                    onChange={e => setStageNotes(e.target.value)}
+                                    placeholder="Reason for reverting back to Leads..."
+                                    className="w-full px-4 py-2 bg-white border border-slate-300 rounded-xl outline-none text-sm resize-none"
+                                />
+                            </div>
+                        </div>
                     ) : pendingStage !== 'Converted' ? (
                         <div className="space-y-4">
                             {/* Alert Date & Time for Appointment and Qualified */}
@@ -608,7 +745,7 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                             disabled={isSaving || (pendingStage === 'Rejected' && !rejectReason.trim())}
                             className="flex-1 py-2.5 bg-[#111111] text-white font-bold rounded-xl hover:bg-[#303030] transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
                         >
-                            {isSaving ? 'Saving…' : pendingStage === 'Rejected' ? 'Reject' : pendingStage === 'Converted' ? 'Close lead' : editingStage ? 'Save details' : 'Save & move'}
+                            {isSaving ? 'Saving…' : pendingStage === 'Rejected' ? 'Reject' : pendingStage === 'Converted' ? 'Close lead' : pendingStage === 'Lead' ? 'Move to Leads' : editingStage ? 'Save details' : 'Save & move'}
                         </button>
                     </div>
                 </div>
@@ -725,7 +862,34 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
 
                 {(isQualifiedStage || isAppointmentStage) && (
                     <div className="flex flex-wrap gap-3">
-                        <button type="button" className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold"
+                        <button 
+                            type="button" 
+                            className="rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 px-3.5 py-2 text-sm font-bold text-amber-900 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                            onClick={() => {
+                                setPendingStage('Lead');
+                                setStageCallStatus(lead.callStatus && lead.callStatus !== 'Lead' ? lead.callStatus : 'Called');
+                                setStageNotes('');
+                            }}
+                        >
+                            <RotateCcw size={15} className="text-amber-700" />
+                            Move back to Leads
+                        </button>
+                        {isAppointmentStage && (
+                            <button 
+                                type="button" 
+                                className="rounded-xl border border-purple-300 bg-purple-50 hover:bg-purple-100 px-3.5 py-2 text-sm font-bold text-purple-900 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                onClick={() => {
+                                    setPendingStage('Qualified');
+                                    setStageNotes(lead.qualifiedDetails || lead.qualifiedNotes || '');
+                                    setStageAlertDate(lead.qualifiedAlertDate || '');
+                                    setStageAlertTime(lead.qualifiedAlertTime || '');
+                                }}
+                            >
+                                <RotateCcw size={15} className="text-purple-700" />
+                                Move back to Qualified
+                            </button>
+                        )}
+                        <button type="button" className="rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
                             onClick={() => {
                                 const prefix = lead.leadStatus.toLowerCase();
                                 setStageDetails(lead[prefix + 'Details'] || '');
@@ -735,7 +899,7 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                                 setEditingStage(true);
                                 setPendingStage(lead.leadStatus);
                             }}>Edit {lead.leadStatus.toLowerCase()} details</button>
-                        <button type="button" className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700"
+                        <button type="button" className="rounded-xl border border-red-200 px-3.5 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
                             onClick={() => { setRejectReason(''); setPendingStage('Rejected'); }}>Move to Reject</button>
                     </div>
                 )}
@@ -779,6 +943,12 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                         <div className="flex items-center space-x-3 mb-1">
                             <h2 className="text-2xl font-extrabold text-gray-900">{lead.customerName}</h2>
                             <span className="px-2.5 py-0.5 bg-[#e6e6e3] text-[#111111] text-xs font-bold rounded-full">{lead.leadId}</span>
+                            {existingFitsScore.score > 0 && (
+                                <span className={`px-2.5 py-0.5 text-xs font-black rounded-full border flex items-center gap-1 shadow-2xs ${existingFitsScore.badgeClass}`}>
+                                    <Zap size={12} className="fill-current text-yellow-500" />
+                                    {existingFitsScore.score}% FITS
+                                </span>
+                            )}
                             <button 
                                 onClick={() => { onClose(); onEdit(lead); }} 
                                 className="p-1.5 ml-2 bg-white border border-gray-200 text-gray-500 hover:text-[#3f3f3f] hover:border-blue-300 hover:bg-[#f0f0ee] rounded-lg transition-colors cursor-pointer flex items-center shadow-sm"
@@ -940,7 +1110,7 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                     {/* Right Panel: Interactive Actions */}
                     <div className="w-full md:w-2/3 flex shrink-0 flex-col md:shrink md:overflow-hidden">
                         <div className="space-y-6 overflow-y-auto p-6">
-                            {!pendingStage && !['Qualified', 'Appointment', 'Converted'].includes(lead.leadStatus) && renderCallStatus()}
+                            {!pendingStage && !['Appointment', 'Converted'].includes(lead.leadStatus) && renderCallStatus()}
                             {renderPipelineStages()}
                         </div>
                     </div>

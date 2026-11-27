@@ -8,9 +8,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Search, Pencil, Trash2, Phone, MapPin, Building, Target, ArrowLeft, Megaphone, Globe, Monitor, Users, PhoneOutgoing, Bell, Clock, ChevronLeft, ChevronRight, Briefcase, Award, Zap, Cpu } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Phone, PhoneCall, MapPin, Building, Target, ArrowLeft, Megaphone, Globe, Monitor, Users, PhoneOutgoing, Bell, Clock, ChevronLeft, ChevronRight, Briefcase, Award, Zap, Cpu } from 'lucide-react';
 import LeadDetailsModal from '../components/LeadDetailsModal';
 import FitsModal from '../components/FitsModal';
+import MqlSqlDashboard from '../components/MqlSqlDashboard';
+import { calculateFitsScore } from '../utils/fitsScore';
 import ProposalConfigTab from '../components/ProposalConfigTab';
 import SalesActivityLog from '../components/SalesActivityLog';
 import SalesLeadList from '../components/SalesLeadList';
@@ -189,11 +191,27 @@ export default function Sales() {
     const [pipelineTab, setPipelineTab] = useState('Leads');
     const [searchTerm, setSearchTerm] = useState('');
 
+    const dashboardMode = (params.get('view') || '').toLowerCase(); // 'mql' | 'sql' | ''
+    const isDashboardView = Boolean(selectedSource && selectedService && (dashboardMode === 'mql' || dashboardMode === 'sql'));
+
+    const openMqlDashboard = () => {
+        setParams({ channel: selectedSource, service: selectedService, view: 'mql' });
+    };
+
+    const openSqlDashboard = () => {
+        setParams({ channel: selectedSource, service: selectedService, view: 'sql' });
+    };
+
+    const closeDashboard = () => {
+        setParams({ channel: selectedSource, service: selectedService });
+    };
+
     // Pagination (15 records per page)
     const PAGE_SIZE = 15;
     const [gridPage, setGridPage] = useState(1);
     const [kanbanPages, setKanbanPages] = useState({
         'New': 1,
+        'Qualified': 1,
         'Called': 1,
         'Contacted': 1,
         'Not Attend': 1,
@@ -206,6 +224,7 @@ export default function Sales() {
         setGridPage(1);
         setKanbanPages({
             'New': 1,
+            'Qualified': 1,
             'Called': 1,
             'Contacted': 1,
             'Not Attend': 1,
@@ -249,6 +268,43 @@ export default function Sales() {
         } catch (error) { console.error("Error deleting lead:", error); }
     };
 
+    const handleQuickQualify = async (lead) => {
+        try {
+            const res = await axios.put(`http://localhost:5000/api/leads/${lead._id}`, {
+                leadStatus: 'Qualified',
+                leadStage: 'Qualified',
+                qualifiedAlertDate: new Date().toISOString().split('T')[0],
+                qualifiedNotes: 'Qualified from MQL Dashboard'
+            }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setLeads(prev => prev.map(l => l._id === lead._id ? normalizeLeadStage(res.data) : l));
+        } catch (err) {
+            console.error('Error qualifying lead:', err);
+            alert('Failed to qualify lead.');
+        }
+    };
+
+    const handleQuickRevertToLead = async (lead) => {
+        try {
+            const res = await axios.put(`http://localhost:5000/api/leads/${lead._id}`, {
+                leadStatus: 'New',
+                leadStage: 'Lead',
+                callStatus: 'Called',
+                qualifiedAlertDate: '',
+                qualifiedAlertTime: '',
+                qualifiedNotes: '',
+                qualifiedDetails: ''
+            }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setLeads(prev => prev.map(l => l._id === lead._id ? normalizeLeadStage(res.data) : l));
+        } catch (err) {
+            console.error('Error reverting lead:', err);
+            alert('Failed to revert lead.');
+        }
+    };
+
     const handleDragStart = (e, leadId) => {
         e.dataTransfer.setData('leadId', leadId);
     };
@@ -259,11 +315,13 @@ export default function Sales() {
         if (!leadId) return;
 
         const originalLead = leads.find(l => l._id === leadId);
-        if (!originalLead || ['Qualified', 'Appointment', 'Converted'].includes(originalLead.leadStatus)) return;
+        if (!originalLead || ['Appointment', 'Converted'].includes(originalLead.leadStatus)) return;
 
         let newCallStatus = targetStage;
         if (targetStage === 'New') {
             newCallStatus = 'Lead';
+        } else if (targetStage === 'Qualified') {
+            newCallStatus = 'Qualified';
         } else if (targetStage === 'Called') {
             newCallStatus = 'Called';
         } else if (targetStage === 'Contacted') {
@@ -437,6 +495,17 @@ export default function Sales() {
 
             return matchesService && matchesSearch;
         });
+
+    const mqlLeadsCount = useMemo(() => {
+        return filteredSourceLeads.filter(l => {
+            const cs = (l.callStatus || '').toLowerCase();
+            return cs.includes('callback') || (l.leadStatus === 'Contacted' && cs.startsWith('callback'));
+        }).length;
+    }, [filteredSourceLeads]);
+
+    const sqlLeadsCount = useMemo(() => {
+        return filteredSourceLeads.filter(l => l.leadStatus === 'Qualified').length;
+    }, [filteredSourceLeads]);
 
     // --- KPI ---
 
@@ -692,8 +761,23 @@ export default function Sales() {
                 </div>
             )}
 
-            {/* ======== LEVEL 3: LEADS KANBAN BOARD (after clicking a service) ======== */}
-            {activeTab === 'leads' && selectedSource && selectedService && (
+            {/* ======== LEVEL 3: LEADS KANBAN BOARD & DEDICATED MQL/SQL DASHBOARDS ======== */}
+            {activeTab === 'leads' && selectedSource && selectedService && isDashboardView ? (
+                <div className="flex min-w-0 flex-col animate-fade-up">
+                    <MqlSqlDashboard
+                        mode={dashboardMode}
+                        leads={filteredSourceLeads}
+                        serviceName={selectedService}
+                        channelName={selectedSource}
+                        onBackToPipeline={closeDashboard}
+                        onSwitchMode={(m) => setParams({ channel: selectedSource, service: selectedService, view: m })}
+                        onViewLead={openViewModal}
+                        onOpenFits={openFitsModal}
+                        onMoveToQualified={handleQuickQualify}
+                        onMoveBackToLeads={handleQuickRevertToLead}
+                    />
+                </div>
+            ) : activeTab === 'leads' && selectedSource && selectedService ? (
                 <div className="flex min-w-0 flex-col animate-fade-up delay-100">
                     {/* Header */}
                     <div className="mb-5 flex flex-wrap items-center gap-4">
@@ -722,6 +806,35 @@ export default function Sales() {
                             </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
+                            {/* Prominent MQL & SQL Option Buttons */}
+                            <div className="flex items-center gap-2 mr-1">
+                                <button
+                                    type="button"
+                                    onClick={openMqlDashboard}
+                                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer border bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100 hover:border-amber-400 hover:shadow-sm active:scale-95"
+                                    title="Open Dedicated MQL Dashboard (Callbacks & FITS)"
+                                >
+                                    <PhoneCall size={13} className="text-amber-600" />
+                                    <span>MQL Dashboard</span>
+                                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-200/80 text-amber-900">
+                                        {mqlLeadsCount}
+                                    </span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={openSqlDashboard}
+                                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer border bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100 hover:border-emerald-400 hover:shadow-sm active:scale-95"
+                                    title="Open Dedicated SQL Dashboard (Qualified Leads & Deals)"
+                                >
+                                    <Award size={13} className="text-emerald-600" />
+                                    <span>SQL Dashboard</span>
+                                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-emerald-200/80 text-emerald-900">
+                                        {sqlLeadsCount}
+                                    </span>
+                                </button>
+                            </div>
+
                             <div className="relative group">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-500 transition-colors" size={16} />
                                 <input type="text" placeholder="Search leads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-52 sm:w-64 pl-9 pr-4 py-2 bg-white border border-[#e6e6e3] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm transition-all hover:border-slate-300" />
@@ -758,7 +871,7 @@ export default function Sales() {
                                     tabCount = leadsInTab.length;
                                     tabAlerts = getAlertCount(leadsInTab);
                                 } else if (tabName === 'Qualified') {
-                                    const leadsInTab = displayLeads.filter(l => l.leadStatus === 'Qualified');
+                                    const leadsInTab = displayLeads.filter(l => l.leadStatus === 'Qualified' || (l.leadStatus === 'Lost' && l.rejectedFromStage === 'Qualified'));
                                     tabCount = leadsInTab.length;
                                     tabAlerts = getAlertCount(leadsInTab);
                                 } else if (tabName === 'Appointment') {
@@ -835,6 +948,8 @@ export default function Sales() {
 
                                 const renderLeadCard = (lead) => {
                                     const alert = getAlertStatusInfo(lead);
+                                    const fitsResult = calculateFitsScore(lead.fits);
+                                    const hasFits = Boolean(lead.fits && (lead.fits.familiarity || lead.fits.intention || lead.fits.time || lead.fits.spend));
                                     const baseClass = "p-3 bg-white rounded-xl border border-slate-100 shadow-2xs hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 group relative cursor-pointer";
                                     let borderClass = "";
                                     
@@ -854,7 +969,15 @@ export default function Sales() {
                                         >
                                             <div className="flex justify-between items-start gap-1 mb-1.5">
                                                 <h4 className="font-bold text-[#111111] text-[13px] leading-tight truncate group-hover:text-[#3f3f3f] transition-colors" title={lead.customerName}>{lead.customerName}</h4>
-                                                <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold shrink-0 ${getTempBadge(lead.leadTemperature)}`}>{getTempIcon(lead.leadTemperature)} {lead.leadTemperature}</span>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    {hasFits && (
+                                                        <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-black border flex items-center gap-0.5 shadow-2xs ${fitsResult.badgeClass}`} title={`FITS Score: ${fitsResult.score}% (${fitsResult.label})`}>
+                                                            <Zap size={9} className="fill-current text-yellow-500" />
+                                                            {fitsResult.score}%
+                                                        </span>
+                                                    )}
+                                                    <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold shrink-0 ${getTempBadge(lead.leadTemperature)}`}>{getTempIcon(lead.leadTemperature)} {lead.leadTemperature}</span>
+                                                </div>
                                             </div>
                                             <div className="flex flex-wrap items-center gap-1 mb-1.5">
                                                 {(lead.companyName || lead.industry) && <p className="text-[11px] text-slate-500 flex items-center font-medium truncate max-w-full"><Building size={11} className="mr-1 text-slate-400 shrink-0"/>{lead.companyName || lead.industry}</p>}
@@ -900,37 +1023,50 @@ export default function Sales() {
                                                     <p className="text-[10px] text-red-800 line-clamp-2" title={lead.rejectReason}>{lead.rejectReason || 'No reason'}</p>
                                                 </div>
                                             )}
-                                            {lead.callStatus === 'Called' && (
+                                            {/* FITS Assessment & Score Block */}
+                                            {hasFits ? (
                                                 <div className="mt-2 pt-2 border-t border-slate-100" onClick={e => e.stopPropagation()}>
-                                                    {lead.fits && (lead.fits.familiarity || lead.fits.intention || lead.fits.time || lead.fits.spend) ? (
-                                                        <div className="mb-1.5 p-2 bg-blue-50/80 border border-blue-100 rounded-lg text-[10px] space-y-0.5 shadow-2xs">
-                                                            <div className="flex items-center justify-between text-blue-700 font-bold text-[10px]">
-                                                                <span className="flex items-center gap-0.5"><Zap size={10} className="text-yellow-500 fill-yellow-400" /> FITS</span>
-                                                                <span className="text-[9px] bg-blue-100 px-1 py-0.2 rounded text-blue-800 font-semibold">Done</span>
-                                                            </div>
-                                                            <div className="grid grid-cols-2 gap-0.5 text-[10px] text-slate-700 pt-0.5">
-                                                                <div className="truncate">Fam: <strong className="text-slate-900">{lead.fits.familiarity || '-'}</strong></div>
-                                                                <div className="truncate">Intent: <strong className="text-slate-900">{lead.fits.intention || '-'}</strong></div>
-                                                                <div className="truncate">Time: <strong className="text-slate-900">{lead.fits.time || '-'}</strong></div>
-                                                                <div className="truncate">Spend: <strong className="text-slate-900">{lead.fits.spend || '-'}</strong></div>
-                                                            </div>
-                                                            {lead.fits.intentionReason && (
-                                                                <p className="text-[9px] text-slate-500 italic truncate pt-0.5" title={lead.fits.intentionReason}>
-                                                                    "{lead.fits.intentionReason}"
-                                                                </p>
-                                                            )}
+                                                    <div className="mb-1.5 p-2 bg-blue-50/80 border border-blue-100 rounded-lg text-[10px] space-y-0.5 shadow-2xs">
+                                                        <div className="flex items-center justify-between text-blue-700 font-bold text-[10px]">
+                                                            <span className="flex items-center gap-0.5"><Zap size={10} className="text-yellow-500 fill-yellow-400" /> FITS Score</span>
+                                                            <span className={`text-[9px] px-1.5 py-0.2 rounded font-extrabold ${fitsResult.badgeClass}`}>{fitsResult.score}% ({fitsResult.label})</span>
                                                         </div>
-                                                    ) : null}
+                                                        <div className="w-full bg-blue-200/60 rounded-full h-1 mt-1 overflow-hidden">
+                                                            <div className={`h-full rounded-full ${fitsResult.barColor}`} style={{ width: `${Math.min(100, (fitsResult.score / 70) * 100)}%` }} />
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-0.5 text-[10px] text-slate-700 pt-1">
+                                                            <div className="truncate">Fam: <strong className="text-slate-900">{lead.fits.familiarity || '-'}</strong></div>
+                                                            <div className="truncate">Intent: <strong className="text-slate-900">{lead.fits.intention || '-'}</strong></div>
+                                                            <div className="truncate">Time: <strong className="text-slate-900">{lead.fits.time || '-'}</strong></div>
+                                                            <div className="truncate">Spend: <strong className="text-slate-900">{lead.fits.spend || '-'}</strong></div>
+                                                        </div>
+                                                        {lead.fits.intentionReason && (
+                                                            <p className="text-[9px] text-slate-500 italic truncate pt-0.5" title={lead.fits.intentionReason}>
+                                                                "{lead.fits.intentionReason}"
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                     <button
                                                         type="button"
                                                         onClick={() => openFitsModal(lead)}
                                                         className="w-full py-1 px-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-bold rounded-lg shadow-2xs hover:shadow transition-all flex items-center justify-center gap-1 cursor-pointer"
                                                     >
                                                         <Zap size={11} className="text-yellow-300" />
-                                                        <span>{lead.fits?.familiarity ? 'Update FITS' : 'FITS Assessment'}</span>
+                                                        <span>Update FITS</span>
                                                     </button>
                                                 </div>
-                                            )}
+                                            ) : lead.callStatus === 'Called' ? (
+                                                <div className="mt-2 pt-2 border-t border-slate-100" onClick={e => e.stopPropagation()}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openFitsModal(lead)}
+                                                        className="w-full py-1 px-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-bold rounded-lg shadow-2xs hover:shadow transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                                    >
+                                                        <Zap size={11} className="text-yellow-300" />
+                                                        <span>FITS Assessment</span>
+                                                    </button>
+                                                </div>
+                                            ) : null}
 
                                             {/* Quick Action Buttons */}
                                             <div className="absolute top-2 right-2 flex flex-col space-y-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm p-0.5 rounded-lg border border-slate-100 shadow-sm" onClick={e => e.stopPropagation()}>
@@ -941,11 +1077,10 @@ export default function Sales() {
                                     );
                                 };
 
-                                // If not on Leads tab, show simple grid view of those leads
-                                if (pipelineTab !== 'Leads') {
+                                // If not on Leads or Qualified tab, show simple grid view of those leads (Appointment, Convert)
+                                if (pipelineTab !== 'Leads' && pipelineTab !== 'Qualified') {
                                     let tabLeads = [];
-                                    if (pipelineTab === 'Qualified') tabLeads = displayLeads.filter(l => l.leadStatus === 'Qualified').sort(sortAlertsFirst);
-                                    else if (pipelineTab === 'Appointment') tabLeads = displayLeads.filter(l => l.leadStatus === 'Appointment').sort(sortAlertsFirst);
+                                    if (pipelineTab === 'Appointment') tabLeads = displayLeads.filter(l => l.leadStatus === 'Appointment').sort(sortAlertsFirst);
                                     else if (pipelineTab === 'Convert') tabLeads = displayLeads.filter(l => l.leadStatus === 'Converted').sort(sortAlertsFirst);
 
                                     const totalGridPages = Math.ceil(tabLeads.length / PAGE_SIZE) || 1;
@@ -996,8 +1131,17 @@ export default function Sales() {
                                     );
                                 }
 
-                                // If on 'Leads' Tab, show exactly the 4 requested Kanban columns
-                                const kanbanStages = [
+                                const isQualifiedTab = pipelineTab === 'Qualified';
+
+                                // Kanban stages: customize first column based on active tab ('Qualified' vs 'Lead')
+                                const kanbanStages = isQualifiedTab ? [
+                                    { status: 'Qualified', label: 'Qualified', dotColor: 'bg-purple-600', bgColor: 'bg-[#f5f5f3]/50' },
+                                    { status: 'Called', label: 'Called', dotColor: 'bg-blue-500', bgColor: 'bg-[#f5f5f3]/50' },
+                                    { status: 'Contacted', label: 'Callback', dotColor: 'bg-amber-500', bgColor: 'bg-[#f5f5f3]/50' },
+                                    { status: 'Not Attend', label: 'Not Attend', dotColor: 'bg-orange-500', bgColor: 'bg-[#f5f5f3]/50' },
+                                    { status: 'Rejected', label: 'Rejected', dotColor: 'bg-rose-500', bgColor: 'bg-[#f5f5f3]/50' },
+                                    { status: 'Waiting List', label: 'Waiting List', dotColor: 'bg-violet-500', bgColor: 'bg-[#f5f5f3]/50' }
+                                ] : [
                                     { status: 'New', label: 'Lead', dotColor: 'bg-[#ff6a3d]', bgColor: 'bg-[#f5f5f3]/50' },
                                     { status: 'Called', label: 'Called', dotColor: 'bg-blue-500', bgColor: 'bg-[#f5f5f3]/50' },
                                     { status: 'Contacted', label: 'Callback', dotColor: 'bg-amber-500', bgColor: 'bg-[#f5f5f3]/50' },
@@ -1009,9 +1153,10 @@ export default function Sales() {
                                 return (
                                     <div className="flex gap-2 sm:gap-2.5 w-full h-full pb-2 animate-fade-up overflow-x-hidden">
                                     {kanbanStages.map((stage, idx) => {
-                                    // Custom filtering to match the 4 requested columns based on callStatus!
-                                    // ONLY include leads that are actually in the "Leads" tab (not Qualified/Appointment/Converted)
-                                    const kanbanDisplayLeads = displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus));
+                                    // Custom filtering based on callStatus
+                                    const kanbanDisplayLeads = isQualifiedTab
+                                        ? displayLeads.filter(l => l.leadStatus === 'Qualified' || (l.leadStatus === 'Lost' && l.rejectedFromStage === 'Qualified'))
+                                        : displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus));
                                     
                                     const stageLeads = kanbanDisplayLeads.filter(lead => {
                                         const status = (lead.callStatus || '').toLowerCase();
@@ -1020,7 +1165,7 @@ export default function Sales() {
                                         if (status.includes('callback')) return stage.status === 'Contacted';
                                         if (status.includes('not attend')) return stage.status === 'Not Attend';
                                         if (status === 'called') return stage.status === 'Called';
-                                        return stage.status === 'New';
+                                        return isQualifiedTab ? stage.status === 'Qualified' : stage.status === 'New';
                                     }).sort(sortAlertsFirst);
 
                                     const totalColPages = Math.ceil(stageLeads.length / PAGE_SIZE) || 1;
@@ -1085,7 +1230,7 @@ export default function Sales() {
                         </div>
                     </div>
                 </div>
-            )}
+            ) : null}
 
             {/* ======== TARGETS TAB ======== */}
             {activeTab === 'targets' && (
