@@ -53,6 +53,7 @@ export default function FitsModal({ lead, isOpen, onClose, onUpdate }) {
             };
 
             if (isQualified) {
+                payload.callStatus = 'Qualified';
                 payload.leadStatus = 'Qualified';
                 payload.leadStage = 'Qualified';
                 payload.qualifiedAlertDate = new Date().toISOString().split('T')[0];

@@ -226,6 +226,7 @@ export default function LeadDetailsModal({ lead, pipelineTab, draftCallStatus, p
                     spend: fitsSpend
                 };
                 if (isFitsQualified) {
+                    payload.callStatus = 'Qualified';
                     payload.leadStatus = 'Qualified';
                     payload.leadStage = 'Qualified';
                     payload.qualifiedAlertDate = new Date().toISOString().split('T')[0];
