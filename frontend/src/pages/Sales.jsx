@@ -867,11 +867,11 @@ export default function Sales() {
                                 };
 
                                 if (tabName === 'Leads') {
-                                    const leadsInTab = displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus));
+                                    const leadsInTab = displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus) && (l.rejectedFromStage || '').trim().toLowerCase() !== 'qualified');
                                     tabCount = leadsInTab.length;
                                     tabAlerts = getAlertCount(leadsInTab);
                                 } else if (tabName === 'Qualified') {
-                                    const leadsInTab = displayLeads.filter(l => l.leadStatus === 'Qualified' || (l.leadStatus === 'Lost' && l.rejectedFromStage === 'Qualified'));
+                                    const leadsInTab = displayLeads.filter(l => l.leadStatus === 'Qualified' || (l.rejectedFromStage || '').trim().toLowerCase() === 'qualified');
                                     tabCount = leadsInTab.length;
                                     tabAlerts = getAlertCount(leadsInTab);
                                 } else if (tabName === 'Appointment') {
@@ -1155,8 +1155,8 @@ export default function Sales() {
                                     {kanbanStages.map((stage, idx) => {
                                     // Custom filtering based on callStatus
                                     const kanbanDisplayLeads = isQualifiedTab
-                                        ? displayLeads.filter(l => l.leadStatus === 'Qualified' || (l.leadStatus === 'Lost' && l.rejectedFromStage === 'Qualified'))
-                                        : displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus));
+                                        ? displayLeads.filter(l => l.leadStatus === 'Qualified' || (l.rejectedFromStage || '').trim().toLowerCase() === 'qualified')
+                                        : displayLeads.filter(l => !['Qualified', 'Appointment', 'Converted'].includes(l.leadStatus) && (l.rejectedFromStage || '').trim().toLowerCase() !== 'qualified');
                                     
                                     const stageLeads = kanbanDisplayLeads.filter(lead => {
                                         const status = (lead.callStatus || '').toLowerCase();
@@ -1244,6 +1244,7 @@ export default function Sales() {
                 <LeadDetailsModal 
                     key={selectedLead._id}
                     lead={selectedLead}
+                    pipelineTab={pipelineTab}
                     draftCallStatus={draftCallStatus}
                     proposalService={selectedService && selectedService !== 'All' ? selectedService : (isRobotriq ? getLeadLevel(selectedLead) : null)}
                     onClose={() => { setIsViewModalOpen(false); setSelectedLead(null); }} 

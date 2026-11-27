@@ -6,7 +6,7 @@ import { getLeadCallbackProgress } from '../utils/callbackProgress';
 import { calculateFitsScore, isFitsQualified as checkFitsQualified } from '../utils/fitsScore';
 import { X, Calendar, Clock, CheckCircle, ArrowRight, Building, PhoneOutgoing, FileText, CheckSquare, Briefcase, IndianRupee, MessageCircle, Eye, Zap, RotateCcw } from 'lucide-react';
 
-export default function LeadDetailsModal({ lead, draftCallStatus, proposalService, onClose, onUpdate, onEdit }) {
+export default function LeadDetailsModal({ lead, pipelineTab, draftCallStatus, proposalService, onClose, onUpdate, onEdit }) {
     const [isSaving, setIsSaving] = useState(false);
     const [profile, setProfile] = useState(null);
     const [profileError, setProfileError] = useState('');
@@ -16,7 +16,8 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
 
     // Build selectable statuses with locked state for sequential callbacks
     const callStatusOptions = useMemo(() => {
-        const statuses = lead?.leadStatus === 'Qualified'
+        const isQualifiedContext = lead?.leadStatus === 'Qualified' || (lead?.rejectedFromStage || '').trim().toLowerCase() === 'qualified' || pipelineTab === 'Qualified';
+        const statuses = isQualifiedContext
             ? ['Qualified', 'Called', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Not Attend', 'Rejected', 'Waiting List']
             : ['Lead', 'Called', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Not Attend', 'Rejected', 'Waiting List'];
         
@@ -193,11 +194,20 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
             
             if (callStatus === 'Rejected') {
                 payload.leadStatus = 'Lost';
-                payload.rejectedFromStage = lead.leadStatus || 'Lead';
-            } else if (lead.leadStatus === 'Qualified') {
+                const isFromQualified = pipelineTab === 'Qualified' || lead.leadStatus === 'Qualified' || (lead.rejectedFromStage || '').trim().toLowerCase() === 'qualified';
+                payload.rejectedFromStage = isFromQualified
+                    ? 'Qualified'
+                    : (lead.leadStatus === 'Lost' ? (lead.rejectedFromStage || 'Lead') : (lead.leadStatus || 'Lead'));
+            } else if (callStatus === 'Qualified') {
+                payload.leadStatus = 'Qualified';
+                payload.leadStage = 'Qualified';
+                payload.rejectedFromStage = '';
+                payload.rejectReason = '';
+            } else if (lead.leadStatus === 'Qualified' || (lead.rejectedFromStage || '').trim().toLowerCase() === 'qualified' || pipelineTab === 'Qualified') {
                 // Keep leadStatus as Qualified for qualified leads updating their call status!
                 payload.leadStatus = 'Qualified';
                 payload.leadStage = 'Qualified';
+                payload.rejectedFromStage = '';
                 if (callStatus === 'Called') {
                     payload.fits = {
                         familiarity: fitsFamiliarity,
@@ -320,8 +330,15 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                     payload.paymentScreenshot = uploadRes.data.fileUrl;
                 }
             } else if (pendingStage === 'Rejected') {
-                Object.assign(payload, { callStatus: 'Rejected', rejectReason: rejectReason.trim(), rejectedFromStage: lead.leadStatus,
-                    callbackAlertDate: '', callbackAlertTime: '', nextFollowUpDate: null });
+                const isFromQualified = pipelineTab === 'Qualified' || lead.leadStatus === 'Qualified' || (lead.rejectedFromStage || '').trim().toLowerCase() === 'qualified';
+                Object.assign(payload, { 
+                    callStatus: 'Rejected', 
+                    rejectReason: rejectReason.trim(), 
+                    rejectedFromStage: isFromQualified ? 'Qualified' : (lead.leadStatus === 'Lost' ? (lead.rejectedFromStage || 'Lead') : (lead.leadStatus || 'Lead')),
+                    callbackAlertDate: '', 
+                    callbackAlertTime: '', 
+                    nextFollowUpDate: null 
+                });
             }
 
             const res = await axios.put(`${API_BASE_URL}/api/leads/${lead._id}`, payload, {
