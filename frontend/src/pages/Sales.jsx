@@ -918,16 +918,41 @@ export default function Sales() {
                                 }
 
                                 const sortAlertsFirst = (a, b) => {
-                                    const getAlertPriority = (l) => {
-                                        const dt = leadReminder(l);
-                                        if (!dt || Number.isNaN(+dt)) return 3;
-                                        if (dt <= new Date()) return 1; // Overdue
-                                        if (dt.toDateString() === new Date().toDateString()) return 2; // Today
-                                        return 3; // Future or None
-                                    };
-                                    const pA = getAlertPriority(a);
-                                    const pB = getAlertPriority(b);
-                                    if (pA !== pB) return pA - pB;
+                                    const now = new Date();
+                                    const dtA = leadReminder(a);
+                                    const dtB = leadReminder(b);
+
+                                    const isOverdueA = dtA && !Number.isNaN(+dtA) && dtA <= now;
+                                    const isOverdueB = dtB && !Number.isNaN(+dtB) && dtB <= now;
+
+                                    // 1. Leads with active/overdue alerts come FIRST!
+                                    if (isOverdueA && !isOverdueB) return -1;
+                                    if (!isOverdueA && isOverdueB) return 1;
+                                    if (isOverdueA && isOverdueB) {
+                                        return dtA - dtB; // Earliest overdue alert first
+                                    }
+
+                                    // 2. Leads due today come next
+                                    const isTodayA = dtA && !Number.isNaN(+dtA) && dtA.toDateString() === now.toDateString();
+                                    const isTodayB = dtB && !Number.isNaN(+dtB) && dtB.toDateString() === now.toDateString();
+
+                                    if (isTodayA && !isTodayB) return -1;
+                                    if (!isTodayA && isTodayB) return 1;
+                                    if (isTodayA && isTodayB) {
+                                        return dtA - dtB;
+                                    }
+
+                                    // 3. Leads with future alerts come next
+                                    const hasFutureA = dtA && !Number.isNaN(+dtA) && dtA > now;
+                                    const hasFutureB = dtB && !Number.isNaN(+dtB) && dtB > now;
+
+                                    if (hasFutureA && !hasFutureB) return -1;
+                                    if (!hasFutureA && hasFutureB) return 1;
+                                    if (hasFutureA && hasFutureB) {
+                                        return dtA - dtB;
+                                    }
+
+                                    // 4. Default: Newest leads first
                                     return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
                                 };
 
@@ -940,6 +965,8 @@ export default function Sales() {
                                     
                                     return {
                                         status,
+                                        date: dt,
+                                        isOverdue: dt <= now,
                                         text: dt.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true })
                                     };
                                 };
@@ -948,12 +975,13 @@ export default function Sales() {
 
                                 const renderLeadCard = (lead) => {
                                     const alert = getAlertStatusInfo(lead);
+                                    const isOverdue = alert?.status === 'overdue';
                                     const fitsResult = calculateFitsScore(lead.fits);
                                     const hasFits = Boolean(lead.fits && (lead.fits.familiarity || lead.fits.intention || lead.fits.time || lead.fits.spend));
                                     const baseClass = "p-3 bg-white rounded-xl border border-slate-100 shadow-2xs hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 group relative cursor-pointer";
-                                    let borderClass = "";
-                                    
-                                    if (alert?.status === 'overdue') borderClass = "bg-red-50 border-red-200 border-l-[4px] border-l-red-500 hover:shadow-md";
+                                    const borderClass = isOverdue
+                                        ? "bg-gradient-to-br from-red-50/90 via-white to-red-50/40 border-red-300 border-l-[5px] border-l-red-500 shadow-xs ring-1 ring-red-200 hover:shadow-md"
+                                        : "";
 
                                     return (
                                         <div 
@@ -968,7 +996,15 @@ export default function Sales() {
                                             onDragStart={(e) => handleDragStart(e, lead._id)}
                                         >
                                             <div className="flex justify-between items-start gap-1 mb-1.5">
-                                                <h4 className="font-bold text-[#111111] text-[13px] leading-tight truncate group-hover:text-[#3f3f3f] transition-colors" title={lead.customerName}>{lead.customerName}</h4>
+                                                <div className="flex items-center gap-1.5 min-w-0">
+                                                    {isOverdue && (
+                                                        <span className="relative flex h-2.5 w-2.5 shrink-0" title="Follow-up Alert Due!">
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600"></span>
+                                                        </span>
+                                                    )}
+                                                    <h4 className="font-bold text-[#111111] text-[13px] leading-tight truncate group-hover:text-[#3f3f3f] transition-colors" title={lead.customerName}>{lead.customerName}</h4>
+                                                </div>
                                                 <div className="flex items-center gap-1 shrink-0">
                                                     {hasFits && (
                                                         <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-black border flex items-center gap-0.5 shadow-2xs ${fitsResult.badgeClass}`} title={`FITS Score: ${fitsResult.score}% (${fitsResult.label})`}>
@@ -1001,11 +1037,14 @@ export default function Sales() {
                                             </div>
                                             
                                             {alert && (
-                                                <div className={`mt-1.5 mb-2 flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded w-max ${
-                                                    alert.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-[#f0f0ee] text-slate-500'
+                                                <div className={`mt-1.5 mb-2 flex items-center justify-between text-[10px] font-bold px-2 py-1 rounded-lg shadow-2xs ${
+                                                    isOverdue ? 'bg-red-100/90 text-red-800 border border-red-200 animate-pulse' : 'bg-[#f0f0ee] text-slate-600 border border-slate-200'
                                                 }`}>
-                                                    {alert.status === 'overdue' ? <Bell size={9} className="mr-1 animate-pulse" /> : <Clock size={9} className="mr-1" />}
-                                                    {alert.text}
+                                                    <div className="flex items-center gap-1">
+                                                        {isOverdue ? <Bell size={11} className="mr-0.5 text-red-600 animate-bounce shrink-0" /> : <Clock size={11} className="mr-0.5 text-slate-500 shrink-0" />}
+                                                        <span className="text-[9px] uppercase tracking-wider">{isOverdue ? 'Alert Due' : 'Reminder'}</span>
+                                                    </div>
+                                                    <span className="font-extrabold">{alert.text}</span>
                                                 </div>
                                             )}
 
@@ -1168,6 +1207,11 @@ export default function Sales() {
                                         return isQualifiedTab ? stage.status === 'Qualified' : stage.status === 'New';
                                     }).sort(sortAlertsFirst);
 
+                                    const stageAlertCount = stageLeads.filter(l => {
+                                        const dt = leadReminder(l);
+                                        return dt && !Number.isNaN(+dt) && dt <= new Date();
+                                    }).length;
+
                                     const totalColPages = Math.ceil(stageLeads.length / PAGE_SIZE) || 1;
                                     const currentColPage = Math.min(kanbanPages[stage.status] || 1, totalColPages);
                                     const paginatedStageLeads = stageLeads.slice((currentColPage - 1) * PAGE_SIZE, currentColPage * PAGE_SIZE);
@@ -1184,8 +1228,21 @@ export default function Sales() {
                                                 <div className="flex items-center space-x-1.5 min-w-0">
                                                     <div className={`w-2.5 h-2.5 rounded-full ${stage.dotColor} shrink-0`}></div>
                                                     <h3 className="font-bold text-slate-800 text-xs sm:text-[13px] truncate">{stage.label}</h3>
+                                                    {stageAlertCount > 0 && (
+                                                        <span className="relative flex h-2 w-2 shrink-0 ml-0.5" title={`${stageAlertCount} follow-up alert(s) due in ${stage.label}`}>
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                                        </span>
+                                                    )}
                                                 </div>
-                                                <span className="bg-white border border-[#e6e6e3] text-slate-600 px-2 py-0.2 rounded-full text-[10px] font-bold shrink-0">{stageLeads.length}</span>
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    {stageAlertCount > 0 && (
+                                                        <span className="bg-red-50 text-red-600 border border-red-200 text-[10px] font-black px-1.5 py-0.2 rounded-full flex items-center gap-0.5 shadow-2xs" title={`${stageAlertCount} alert(s) due`}>
+                                                            <Bell size={9} className="text-red-500 animate-pulse" /> {stageAlertCount}
+                                                        </span>
+                                                    )}
+                                                    <span className="bg-white border border-[#e6e6e3] text-slate-600 px-2 py-0.2 rounded-full text-[10px] font-bold shrink-0">{stageLeads.length}</span>
+                                                </div>
                                             </div>
                                             
                                             {/* Stage Content */}
