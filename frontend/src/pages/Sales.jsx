@@ -1,5 +1,6 @@
 import '../components/RobotriqWorkspace.css';
 import { getWorkspaceBrand } from '../utils/workspaceBrand';
+import { getLeadCallbackProgress } from '../utils/callbackProgress';
 import RobotriqEnquiries from '../components/RobotriqEnquiries';
 import RobotriqReminders from '../components/RobotriqReminders';
 import { lazy, Suspense, useState, useEffect, useMemo, useCallback } from 'react';
@@ -9,6 +10,7 @@ import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Search, Pencil, Trash2, Phone, MapPin, Building, Target, ArrowLeft, Megaphone, Globe, Monitor, Users, PhoneOutgoing, Bell, Clock, ChevronLeft, ChevronRight, Briefcase, Award, Zap, Cpu } from 'lucide-react';
 import LeadDetailsModal from '../components/LeadDetailsModal';
+import FitsModal from '../components/FitsModal';
 import ProposalConfigTab from '../components/ProposalConfigTab';
 import SalesActivityLog from '../components/SalesActivityLog';
 import SalesLeadList from '../components/SalesLeadList';
@@ -192,9 +194,11 @@ export default function Sales() {
     const [gridPage, setGridPage] = useState(1);
     const [kanbanPages, setKanbanPages] = useState({
         'New': 1,
+        'Called': 1,
         'Contacted': 1,
         'Not Attend': 1,
-        'Rejected': 1
+        'Rejected': 1,
+        'Waiting List': 1
     });
 
     // Reset pagination when source, service, search, or tab changes
@@ -202,17 +206,26 @@ export default function Sales() {
         setGridPage(1);
         setKanbanPages({
             'New': 1,
+            'Called': 1,
             'Contacted': 1,
             'Not Attend': 1,
-            'Rejected': 1
+            'Rejected': 1,
+            'Waiting List': 1
         });
     }, [selectedSource, selectedService, searchTerm, pipelineTab]);
 
     // Modals
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isFitsModalOpen, setIsFitsModalOpen] = useState(false);
+    const [fitsLead, setFitsLead] = useState(null);
     const [selectedLead, setSelectedLead] = useState(null);
     const [draftCallStatus, setDraftCallStatus] = useState(null);
+
+    const openFitsModal = (lead) => {
+        setFitsLead(lead);
+        setIsFitsModalOpen(true);
+    };
 
     // Form
     async function fetchLeads() {
@@ -251,12 +264,17 @@ export default function Sales() {
         let newCallStatus = targetStage;
         if (targetStage === 'New') {
             newCallStatus = 'Lead';
+        } else if (targetStage === 'Called') {
+            newCallStatus = 'Called';
         } else if (targetStage === 'Contacted') {
-            newCallStatus = 'Callback (1)';
+            const { nextAllowed } = getLeadCallbackProgress(originalLead);
+            newCallStatus = `Callback (${nextAllowed})`;
         } else if (targetStage === 'Not Attend') {
             newCallStatus = 'Not Attend';
         } else if (targetStage === 'Rejected') {
             newCallStatus = 'Rejected';
+        } else if (targetStage === 'Waiting List') {
+            newCallStatus = 'Waiting List';
         }
 
         // We DO NOT save to the backend yet! 
@@ -434,8 +452,11 @@ export default function Sales() {
     const openValue = leads.reduce((value, lead) => ['Converted', 'Lost'].includes(lead.leadStatus)
         ? value : value + (Number(lead.leadValue) || 0), 0);
 
+    // Only apply full-width layout to the specific Pipeline Kanban board page
+    const isPipelineView = activeTab === 'leads' && Boolean(selectedSource) && Boolean(selectedService);
+
     return (
-        <Layout workspace compactTools>
+        <Layout workspace compactTools fullWidth={isPipelineView}>
             <style dangerouslySetInnerHTML={{__html: `
                 @keyframes fadeUp {
                     from { opacity: 0; transform: translateY(40px); }
@@ -814,10 +835,10 @@ export default function Sales() {
 
                                 const renderLeadCard = (lead) => {
                                     const alert = getAlertStatusInfo(lead);
-                                    const baseClass = "p-5 bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_2px_15px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-300 group relative cursor-pointer";
+                                    const baseClass = "p-3 bg-white rounded-xl border border-slate-100 shadow-2xs hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 group relative cursor-pointer";
                                     let borderClass = "";
                                     
-                                    if (alert?.status === 'overdue') borderClass = "bg-red-50 border-red-200 border-l-[6px] border-l-red-500 hover:shadow-lg";
+                                    if (alert?.status === 'overdue') borderClass = "bg-red-50 border-red-200 border-l-[4px] border-l-red-500 hover:shadow-md";
 
                                     return (
                                         <div 
@@ -831,59 +852,90 @@ export default function Sales() {
                                             draggable
                                             onDragStart={(e) => handleDragStart(e, lead._id)}
                                         >
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-bold text-[#111111] text-[15px] leading-tight group-hover:text-[#3f3f3f] transition-colors">{lead.customerName}</h4>
-                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getTempBadge(lead.leadTemperature)}`}>{getTempIcon(lead.leadTemperature)} {lead.leadTemperature}</span>
+                                            <div className="flex justify-between items-start gap-1 mb-1.5">
+                                                <h4 className="font-bold text-[#111111] text-[13px] leading-tight truncate group-hover:text-[#3f3f3f] transition-colors" title={lead.customerName}>{lead.customerName}</h4>
+                                                <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold shrink-0 ${getTempBadge(lead.leadTemperature)}`}>{getTempIcon(lead.leadTemperature)} {lead.leadTemperature}</span>
                                             </div>
-                                            <div className="flex flex-wrap items-center gap-2 mb-2">
-                                                {(lead.companyName || lead.industry) && <p className="text-xs text-slate-500 flex items-center font-medium"><Building size={12} className="mr-1 text-slate-400"/>{lead.companyName || lead.industry}</p>}
-                                                {lead.location && <span className="text-[11px] text-slate-500 font-semibold flex items-center bg-[#f0f0ee] px-2 py-0.5 rounded-md"><MapPin size={11} className="mr-1 text-slate-400" />{lead.location}</span>}
+                                            <div className="flex flex-wrap items-center gap-1 mb-1.5">
+                                                {(lead.companyName || lead.industry) && <p className="text-[11px] text-slate-500 flex items-center font-medium truncate max-w-full"><Building size={11} className="mr-1 text-slate-400 shrink-0"/>{lead.companyName || lead.industry}</p>}
+                                                {lead.location && <span className="text-[10px] text-slate-500 font-semibold flex items-center bg-[#f0f0ee] px-1.5 py-0.2 rounded"><MapPin size={10} className="mr-0.5 text-slate-400 shrink-0" />{lead.location}</span>}
                                             </div>
                                             
                                             {/* Level & Service Tags */}
-                                            <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                                            <div className="flex flex-wrap items-center gap-1 mb-1.5">
                                                 {isRobotriq && (
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-teal-50 text-teal-700 border border-teal-200">
-                                                        <Award size={10} className="mr-1 text-teal-600" />
+                                                     <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-teal-50 text-teal-700 border border-teal-200">
+                                                        <Award size={9} className="mr-0.5 text-teal-600" />
                                                         {getLeadLevel(lead)}
                                                     </span>
                                                 )}
                                                 {(lead.serviceType || lead.productServiceInterested) && (
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#f0f0ee] text-[#111111] border border-[#ededea]">
-                                                        <Briefcase size={10} className="mr-1 text-blue-500" />
-                                                        {lead.serviceType || lead.productServiceInterested}
+                                                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-[#f0f0ee] text-[#111111] border border-[#ededea] truncate max-w-full">
+                                                        <Briefcase size={9} className="mr-0.5 text-blue-500 shrink-0" />
+                                                        <span className="truncate">{lead.serviceType || lead.productServiceInterested}</span>
                                                     </span>
                                                 )}
                                             </div>
                                             
                                             {alert && (
-                                                <div className={`mt-2 mb-3 flex items-center text-[10px] font-bold px-2 py-1 rounded-md w-max ${
+                                                <div className={`mt-1.5 mb-2 flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded w-max ${
                                                     alert.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-[#f0f0ee] text-slate-500'
                                                 }`}>
-                                                    {alert.status === 'overdue' ? <Bell size={10} className="mr-1.5 animate-pulse" /> : <Clock size={10} className="mr-1.5" />}
+                                                    {alert.status === 'overdue' ? <Bell size={9} className="mr-1 animate-pulse" /> : <Clock size={9} className="mr-1" />}
                                                     {alert.text}
                                                 </div>
                                             )}
 
-                                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-                                                <p className="text-xs text-slate-600 flex items-center font-medium"><Phone size={12} className="mr-1.5 text-slate-400"/>{lead.mobileNumber || '-'}</p>
-                                                <p className="text-xs font-black text-[#111111] bg-[#f5f5f3] px-2 py-1 rounded-md border border-slate-100 group-hover:bg-[#f0f0ee] group-hover:text-[#111111] transition-colors">₹{(lead.leadValue || 0).toLocaleString()}</p>
+                                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 gap-1">
+                                                <p className="text-[11px] text-slate-600 flex items-center font-medium truncate"><Phone size={11} className="mr-1 text-slate-400 shrink-0"/>{lead.mobileNumber || '-'}</p>
+                                                <p className="text-[11px] font-black text-[#111111] bg-[#f5f5f3] px-1.5 py-0.5 rounded border border-slate-100 shrink-0">₹{(lead.leadValue || 0).toLocaleString()}</p>
                                             </div>
 
                                             {/^(Callback|Waiting List)/.test(lead.callStatus || '') && (
-                                                <p className="mt-2 text-xs font-semibold text-slate-600">{lead.callStatus}{lead.waitingListDescription && lead.callStatus === 'Waiting List' ? ' · ' + lead.waitingListDescription : ''}</p>
+                                                <p className="mt-1.5 text-[10px] font-semibold text-slate-600 truncate">{lead.callStatus}{lead.waitingListDescription && lead.callStatus === 'Waiting List' ? ' · ' + lead.waitingListDescription : ''}</p>
                                             )}
                                             {lead.callStatus === 'Rejected' && (
-                                                <div className="mt-3 p-2 bg-red-50 rounded-lg border border-red-100">
-                                                    <p className="text-[10px] text-red-600 font-bold mb-0.5">Rejected from {lead.rejectedFromStage || 'Unknown'}</p>
+                                                <div className="mt-2 p-1.5 bg-red-50 rounded-lg border border-red-100 text-[10px]">
+                                                    <p className="text-[9px] text-red-600 font-bold mb-0.5">Rejected from {lead.rejectedFromStage || 'Unknown'}</p>
                                                     <p className="text-[10px] text-red-800 line-clamp-2" title={lead.rejectReason}>{lead.rejectReason || 'No reason'}</p>
+                                                </div>
+                                            )}
+                                            {lead.callStatus === 'Called' && (
+                                                <div className="mt-2 pt-2 border-t border-slate-100" onClick={e => e.stopPropagation()}>
+                                                    {lead.fits && (lead.fits.familiarity || lead.fits.intention || lead.fits.time || lead.fits.spend) ? (
+                                                        <div className="mb-1.5 p-2 bg-blue-50/80 border border-blue-100 rounded-lg text-[10px] space-y-0.5 shadow-2xs">
+                                                            <div className="flex items-center justify-between text-blue-700 font-bold text-[10px]">
+                                                                <span className="flex items-center gap-0.5"><Zap size={10} className="text-yellow-500 fill-yellow-400" /> FITS</span>
+                                                                <span className="text-[9px] bg-blue-100 px-1 py-0.2 rounded text-blue-800 font-semibold">Done</span>
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-0.5 text-[10px] text-slate-700 pt-0.5">
+                                                                <div className="truncate">Fam: <strong className="text-slate-900">{lead.fits.familiarity || '-'}</strong></div>
+                                                                <div className="truncate">Intent: <strong className="text-slate-900">{lead.fits.intention || '-'}</strong></div>
+                                                                <div className="truncate">Time: <strong className="text-slate-900">{lead.fits.time || '-'}</strong></div>
+                                                                <div className="truncate">Spend: <strong className="text-slate-900">{lead.fits.spend || '-'}</strong></div>
+                                                            </div>
+                                                            {lead.fits.intentionReason && (
+                                                                <p className="text-[9px] text-slate-500 italic truncate pt-0.5" title={lead.fits.intentionReason}>
+                                                                    "{lead.fits.intentionReason}"
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    ) : null}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openFitsModal(lead)}
+                                                        className="w-full py-1 px-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-bold rounded-lg shadow-2xs hover:shadow transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                                    >
+                                                        <Zap size={11} className="text-yellow-300" />
+                                                        <span>{lead.fits?.familiarity ? 'Update FITS' : 'FITS Assessment'}</span>
+                                                    </button>
                                                 </div>
                                             )}
 
                                             {/* Quick Action Buttons */}
-                                            <div className="absolute top-3 right-3 flex flex-col space-y-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm p-1 rounded-lg border border-slate-100 shadow-sm" onClick={e => e.stopPropagation()}>
-                                                <button onClick={() => openEditModal(lead)} className="p-1.5 text-slate-400 hover:text-[#3f3f3f] hover:bg-[#f0f0ee] rounded-md transition-colors"><Pencil size={14}/></button>
-                                                <button onClick={() => openDeleteModal(lead)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"><Trash2 size={14}/></button>
+                                            <div className="absolute top-2 right-2 flex flex-col space-y-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm p-0.5 rounded-lg border border-slate-100 shadow-sm" onClick={e => e.stopPropagation()}>
+                                                <button onClick={() => openEditModal(lead)} className="p-1 text-slate-400 hover:text-[#3f3f3f] hover:bg-[#f0f0ee] rounded transition-colors"><Pencil size={12}/></button>
+                                                <button onClick={() => openDeleteModal(lead)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={12}/></button>
                                             </div>
                                         </div>
                                     );
@@ -947,6 +999,7 @@ export default function Sales() {
                                 // If on 'Leads' Tab, show exactly the 4 requested Kanban columns
                                 const kanbanStages = [
                                     { status: 'New', label: 'Lead', dotColor: 'bg-[#ff6a3d]', bgColor: 'bg-[#f5f5f3]/50' },
+                                    { status: 'Called', label: 'Called', dotColor: 'bg-blue-500', bgColor: 'bg-[#f5f5f3]/50' },
                                     { status: 'Contacted', label: 'Callback', dotColor: 'bg-amber-500', bgColor: 'bg-[#f5f5f3]/50' },
                                     { status: 'Not Attend', label: 'Not Attend', dotColor: 'bg-orange-500', bgColor: 'bg-[#f5f5f3]/50' },
                                     { status: 'Rejected', label: 'Rejected', dotColor: 'bg-rose-500', bgColor: 'bg-[#f5f5f3]/50' },
@@ -954,7 +1007,7 @@ export default function Sales() {
                                 ];
 
                                 return (
-                                    <div className="flex gap-4 w-full h-full overflow-x-auto pb-2 animate-fade-up">
+                                    <div className="flex gap-2 sm:gap-2.5 w-full h-full pb-2 animate-fade-up overflow-x-hidden">
                                     {kanbanStages.map((stage, idx) => {
                                     // Custom filtering to match the 4 requested columns based on callStatus!
                                     // ONLY include leads that are actually in the "Leads" tab (not Qualified/Appointment/Converted)
@@ -966,6 +1019,7 @@ export default function Sales() {
                                         if (status === 'waiting list') return stage.status === 'Waiting List';
                                         if (status.includes('callback')) return stage.status === 'Contacted';
                                         if (status.includes('not attend')) return stage.status === 'Not Attend';
+                                        if (status === 'called') return stage.status === 'Called';
                                         return stage.status === 'New';
                                     }).sort(sortAlertsFirst);
 
@@ -976,23 +1030,23 @@ export default function Sales() {
                                     return (
                                         <div 
                                             key={idx} 
-                                            className={`flex-1 min-w-[210px] flex flex-col ${stage.bgColor} border border-[#e6e6e3] rounded-[1.5rem] overflow-hidden shadow-sm transition-colors duration-300`}
+                                            className={`flex-1 min-w-0 flex flex-col ${stage.bgColor} border border-[#e6e6e3] rounded-2xl overflow-hidden shadow-2xs transition-colors duration-300`}
                                             onDragOver={handleDragOver}
                                             onDrop={(e) => handleDrop(e, stage.status)}
                                         >
                                             {/* Stage Header */}
-                                            <div className="p-4 border-b border-[#e6e6e3] flex justify-between items-center bg-white/80 backdrop-blur-sm rounded-t-[1.5rem]">
-                                                <div className="flex items-center space-x-2.5">
-                                                    <div className={`w-3 h-3 rounded-full ${stage.dotColor} shadow-inner`}></div>
-                                                    <h3 className="font-bold text-slate-800 text-[15px]">{stage.label}</h3>
+                                            <div className="p-2.5 px-3 border-b border-[#e6e6e3] flex justify-between items-center bg-white/80 backdrop-blur-sm rounded-t-2xl">
+                                                <div className="flex items-center space-x-1.5 min-w-0">
+                                                    <div className={`w-2.5 h-2.5 rounded-full ${stage.dotColor} shrink-0`}></div>
+                                                    <h3 className="font-bold text-slate-800 text-xs sm:text-[13px] truncate">{stage.label}</h3>
                                                 </div>
-                                                <span className="bg-white border border-[#e6e6e3] text-slate-600 px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm">{stageLeads.length}</span>
+                                                <span className="bg-white border border-[#e6e6e3] text-slate-600 px-2 py-0.2 rounded-full text-[10px] font-bold shrink-0">{stageLeads.length}</span>
                                             </div>
                                             
                                             {/* Stage Content */}
-                                            <div className="p-3 min-h-[500px] flex-1 flex flex-col gap-3 overflow-y-auto max-h-[65vh]">
+                                            <div className="p-2 min-h-[450px] flex-1 flex flex-col gap-2 overflow-y-auto max-h-[72vh]">
                                                 {stageLeads.length === 0 ? (
-                                                    <div className="h-24 flex items-center justify-center text-slate-400 text-sm font-medium border-2 border-dashed border-[#e6e6e3] rounded-xl">
+                                                    <div className="h-20 flex items-center justify-center text-slate-400 text-xs font-medium border-2 border-dashed border-[#e6e6e3] rounded-xl">
                                                         Empty
                                                     </div>
                                                 ) : (
@@ -1002,23 +1056,23 @@ export default function Sales() {
 
                                             {/* Column Pagination (When records > 15) */}
                                             {stageLeads.length > PAGE_SIZE && (
-                                                <div className="p-2.5 px-3 bg-white/95 backdrop-blur-sm border-t border-[#e6e6e3] flex items-center justify-between text-xs font-semibold text-slate-600 rounded-b-[1.5rem] shadow-xs">
+                                                <div className="p-1.5 px-2 bg-white/95 backdrop-blur-sm border-t border-[#e6e6e3] flex items-center justify-between text-[10px] font-semibold text-slate-600 rounded-b-2xl shadow-xs">
                                                     <button 
                                                         onClick={() => setKanbanPages(prev => ({ ...prev, [stage.status]: Math.max(1, currentColPage - 1) }))}
                                                         disabled={currentColPage <= 1}
-                                                        className="px-2.5 py-1 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg font-bold text-slate-700 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                                        className="px-2 py-0.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed rounded font-bold text-slate-700 transition-colors flex items-center gap-0.5 cursor-pointer text-[10px]"
                                                     >
-                                                        <ChevronLeft size={13} /> Prev
+                                                        <ChevronLeft size={11} /> Prev
                                                     </button>
-                                                    <span className="text-[11px] font-bold text-slate-500">
-                                                        {currentColPage} / {totalColPages}
+                                                    <span className="text-[10px] font-bold text-slate-500">
+                                                        {currentColPage}/{totalColPages}
                                                     </span>
                                                     <button 
                                                         onClick={() => setKanbanPages(prev => ({ ...prev, [stage.status]: Math.min(totalColPages, currentColPage + 1) }))}
                                                         disabled={currentColPage >= totalColPages}
-                                                        className="px-2.5 py-1 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg font-bold text-slate-700 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                                        className="px-2 py-0.5 bg-[#f0f0ee] hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed rounded font-bold text-slate-700 transition-colors flex items-center gap-0.5 cursor-pointer text-[10px]"
                                                     >
-                                                        Next <ChevronRight size={13} />
+                                                        Next <ChevronRight size={11} />
                                                     </button>
                                                 </div>
                                             )}
@@ -1071,6 +1125,20 @@ export default function Sales() {
                     </div>
                 </div>
             )}
+
+            {/* FITS Assessment Modal */}
+            <FitsModal
+                lead={fitsLead}
+                isOpen={isFitsModalOpen}
+                onClose={() => { setIsFitsModalOpen(false); setFitsLead(null); }}
+                onUpdate={(savedLead, qualified) => {
+                    const updatedLead = normalizeLeadStage(savedLead);
+                    setLeads(current => current.map(l => l._id === updatedLead._id ? updatedLead : l));
+                    if (qualified) {
+                        setPipelineTab('Qualified');
+                    }
+                }}
+            />
         </Layout>
     );
 }

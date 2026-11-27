@@ -66,7 +66,14 @@ export default function LandingMarketing({ user, onLogout, billingCycle, onBilli
     return (
         <div className="public-page marketing-page" id="top">
             <header className="marketing-header marketing-width">
-                <a className="public-brand" href="#top"><span aria-hidden="true" /> Skite Prime</a>
+                <a className="public-brand" href="#top">
+                    <img 
+                        src="https://skitedigital.in/assets/logo-DocXizzF.webp" 
+                        alt="Skite Logo" 
+                        className="h-9 w-auto object-contain" 
+                        onError={(e) => { e.currentTarget.src = '/skite-logo.webp'; }} 
+                    />
+                </a>
                 <nav className="marketing-nav" aria-label="Site">
                     <a href="#modules">Modules</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a>
                 </nav>
@@ -183,7 +190,15 @@ export default function LandingMarketing({ user, onLogout, billingCycle, onBilli
                 </section>
             </main>
             <footer className="marketing-footer marketing-width">
-                <span className="public-brand"><span aria-hidden="true" /> Skite Prime by Skite Digital · © 2026</span>
+                <span className="public-brand flex items-center gap-2">
+                    <img 
+                        src="https://skitedigital.in/assets/logo-DocXizzF.webp" 
+                        alt="Skite Logo" 
+                        className="h-6 w-auto object-contain inline-block align-middle" 
+                        onError={(e) => { e.currentTarget.src = '/skite-logo.webp'; }} 
+                    />
+                    <span className="text-xs text-slate-500">by Skite Digital · © 2026</span>
+                </span>
                 <nav aria-label="Footer"><a href="#modules">Modules</a><a href="#pricing">Pricing</a><Link to="/login">Sign in</Link></nav>
             </footer>
         </div>

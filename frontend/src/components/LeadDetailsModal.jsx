@@ -1,13 +1,64 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
 import { proposalConfigUrl } from '../utils/salesPipeline';
-import { X, Calendar, Clock, CheckCircle, ArrowRight, Building, PhoneOutgoing, FileText, CheckSquare, Briefcase, IndianRupee, MessageCircle, Eye } from 'lucide-react';
+import { getLeadCallbackProgress } from '../utils/callbackProgress';
+import { X, Calendar, Clock, CheckCircle, ArrowRight, Building, PhoneOutgoing, FileText, CheckSquare, Briefcase, IndianRupee, MessageCircle, Eye, Zap } from 'lucide-react';
 
 export default function LeadDetailsModal({ lead, draftCallStatus, proposalService, onClose, onUpdate, onEdit }) {
     const [isSaving, setIsSaving] = useState(false);
     const [profile, setProfile] = useState(null);
     const [profileError, setProfileError] = useState('');
+
+    // Compute callback progress
+    const callbackProgress = useMemo(() => getLeadCallbackProgress(lead), [lead]);
+
+    // Build selectable statuses with locked state for sequential callbacks
+    const callStatusOptions = useMemo(() => {
+        const statuses = ['Lead', 'Called', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Not Attend', 'Rejected', 'Waiting List'];
+        
+        return statuses.map(s => {
+            const match = s.match(/Callback\s*\(?(\d)\)?/i);
+            if (!match) {
+                return { value: s, label: s, disabled: false };
+            }
+            const level = parseInt(match[1], 10);
+            const isAllowed = level <= callbackProgress.nextAllowed;
+            
+            let label = s;
+            if (level === callbackProgress.nextAllowed && callbackProgress.highestSaved < level) {
+                label = `${s} ⚡ (Active)`;
+            } else if (level <= callbackProgress.highestSaved) {
+                label = `${s} ✓ (Done)`;
+            } else {
+                label = `${s} 🔒 (Locked - Complete Callback ${level - 1} first)`;
+            }
+
+            return {
+                value: s,
+                label,
+                disabled: !isAllowed
+            };
+        });
+    }, [callbackProgress]);
+
+    // Keep form states in sync with lead updates
+    useEffect(() => {
+        if (lead) {
+            setCallStatus(draftCallStatus || lead.callStatus || 'Lead');
+            setAlertDate(lead.callbackAlertDate || '');
+            setAlertTime(lead.callbackAlertTime || '');
+            setDescriptions({
+                'Callback (1)': lead.callback1Description || '',
+                'Callback (2)': lead.callback2Description || '',
+                'Callback (3)': lead.callback3Description || '',
+                'Callback (4)': lead.callback4Description || '',
+                'Callback (5)': lead.callback5Description || '',
+            });
+            setRejectReason(lead.rejectReason || '');
+            setWaitingListDescription(lead.waitingListDescription || '');
+        }
+    }, [lead, draftCallStatus]);
 
     // Form states
     const [callStatus, setCallStatus] = useState(draftCallStatus || lead.callStatus || 'Lead');
@@ -26,11 +77,34 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
     const [editingStage, setEditingStage] = useState(false);
     const [stageDetails, setStageDetails] = useState('');
     const [fullAmount, setFullAmount] = useState(lead.fullAmount ?? lead.leadValue ?? '');
+
+    // FITS Assessment States
+    const existingFits = lead.fits || {};
+    const [fitsFamiliarity, setFitsFamiliarity] = useState(existingFits.familiarity || '');
+    const [fitsIntention, setFitsIntention] = useState(existingFits.intention || '');
+    const [fitsIntentionReason, setFitsIntentionReason] = useState(existingFits.intentionReason || '');
+    const [fitsTime, setFitsTime] = useState(existingFits.time || '');
+    const [fitsSpend, setFitsSpend] = useState(existingFits.spend || '');
+
+    const isFitsQualified =
+        ['Medium', 'High'].includes(fitsFamiliarity) &&
+        (fitsIntention || '').toLowerCase() === 'yes' &&
+        ['Fast', 'Move'].includes(fitsTime) &&
+        ['Speed', 'Slow'].includes(fitsSpend);
+
     const needsReminder = /Callback|Not Attend|Waiting List/i.test(callStatus);
+    const fitsChanged = callStatus === 'Called' && (
+        fitsFamiliarity !== (existingFits.familiarity || '') ||
+        fitsIntention !== (existingFits.intention || '') ||
+        fitsIntentionReason !== (existingFits.intentionReason || '') ||
+        fitsTime !== (existingFits.time || '') ||
+        fitsSpend !== (existingFits.spend || '')
+    );
     const callChanged = callStatus !== (lead.callStatus || 'Lead')
         || (needsReminder && (alertDate !== (lead.callbackAlertDate || '') || alertTime !== (lead.callbackAlertTime || '')))
         || (callStatus === 'Rejected' && rejectReason !== (lead.rejectReason || ''))
         || (callStatus === 'Waiting List' && waitingListDescription !== (lead.waitingListDescription || ''))
+        || fitsChanged
         || Object.entries(descriptions).some(([status, value]) =>
             value !== (lead['callback' + status.match(/\d/)[0] + 'Description'] || ''));
 
@@ -68,6 +142,15 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
     };
 
     const handleCallStatusSave = async () => {
+        // Enforce sequential callback guard
+        const cbMatch = (callStatus || '').match(/Callback\s*\(?(\d)\)?/i);
+        if (cbMatch) {
+            const num = parseInt(cbMatch[1], 10);
+            if (num > callbackProgress.nextAllowed) {
+                alert(`Callback (${num}) is locked. Please complete Callback (${callbackProgress.nextAllowed}) first.`);
+                return;
+            }
+        }
         setIsSaving(true);
         try {
             const payload = {
@@ -89,6 +172,22 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                 payload.leadStatus = 'Lost';
                 if (!lead.rejectedFromStage) {
                     payload.rejectedFromStage = 'Lead';
+                }
+            } else if (callStatus === 'Called') {
+                payload.fits = {
+                    familiarity: fitsFamiliarity,
+                    intention: fitsIntention,
+                    intentionReason: fitsIntentionReason,
+                    time: fitsTime,
+                    spend: fitsSpend
+                };
+                if (isFitsQualified) {
+                    payload.leadStatus = 'Qualified';
+                    payload.leadStage = 'Qualified';
+                    payload.qualifiedAlertDate = new Date().toISOString().split('T')[0];
+                    payload.qualifiedNotes = `Qualified via FITS (F: ${fitsFamiliarity}, I: ${fitsIntention}${fitsIntentionReason ? ` - ${fitsIntentionReason}` : ''}, T: ${fitsTime}, S: ${fitsSpend})`;
+                } else {
+                    payload.leadStatus = 'New';
                 }
             } else if (needsReminder) {
                 payload.leadStatus = 'Contacted';
@@ -191,14 +290,40 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
         return (
             <div className="space-y-5">
                 <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-2">Update Call Status</label>
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-medium text-gray-700">Update Call Status</label>
+                        {callbackProgress.highestSaved > 0 && (
+                            <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                                Callback {callbackProgress.highestSaved} of 5 Completed
+                            </span>
+                        )}
+                    </div>
                     <select 
                         value={callStatus} 
-                        onChange={(e) => { setCallStatus(e.target.value); setAlertDate(''); setAlertTime(''); }}
+                        onChange={(e) => { 
+                            const val = e.target.value;
+                            const match = val.match(/Callback\s*\(?(\d)\)?/i);
+                            if (match) {
+                                const num = parseInt(match[1], 10);
+                                if (num > callbackProgress.nextAllowed) {
+                                    return; // Locked
+                                }
+                            }
+                            setCallStatus(val); 
+                            setAlertDate(''); 
+                            setAlertTime(''); 
+                        }}
                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#111111] focus:ring-1 focus:ring-blue-500 transition-colors"
                     >
-                        {[...new Set(['Lead', 'Callback (1)', 'Callback (2)', 'Callback (3)', 'Callback (4)', 'Callback (5)', 'Not Attend', 'Rejected', 'Waiting List', lead.callStatus].filter(Boolean))].map(s => (
-                            <option key={s} value={s}>{s}</option>
+                        {callStatusOptions.map(opt => (
+                            <option 
+                                key={opt.value} 
+                                value={opt.value}
+                                disabled={opt.disabled}
+                                className={opt.disabled ? 'text-gray-400 bg-gray-100' : 'text-gray-900 font-medium'}
+                            >
+                                {opt.label}
+                            </option>
                         ))}
                     </select>
                 </div>
@@ -255,6 +380,111 @@ export default function LeadDetailsModal({ lead, draftCallStatus, proposalServic
                             placeholder="Why was this lead rejected?"
                             className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#111111]"
                         />
+                    </div>
+                )}
+
+                {callStatus === 'Called' && (
+                    <div className="p-4 bg-gradient-to-r from-blue-50/70 to-indigo-50/50 rounded-2xl border border-blue-200/70 space-y-3.5">
+                        <div className="flex items-center justify-between border-b border-blue-200/60 pb-2">
+                            <h4 className="font-bold text-blue-900 text-sm flex items-center gap-1.5">
+                                <Zap size={16} className="text-yellow-500 fill-yellow-400" />
+                                FITS Qualification Assessment
+                            </h4>
+                            <span className="text-[11px] text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full font-semibold">
+                                Called Flow
+                            </span>
+                        </div>
+
+                        {/* 1. Familiarity */}
+                        <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                                1. Familiarity (Familierity)
+                            </label>
+                            <select
+                                value={fitsFamiliarity}
+                                onChange={e => setFitsFamiliarity(e.target.value)}
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800"
+                            >
+                                <option value="">-- Select Familiarity --</option>
+                                <option value="No">No</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+
+                        {/* 2. Intention */}
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                                2. Intention
+                            </label>
+                            <select
+                                value={fitsIntention}
+                                onChange={e => setFitsIntention(e.target.value)}
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800"
+                            >
+                                <option value="">-- Select Intention --</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                            <div>
+                                <label className="text-[11px] text-slate-600 font-semibold block mb-0.5">
+                                    Reason for Intention (Edhanala select nu type pannanum):
+                                </label>
+                                <textarea
+                                    rows={2}
+                                    value={fitsIntentionReason}
+                                    onChange={e => setFitsIntentionReason(e.target.value)}
+                                    placeholder="Enter reason for selection..."
+                                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 resize-none"
+                                />
+                            </div>
+                        </div>
+
+                        {/* 3. Time */}
+                        <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                                3. Time
+                            </label>
+                            <select
+                                value={fitsTime}
+                                onChange={e => setFitsTime(e.target.value)}
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800"
+                            >
+                                <option value="">-- Select Time --</option>
+                                <option value="Fast">Fast</option>
+                                <option value="Move">Move</option>
+                                <option value="Stand">Stand</option>
+                            </select>
+                        </div>
+
+                        {/* 4. Spend */}
+                        <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                                4. Spend
+                            </label>
+                            <select
+                                value={fitsSpend}
+                                onChange={e => setFitsSpend(e.target.value)}
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800"
+                            >
+                                <option value="">-- Select Spend --</option>
+                                <option value="Speed">Speed</option>
+                                <option value="Slow">Slow</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+                        {/* Status preview */}
+                        {isFitsQualified ? (
+                            <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span>✨ Matched! Saving will automatically qualify this lead and move to <strong>Qualified</strong>.</span>
+                            </div>
+                        ) : (
+                            <div className="p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs">
+                                F: Med/High + I: Yes + T: Fast/Move + S: Speed/Slow qualifies the lead automatically.
+                            </div>
+                        )}
                     </div>
                 )}
 

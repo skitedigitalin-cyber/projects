@@ -62,6 +62,20 @@
     background: #fff;
 }
 
+.dashboard-card-clickable {
+    cursor: pointer;
+    transition: transform 160ms cubic-bezier(.2,.75,.25,1), box-shadow 160ms cubic-bezier(.2,.75,.25,1);
+}
+
+.dashboard-card-clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card-clickable:active {
+    transform: translateY(0);
+}
+
 .dashboard-number-collected {
     grid-column: span 2;
     flex-flow: row wrap;

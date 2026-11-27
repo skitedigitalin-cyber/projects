@@ -39,7 +39,15 @@ const leadSchema = new mongoose.Schema({
     // ---- New fields for Call Status Tracking ----
     callStatus: {
         type: String,
-        default: 'Lead' // Can be Lead, Callback (1)..(5), Not Attend, Rejected, Waiting List
+        default: 'Lead' // Can be Lead, Called, Callback (1)..(5), Not Attend, Rejected, Waiting List
+    },
+    // ---- FITS Assessment ----
+    fits: {
+        familiarity: { type: String, default: '' }, // No, Medium, High
+        intention: { type: String, default: '' },   // Yes, No
+        intentionReason: { type: String, default: '' },
+        time: { type: String, default: '' },        // Fast, Move, Stand
+        spend: { type: String, default: '' }        // Speed, Slow, No
     },
     callbackAlertDate: String,
     callbackAlertTime: String,

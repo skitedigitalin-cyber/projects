@@ -8,7 +8,7 @@ const summarizeCollections = require('../utils/dashboardCollections');
 const summarizePipeline = require('../utils/dashboardPipeline');
 const loadDashboardTeam = require('../utils/dashboardTeam');
 const { getDashboardTarget } = require('./salesTargetController');
-const { conversionChange, countMonthlyWins } = require('../utils/leadConversions');
+const { conversionChange, countMonthlyWins, countPeriodWins } = require('../utils/leadConversions');
 
 exports.getDashboardStats = async (req, res) => {
     try {
@@ -102,6 +102,7 @@ exports.getDashboardStats = async (req, res) => {
             conversionRate,
             convertedCount,
             monthlyWins: countMonthlyWins(leads, now),
+            periodWins: countPeriodWins(leads, now),
             ...summarizePipeline(leads, now),
             collections,
             overview,
@@ -224,6 +225,38 @@ exports.updateLead = async (req, res) => {
         const updates = { ...req.body };
         delete updates.tenantId;
         delete updates.convertedAt;
+
+        // Sequential Callback Guard: Cannot jump ahead to higher callbacks without completing earlier ones
+        if (typeof updates.callStatus === 'string') {
+            const cbMatch = updates.callStatus.match(/Callback\s*\(?(\d)\)?/i);
+            if (cbMatch) {
+                const requestedLevel = parseInt(cbMatch[1], 10);
+                const existing = await Lead.findOne(filter).select('callStatus callback1Description callback2Description callback3Description callback4Description callback5Description callHistory').lean();
+                if (existing) {
+                    let highestSaved = 0;
+                    ['1', '2', '3', '4', '5'].forEach(n => {
+                        if (existing['callback' + n + 'Description'] && String(existing['callback' + n + 'Description']).trim()) {
+                            highestSaved = Math.max(highestSaved, parseInt(n, 10));
+                        }
+                    });
+                    const sMatch = (existing.callStatus || '').match(/Callback\s*\(?(\d)\)?/i);
+                    if (sMatch) highestSaved = Math.max(highestSaved, parseInt(sMatch[1], 10));
+                    if (Array.isArray(existing.callHistory)) {
+                        existing.callHistory.forEach(h => {
+                            const hStatus = typeof h === 'string' ? h : h?.status || h?.callStatus || '';
+                            const m = hStatus.match(/Callback\s*\(?(\d)\)?/i);
+                            if (m) highestSaved = Math.max(highestSaved, parseInt(m[1], 10));
+                        });
+                    }
+                    const nextAllowed = Math.min(5, highestSaved + 1);
+                    if (requestedLevel > nextAllowed) {
+                        return res.status(400).json({
+                            message: `Callback (${requestedLevel}) is locked. Please complete Callback (${nextAllowed}) first.`
+                        });
+                    }
+                }
+            }
+        }
 
         const callHistoryEntry = typeof updates.callStatus === 'string'
             ? { status: updates.callStatus, date: new Date() } : null;

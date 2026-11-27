@@ -553,7 +553,7 @@ export default function LandingPage() {
                                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
                                     <div className="flex justify-between text-slate-500">
                                         <span>Merchant:</span>
-                                        <span className="font-semibold text-slate-800">Skite Prime Cloud ERP</span>
+                                        <span className="font-semibold text-slate-800">Skite Cloud ERP</span>
                                     </div>
                                     <div className="flex justify-between text-slate-500">
                                         <span>Card/Account:</span>

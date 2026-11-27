@@ -31,8 +31,15 @@ export default function Login() {
 
     return (
         <main className="public-page login-page">
-            <section className="login-brand-panel" aria-label="Skite Prime">
-                <Link to="/" className="public-brand"><span aria-hidden="true" /> skite</Link>
+            <section className="login-brand-panel" aria-label="Skite">
+                <Link to="/" className="public-brand">
+                    <img 
+                        src="https://skitedigital.in/assets/logo-DocXizzF.webp" 
+                        alt="Skite Logo" 
+                        className="h-10 w-auto object-contain bg-white/95 px-3 py-1.5 rounded-xl shadow-xs" 
+                        onError={(e) => { e.currentTarget.src = '/skite-logo.webp'; }} 
+                    />
+                </Link>
                 <p className="login-tagline">Leads, invoices and your team.<br /><span>One quiet place.</span></p>
                 <ul className="public-mono login-modules">
                     <li>Sales &amp; leads</li><li>GST invoicing</li><li>Attendance &amp; HR</li>

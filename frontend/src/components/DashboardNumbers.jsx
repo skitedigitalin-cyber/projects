@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import './DashboardNumbers.css';
 
 const rupees = new Intl.NumberFormat('en-IN', {
@@ -12,6 +13,7 @@ export function compactRupees(value) {
 }
 
 export default function DashboardNumbers({ stats, loading, period }) {
+    const navigate = useNavigate();
     const finance = stats?.collections;
     const selected = finance?.periods?.[period];
     const collected = period === 'month' ? finance?.collected : selected?.collected;
@@ -28,9 +30,30 @@ export default function DashboardNumbers({ stats, loading, period }) {
     const count = finance?.overdueCount;
     const fallback = loading ? 'Loading' : 'Data unavailable';
 
+    const periodWinsCount = period === 'today'
+        ? (stats?.periodWins?.today ?? 0)
+        : period === 'week'
+        ? (stats?.periodWins?.week ?? 0)
+        : (stats?.monthlyWins ?? stats?.periodWins?.month ?? 0);
+    const periodWinsLabel = period === 'today' ? 'won today' : period === 'week' ? 'won this week' : 'won this month';
+    const conversionNote = stats?.periodWins || stats?.monthlyWins != null
+        ? `${periodWinsCount} ${periodWinsLabel}`
+        : stats?.convertedCount != null
+        ? `${stats.convertedCount} won overall`
+        : stats
+        ? 'Overall lead conversion'
+        : fallback;
+
     return (
         <section className="dashboard-numbers" aria-label="Key numbers" aria-busy={loading}>
-            <article className="dashboard-number dashboard-number-collected">
+            <article
+                className="dashboard-number dashboard-number-collected dashboard-card-clickable"
+                onClick={() => navigate('/finance')}
+                role="button"
+                tabIndex={0}
+                title="View Finance & Collections"
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/finance'); } }}
+            >
                 <div className="dashboard-collection-value">
                     <span className="dashboard-number-label">{collectionLabel}</span>
                     <strong>{collected != null ? rupees.format(collected) : '—'}</strong>
@@ -51,14 +74,28 @@ export default function DashboardNumbers({ stats, loading, period }) {
                     </div>
                 )}
             </article>
-            <article className="dashboard-number">
+            <article
+                className="dashboard-number dashboard-card-clickable"
+                onClick={() => navigate('/sales')}
+                role="button"
+                tabIndex={0}
+                title="View Sales & Conversion"
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/sales'); } }}
+            >
                 <span className="dashboard-number-label">Conversion</span>
                 <div className="dashboard-number-detail">
                     <strong>{stats ? `${Number(stats.conversionRate ?? 0)}%` : '—'}</strong>
-                    <span className="dashboard-number-note">{stats?.monthlyWins != null ? `${stats.monthlyWins} won this month` : stats?.convertedCount != null ? `${stats.convertedCount} won overall` : stats ? 'Overall lead conversion' : fallback}</span>
+                    <span className="dashboard-number-note">{conversionNote}</span>
                 </div>
             </article>
-            <article className="dashboard-number">
+            <article
+                className="dashboard-number dashboard-card-clickable"
+                onClick={() => navigate('/finance')}
+                role="button"
+                tabIndex={0}
+                title="View Finance & Outstanding Invoices"
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/finance'); } }}
+            >
                 <span className="dashboard-number-label">Outstanding</span>
                 <div className="dashboard-number-detail">
                     <strong title={finance ? rupees.format(finance.outstanding) : undefined}>{finance ? compactRupees(finance.outstanding) : '—'}</strong>

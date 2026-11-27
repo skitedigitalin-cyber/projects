@@ -115,6 +115,13 @@
     letter-spacing: -.02em;
 }
 
+.skite-workspace-brand img {
+    height: 32px;
+    max-height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
 .skite-workspace-brand > span {
     display: grid;
     width: 28px;
@@ -205,6 +212,11 @@
     max-width: 1320px;
     margin-inline: auto;
     padding: 24px clamp(16px, 4vw, 56px) 64px;
+}
+
+.skite-workspace-main-full {
+    max-width: 100% !important;
+    padding: 16px clamp(12px, 1.5vw, 24px) 48px !important;
 }
 
 @media (max-width: 1000px) {

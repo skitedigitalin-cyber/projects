@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import './WorkspaceLayout.css';
 
-export default function Layout({ children, noPadding = false, workspace = false, pendingCount = 0, compactTools = false }) {
+export default function Layout({ children, noPadding = false, workspace = false, pendingCount = 0, compactTools = false, fullWidth = false }) {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
@@ -100,8 +100,13 @@ export default function Layout({ children, noPadding = false, workspace = false,
         return (
             <div className="skite-workspace">
                 <header className="skite-workspace-header">
-                    <Link to="/dashboard" className="skite-workspace-brand">
-                        <span aria-hidden="true" /> skite
+                    <Link to="/dashboard" className="skite-workspace-brand flex items-center">
+                        <img 
+                            src="https://skitedigital.in/assets/logo-DocXizzF.webp" 
+                            alt="Skite Logo" 
+                            className="h-8 max-h-8 w-auto object-contain" 
+                            onError={(e) => { e.currentTarget.src = '/skite-logo.webp'; }} 
+                        />
                     </Link>
                     <nav className="skite-workspace-nav" aria-label="Main navigation" hidden={isCollapsed}>
                         {navItems.map(item => (
@@ -141,7 +146,7 @@ export default function Layout({ children, noPadding = false, workspace = false,
                         </details>
                     </div>
                 </header>
-            <main className={noPadding ? undefined : 'skite-workspace-main'}>
+            <main className={noPadding ? undefined : fullWidth ? 'skite-workspace-main skite-workspace-main-full' : 'skite-workspace-main'}>
                 {children}
             </main>
             </div>
@@ -161,9 +166,16 @@ export default function Layout({ children, noPadding = false, workspace = false,
                 }`}
             >
                 <div className="w-64 flex flex-col h-full">
-                    {/* Header with Skite Prime & Close Toggle */}
+                    {/* Header with Skite Logo & Close Toggle */}
                     <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200/60">
-                        <h1 className="text-xl font-bold text-blue-700 tracking-tight">Skite Prime</h1>
+                        <Link to="/" className="flex items-center">
+                            <img 
+                                src="https://skitedigital.in/assets/logo-DocXizzF.webp" 
+                                alt="Skite Logo" 
+                                className="h-8 max-h-8 w-auto object-contain" 
+                                onError={(e) => { e.currentTarget.src = '/skite-logo.webp'; }}
+                            />
+                        </Link>
                         <button
                             onClick={toggleSidebar}
                             title="Close Sidebar (Ctrl+B)"

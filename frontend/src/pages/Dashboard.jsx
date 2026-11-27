@@ -79,7 +79,7 @@ function DashboardOverview({ viewSwitch }) {
                 </section>
 
                 <DashboardNumbers stats={stats} loading={loading} period={period} />
-                <DashboardActivity stats={stats} loading={loading} />
+                <DashboardActivity stats={stats} loading={loading} period={period} />
 
                 <DashboardSalesSnapshot stats={stats} loading={loading} now={now} />
             </div>

@@ -1,5 +1,5 @@
 import { ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { compactRupees } from './DashboardNumbers';
 import './DashboardActivity.css';
 
@@ -8,17 +8,25 @@ const month = new Intl.DateTimeFormat('en-GB', { month: 'short', timeZone: 'UTC'
 const currency = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
 const stageColors = ['#dededb', '#b2b2ae', '#7a7a76', '#111', '#ff6a3d'];
 
-function Today({ followUps, loading }) {
+function Today({ followUps, loading, navigate }) {
     return (
-        <section className="dashboard-panel" aria-labelledby="dashboard-today-title">
+        <section
+            className="dashboard-panel dashboard-card-clickable"
+            aria-labelledby="dashboard-today-title"
+            onClick={() => navigate('/sales')}
+            role="button"
+            tabIndex={0}
+            title="View Sales Follow-ups"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/sales'); } }}
+        >
             <header>
                 <h2 id="dashboard-today-title">Today</h2>
-                <Link to="/sales">See all →</Link>
+                <Link to="/sales" onClick={(e) => e.stopPropagation()}>See all →</Link>
             </header>
             {followUps?.length > 0 ? (
                 <ul className="dashboard-followups">
                     {followUps.map(item => (
-                        <li key={item.id}>
+                        <li key={item.id} onClick={(e) => e.stopPropagation()}>
                             <Link to={`/sales/lead/edit/${item.id}`}>
                                 <time dateTime={item.date} className={item.overdue ? 'dashboard-followup-overdue' : undefined}>
                                     {item.overdue ? 'Overdue' : time.format(new Date(item.date))}
@@ -34,26 +42,47 @@ function Today({ followUps, loading }) {
     );
 }
 
-function Pipeline({ stats, loading }) {
-    const stages = stats?.stages;
+function Pipeline({ stats, loading, period = 'month', navigate }) {
+    const periodData = stats?.pipelinePeriods?.[period] || {
+        stages: stats?.stages || [],
+        totalValue: stats?.totalPipelineValue || 0,
+        dealCount: stats?.dealCount ?? (stats?.stages ? stats.stages.reduce((total, stage) => total + stage.count, 0) : 0)
+    };
+    const stages = periodData.stages;
+    const totalValue = periodData.totalValue;
+    const dealCount = periodData.dealCount;
+    const periodLabel = {
+        today: 'Pipeline value today',
+        week: 'Pipeline value this week',
+        month: 'Pipeline value this month'
+    }[period] || 'Pipeline value across stages';
+
     return (
-        <section className="dashboard-panel" aria-labelledby="dashboard-pipeline-title">
+        <section
+            className="dashboard-panel dashboard-card-clickable"
+            aria-labelledby="dashboard-pipeline-title"
+            onClick={() => navigate('/sales')}
+            role="button"
+            tabIndex={0}
+            title="View Sales Pipeline"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/sales'); } }}
+        >
             <header>
                 <h2 id="dashboard-pipeline-title">Pipeline</h2>
-                <Link to="/sales" aria-label="View pipeline in Sales & Leads">
-                    {stages ? `${stages.reduce((total, stage) => total + stage.count, 0)} deals` : 'View pipeline'} →
+                <Link to="/sales" aria-label="View pipeline in Sales & Leads" onClick={(e) => e.stopPropagation()}>
+                    {stages ? `${dealCount} ${dealCount === 1 ? 'deal' : 'deals'}` : 'View pipeline'} →
                 </Link>
             </header>
-            <p className="dashboard-panel-amount">{stats ? compactRupees(stats.totalPipelineValue ?? 0) : '—'}</p>
-            <p className="dashboard-panel-muted">Pipeline value across stages</p>
+            <p className="dashboard-panel-amount">{stats ? compactRupees(totalValue ?? 0) : '—'}</p>
+            <p className="dashboard-panel-muted">{periodLabel}</p>
             {stages?.length > 0 ? (
                 <>
-                    <div className="dashboard-stage-track" aria-hidden="true">
+                    <div className="dashboard-stage-track" key={period} aria-hidden="true">
                         {stages.map((stage, index) => (
                             <span key={stage.name} style={{ flex: stage.count, background: stageColors[Math.min(index, stageColors.length - 1)] }} />
                         ))}
                     </div>
-                    <ul className="dashboard-stages">
+                    <ul className="dashboard-stages" key={`stages-${period}`}>
                         {stages.map((stage, index) => (
                             <li key={stage.name}>
                                 <span className="dashboard-stage-dot" style={{ background: stageColors[Math.min(index, stageColors.length - 1)] }} />
@@ -67,10 +96,18 @@ function Pipeline({ stats, loading }) {
     );
 }
 
-function Revenue({ records, loading }) {
+function Revenue({ records, loading, navigate }) {
     const max = Math.max(1, ...(records || []).flatMap(record => [record.invoiced, record.collected]));
     return (
-        <section className="dashboard-panel" aria-labelledby="dashboard-revenue-title">
+        <section
+            className="dashboard-panel dashboard-card-clickable"
+            aria-labelledby="dashboard-revenue-title"
+            onClick={() => navigate('/finance')}
+            role="button"
+            tabIndex={0}
+            title="View Finance & Revenue"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/finance'); } }}
+        >
             <header>
                 <h2 id="dashboard-revenue-title">Revenue</h2>
                 <span className="dashboard-revenue-legend"><i /> Invoiced <i /> Collected</span>
@@ -95,9 +132,16 @@ function Revenue({ records, loading }) {
     );
 }
 
-function RatioCard({ title, value, note, progress, accent = false, comparison, children }) {
+function RatioCard({ title, value, note, progress, accent = false, comparison, onClick, children }) {
     return (
-        <article className="dashboard-panel dashboard-ratio">
+        <article
+            className={`dashboard-panel dashboard-ratio ${onClick ? 'dashboard-card-clickable' : ''}`}
+            onClick={onClick}
+            role={onClick ? 'button' : undefined}
+            tabIndex={onClick ? 0 : undefined}
+            title={title}
+            onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+        >
             <header><h3>{title}</h3>{comparison && <span>{comparison}</span>}</header>
             <div>
                 <strong>{value}</strong>
@@ -115,7 +159,7 @@ function RatioCard({ title, value, note, progress, accent = false, comparison, c
     );
 }
 
-function MonthlyRatios({ overview, salesTarget, loading }) {
+function MonthlyRatios({ overview, salesTarget, loading, navigate }) {
     const { attendance, projects, income, expense } = overview || {};
     const attendancePct = attendance?.scheduledDays ? Math.round(attendance.presentDays / attendance.scheduledDays * 100) : null;
     const projectPct = projects?.total ? Math.round(projects.completed / projects.total * 100) : null;
@@ -130,18 +174,37 @@ function MonthlyRatios({ overview, salesTarget, loading }) {
         <section className="dashboard-ratios" aria-labelledby="dashboard-ratios-title">
             <header><h2 id="dashboard-ratios-title">Monthly ratios</h2><span>{monthLabel}</span></header>
             <div className="dashboard-ratio-grid">
-                <RatioCard title="Attendance" value={attendancePct == null ? '—' : `${attendancePct}%`} progress={attendancePct}
-                    note={attendance?.scheduledDays ? `${attendance.presentDays} of ${attendance.scheduledDays} recorded employee days` : overview ? 'No working days recorded' : unavailable} />
-                <RatioCard title="Sales vs target" value={targetPct == null ? '—' : `${targetPct}%`} progress={targetPct}
+                <RatioCard
+                    title="Attendance"
+                    value={attendancePct == null ? '—' : `${attendancePct}%`}
+                    progress={attendancePct}
+                    note={attendance?.scheduledDays ? `${attendance.presentDays} of ${attendance.scheduledDays} recorded employee days` : overview ? 'No working days recorded' : unavailable}
+                    onClick={() => navigate('/hr')}
+                />
+                <RatioCard
+                    title="Sales vs target"
+                    value={targetPct == null ? '—' : `${targetPct}%`}
+                    progress={targetPct}
                     comparison={targetChange == null ? null : `${targetChange > 0 ? '+' : ''}${targetChange} pts vs last month`}
                     note={targetPct == null ? loading ? 'Loading target…' : 'No monthly sales target configured'
-                        : `${compactRupees(salesTarget.collected)} of ${compactRupees(salesTarget.target)} target`} accent />
-                <RatioCard title="Income : Expense" value={expense > 0 ? `${(income / expense).toFixed(1)} : 1` : '—'}
-                    note={overview ? `In ${compactRupees(income)} · Out ${compactRupees(expense)}` : unavailable}>
+                        : `${compactRupees(salesTarget.collected)} of ${compactRupees(salesTarget.target)} target`}
+                    accent
+                    onClick={() => navigate('/sales')}
+                />
+                <RatioCard
+                    title="Income : Expense"
+                    value={expense > 0 ? `${(income / expense).toFixed(1)} : 1` : '—'}
+                    note={overview ? `In ${compactRupees(income)} · Out ${compactRupees(expense)}` : unavailable}
+                    onClick={() => navigate('/accounts')}
+                >
                     {income + expense > 0 && <div className="dashboard-ratio-segments" aria-hidden="true"><i style={{ flex: income }} /><i style={{ flex: expense }} /></div>}
                 </RatioCard>
-                <RatioCard title="Project completion" value={projectPct == null ? '—' : `${projectPct}%`}
-                    note={projects ? `${projects.completed} of ${projects.total} done · ${projects.overdue} late` : unavailable}>
+                <RatioCard
+                    title="Project completion"
+                    value={projectPct == null ? '—' : `${projectPct}%`}
+                    note={projects ? `${projects.completed} of ${projects.total} done · ${projects.overdue} late` : unavailable}
+                    onClick={() => navigate('/team-management')}
+                >
                     {projects?.total > 0 && <div className="dashboard-project-segments" aria-hidden="true">
                         {Array.from({ length: Math.min(12, projects.total) }, (_, index) => {
                             const count = Math.min(12, projects.total);
@@ -156,9 +219,17 @@ function MonthlyRatios({ overview, salesTarget, loading }) {
     );
 }
 
-function Team({ team, loading }) {
+function Team({ team, loading, navigate }) {
     return (
-        <section className="dashboard-panel" aria-labelledby="dashboard-team-title">
+        <section
+            className="dashboard-panel dashboard-card-clickable"
+            aria-labelledby="dashboard-team-title"
+            onClick={() => navigate('/team-management')}
+            role="button"
+            tabIndex={0}
+            title="View Team Management"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/team-management'); } }}
+        >
             <header><h2 id="dashboard-team-title">Team</h2>{team && <span>{team.present} of {team.total} in today</span>}</header>
             {team?.members.length > 0 ? (
                 <ul className="dashboard-team">
@@ -179,15 +250,16 @@ function Team({ team, loading }) {
     );
 }
 
-export default function DashboardActivity({ stats, loading }) {
+export default function DashboardActivity({ stats, loading, period = 'month' }) {
+    const navigate = useNavigate();
     return (
         <>
-            <MonthlyRatios overview={stats?.overview} salesTarget={stats?.salesTarget} loading={loading} />
+            <MonthlyRatios overview={stats?.overview} salesTarget={stats?.salesTarget} loading={loading} navigate={navigate} />
             <div className="dashboard-activity">
-                <Today followUps={stats?.followUps} loading={loading} />
-                <Pipeline stats={stats} loading={loading} />
-                <Revenue records={stats?.collections?.revenue} loading={loading} />
-                <Team team={stats?.overview?.team} loading={loading} />
+                <Today followUps={stats?.followUps} loading={loading} navigate={navigate} />
+                <Pipeline stats={stats} loading={loading} period={period} navigate={navigate} />
+                <Revenue records={stats?.collections?.revenue} loading={loading} navigate={navigate} />
+                <Team team={stats?.overview?.team} loading={loading} navigate={navigate} />
             </div>
         </>
     );
